@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.onosproject.aaa;
+package org.opencord.aaa;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -51,19 +51,19 @@ public class StateMachineTest {
      */
     public void basic() throws StateMachineException {
         System.out.println("======= BASIC =======.");
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
     }
 
     @Test
@@ -73,19 +73,19 @@ public class StateMachineTest {
     public void testIdleState() throws StateMachineException {
         System.out.println("======= IDLE STATE TEST =======.");
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
 
         stateMachine.denyAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
     }
 
     @Test
@@ -97,19 +97,19 @@ public class StateMachineTest {
         stateMachine.start();
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.denyAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
     }
 
     @Test
@@ -123,19 +123,19 @@ public class StateMachineTest {
         stateMachine.requestAccess();
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
 
         stateMachine.denyAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
     }
 
     @Test
@@ -149,19 +149,19 @@ public class StateMachineTest {
         stateMachine.requestAccess();
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.denyAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
     }
 
     @Test
@@ -175,19 +175,19 @@ public class StateMachineTest {
         stateMachine.authorizeAccess();
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
 
         stateMachine.denyAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
     }
 
     @Test
@@ -201,19 +201,19 @@ public class StateMachineTest {
         stateMachine.denyAccess();
 
         stateMachine.start();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
 
         stateMachine.requestAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
 
         stateMachine.authorizeAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
 
         stateMachine.denyAccess();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
 
         stateMachine.logoff();
-        Assert.assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
+        assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
     }
 
 

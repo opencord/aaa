@@ -21,15 +21,27 @@
 
     <parent>
         <groupId>org.onosproject</groupId>
-        <artifactId>onos-apps</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>onos</artifactId>
+        <version>1.6.0-SNAPSHOT</version>
+        <relativePath></relativePath>
     </parent>
 
-    <artifactId>onos-app-aaa</artifactId>
+    <groupId>org.opencord</groupId>
+    <artifactId>aaa</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>ONOS authentication application</description>
+
+    <properties>
+        <onos.app.name>org.opencord.aaa</onos.app.name>
+        <onos.version>1.6.0-SNAPSHOT</onos.version>
+        <onos.app.title>AAA App</onos.app.title>
+        <onos.app.category>Traffic Steering</onos.app.category>
+        <onos.app.url>http://opencord.org</onos.app.url>
+        <onos.app.readme>IGMP implementation.</onos.app.readme>
+        <onos.app.requires>org.opencord.config</onos.app.requires>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -40,7 +52,7 @@
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onos-api</artifactId>
-            <version>${project.version}</version>
+            <version>${onos.version}</version>
         </dependency>
 
         <dependency>
@@ -52,15 +64,13 @@
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onlab-osgi</artifactId>
-            <version>${project.version}</version>
-            <classifier>tests</classifier>
-            <scope>test</scope>
+            <version>${onos.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onos-api</artifactId>
-            <version>${project.version}</version>
+            <version>${onos.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -68,12 +78,43 @@
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onos-cli</artifactId>
-            <version>${project.version}</version>
+            <version>${onos.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- TODO FIX ONOS ROOT POM to split thirdparty and onos dependencies -->
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onos-incubator-api</artifactId>
+            <version>${onos.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onos-core-common</artifactId>
+            <version>${onos.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onlab-misc</artifactId>
+            <version>${onos.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onlab-junit</artifactId>
+            <version>${onos.version}</version>
         </dependency>
     </dependencies>
 

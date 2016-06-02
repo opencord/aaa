@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.aaa;
+package org.opencord.aaa;
 
 import org.junit.Before;
 import org.junit.Ignore;

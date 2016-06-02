@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.onosproject.aaa;
+package org.opencord.aaa;
 
 /**
  * Exception raised when the transition from one state to another is invalid.

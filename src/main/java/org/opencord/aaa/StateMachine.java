@@ -16,7 +16,7 @@
  *
  */
 
-package org.onosproject.aaa;
+package org.opencord.aaa;
 
 import java.util.BitSet;
 import java.util.Map;

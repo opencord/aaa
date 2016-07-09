@@ -31,7 +31,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-     <!--FIXME remove this one the released bits are out-->
+ <!--     
       <repositories>
         <repository>
           <id>oss-staging</id>
@@ -39,6 +39,7 @@
           <url>https://oss.sonatype.org/content/groups/staging</url>
         </repository>
       </repositories>
+-->
 
     <description>ONOS authentication application</description>
 

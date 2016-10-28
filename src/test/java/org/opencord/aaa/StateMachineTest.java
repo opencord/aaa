@@ -201,16 +201,16 @@ public class StateMachineTest {
         stateMachine.denyAccess();
 
         stateMachine.start();
-        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_STARTED);
 
         stateMachine.requestAccess();
-        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_PENDING);
 
         stateMachine.authorizeAccess();
-        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
 
         stateMachine.denyAccess();
-        assertEquals(stateMachine.state(), StateMachine.STATE_UNAUTHORIZED);
+        assertEquals(stateMachine.state(), StateMachine.STATE_AUTHORIZED);
 
         stateMachine.logoff();
         assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);

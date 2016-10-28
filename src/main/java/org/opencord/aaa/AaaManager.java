@@ -462,10 +462,10 @@ public class AaaManager {
                     break;
                 case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                     //send an EAPOL - Success to the supplicant.
-                    byte[] eapMessage =
+                    byte[] eapMessageSuccess =
                             radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
                     eapPayload = new EAP();
-                    eapPayload = (EAP) eapPayload.deserialize(eapMessage, 0, eapMessage.length);
+                    eapPayload = (EAP) eapPayload.deserialize(eapMessageSuccess, 0, eapMessageSuccess.length);
                     eth = buildEapolResponse(stateMachine.supplicantAddress(),
                                              MacAddress.valueOf(nasMacAddress),
                                              stateMachine.vlanId(),
@@ -477,6 +477,17 @@ public class AaaManager {
                     break;
                 case RADIUS.RADIUS_CODE_ACCESS_REJECT:
                     stateMachine.denyAccess();
+                    //send an EAPOL - Failure to the supplicant.
+                    byte[] eapMessageFailure =
+                            radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
+                    eapPayload = new EAP();
+                    eapPayload = (EAP) eapPayload.deserialize(eapMessageFailure, 0, eapMessageFailure.length);
+                    eth = buildEapolResponse(stateMachine.supplicantAddress(),
+                                             MacAddress.valueOf(nasMacAddress),
+                                             stateMachine.vlanId(),
+                                             EAPOL.EAPOL_PACKET,
+                                             eapPayload);
+                    sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                     break;
                 default:
                     log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());

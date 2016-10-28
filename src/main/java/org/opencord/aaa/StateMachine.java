@@ -80,7 +80,7 @@ class StateMachine {
        input
        ----------------------------------------------------------------------------------------------------
 
-       START                STARTED |   _               |   _               |   STARTED     |   _
+       START                STARTED |   _               |   _               |   STARTED     |   STARTED
 
        REQUEST_ACCESS       _       |   PENDING         |   _               |   _           |   _
 
@@ -100,7 +100,7 @@ class StateMachine {
     private int[] authorizedTransition =
             {STATE_STARTED, STATE_AUTHORIZED, STATE_AUTHORIZED, STATE_AUTHORIZED, STATE_IDLE};
     private int[] unauthorizedTransition =
-            {STATE_UNAUTHORIZED, STATE_UNAUTHORIZED, STATE_UNAUTHORIZED, STATE_UNAUTHORIZED, STATE_IDLE};
+            {STATE_STARTED, STATE_UNAUTHORIZED, STATE_UNAUTHORIZED, STATE_UNAUTHORIZED, STATE_IDLE};
 
     //THE TRANSITION TABLE
     private int[][] transition =
@@ -521,6 +521,10 @@ class StateMachine {
     class Unauthorized extends State {
         private final Logger log = getLogger(getClass());
         private String name = "UNAUTHORIZED_STATE";
+
+        public void start() {
+            log.info("Moving from UNAUTHORIZED state to STARTED state.");
+        }
 
         public void logoff() {
             log.info("Moving from UNAUTHORIZED state to IDLE state.");

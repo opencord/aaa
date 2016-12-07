@@ -28,7 +28,7 @@ import java.net.UnknownHostException;
 public class AaaConfig extends Config<ApplicationId> {
 
     private static final String RADIUS_IP = "radiusIp";
-    private static final String RADIUS_SERVER_PORT = "1812";
+    private static final String RADIUS_SERVER_PORT = "radiusServerPort";
     private static final String RADIUS_MAC = "radiusMac";
     private static final String NAS_IP = "nasIp";
     private static final String NAS_MAC = "nasMac";
@@ -55,7 +55,7 @@ public class AaaConfig extends Config<ApplicationId> {
     protected static final String DEFAULT_RADIUS_SWITCH = "of:90e2ba82f97791e9";
 
     // Radius Port Number
-    protected static final String DEFAULT_RADIUS_PORT = "129";
+    protected static final String DEFAULT_RADIUS_PORT = "1811";
 
     // Radius Server UDP Port Number
     protected static final String DEFAULT_RADIUS_SERVER_PORT = "1812";

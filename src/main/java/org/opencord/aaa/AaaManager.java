@@ -168,7 +168,7 @@ public class AaaManager {
         try {
             radiusSocket = new DatagramSocket(null);
             radiusSocket.setReuseAddress(true);
-            radiusSocket.bind(new InetSocketAddress(radiusServerPort));
+            radiusSocket.bind(new InetSocketAddress((int) radiusPort));
         } catch (Exception ex) {
             log.error("Can't open RADIUS socket", ex);
         }
@@ -191,7 +191,7 @@ public class AaaManager {
 
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
-        requestIntercepts();
+        //requestIntercepts();
 
         StateMachine.initializeMaps();
 
@@ -201,7 +201,7 @@ public class AaaManager {
 
     @Deactivate
     public void deactivate() {
-        withdrawIntercepts();
+        //withdrawIntercepts();
         // de-register and null our handler
         packetService.removeProcessor(processor);
         processor = null;
@@ -488,11 +488,13 @@ public class AaaManager {
                         eapMessageFailure = radiusAttrEap.getValue();
                         eapPayload = (EAP) eapPayload.deserialize(eapMessageFailure, 0, eapMessageFailure.length);
                     }
+                    log.info(eapPayload.toString());
                     eth = buildEapolResponse(stateMachine.supplicantAddress(),
                                              MacAddress.valueOf(nasMacAddress),
                                              stateMachine.vlanId(),
                                              EAPOL.EAPOL_PACKET,
                                              eapPayload);
+                    log.info(eth.toString());
                     sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                     stateMachine.denyAccess();
                     break;

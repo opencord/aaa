@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa0f191f_e073d6e5",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2016-12-12T22:01:48Z",
+      "side": 1,
+      "message": "Why is this commented out?",
+      "range": {
+        "startLine": 194,
+        "startChar": 10,
+        "endLine": 194,
+        "endChar": 27
+      },
+      "revId": "756031c8dd82cd15f938e6689fb13f8c3af9ab7e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

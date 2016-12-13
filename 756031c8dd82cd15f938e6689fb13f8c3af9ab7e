@@ -22,6 +22,29 @@
       "revId": "756031c8dd82cd15f938e6689fb13f8c3af9ab7e",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa0f191f_43096c2b",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2016-12-13T00:48:04Z",
+      "side": 1,
+      "message": "requestIntercepts/withdrawIntercepts are needed when using aaa app without volt-ha for standalone testing of radius server with aaa.\ncord-tester tls test cases would be broken.",
+      "range": {
+        "startLine": 204,
+        "startChar": 10,
+        "endLine": 204,
+        "endChar": 28
+      },
+      "revId": "756031c8dd82cd15f938e6689fb13f8c3af9ab7e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

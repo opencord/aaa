@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa0f191f_23b9d8e9",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2016-12-14T18:00:18Z",
+      "side": 1,
+      "message": "I don\u0027t think we should be logging entire packets - this will spam the logs with too much information.",
+      "revId": "685fd8d693443cacdd2363c812169f515edbb533",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

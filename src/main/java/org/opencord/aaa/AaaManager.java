@@ -181,9 +181,7 @@ public class AaaManager {
 
     @Activate
     public void activate() {
-        netCfgService.addListener(cfgListener);
         netCfgService.registerConfigFactory(factory);
-
         // "org.onosproject.aaa" is the FQDN of our app
         appId = coreService.registerApplication("org.onosproject.aaa");
 
@@ -196,6 +194,8 @@ public class AaaManager {
         StateMachine.initializeMaps();
 
         initializeLocalState();
+        netCfgService.addListener(cfgListener);
+
         log.info("Started");
     }
 

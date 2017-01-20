@@ -69,6 +69,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 @Component(immediate = true)
 public class AaaManager {
+    private static final String APP_NAME = "org.opencord.aaa";
 
     // for verbose output
     private final Logger log = getLogger(getClass());
@@ -183,7 +184,7 @@ public class AaaManager {
     public void activate() {
         netCfgService.registerConfigFactory(factory);
         // "org.onosproject.aaa" is the FQDN of our app
-        appId = coreService.registerApplication("org.onosproject.aaa");
+        appId = coreService.registerApplication(APP_NAME);
 
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
 

@@ -169,7 +169,7 @@ public class AaaManager {
         try {
             radiusSocket = new DatagramSocket(null);
             radiusSocket.setReuseAddress(true);
-            radiusSocket.bind(new InetSocketAddress(radiusServerPort));
+            radiusSocket.bind(new InetSocketAddress((int) radiusPort));
         } catch (Exception ex) {
             log.error("Can't open RADIUS socket", ex);
         }

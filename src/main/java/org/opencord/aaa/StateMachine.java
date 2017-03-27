@@ -359,6 +359,7 @@ class StateMachine {
         states[currentState].start();
         //move to the next state
         next(TRANSITION_START);
+        deleteIdentifier();
         createIdentifier();
         identifierMap.put(identifier, this);
     }

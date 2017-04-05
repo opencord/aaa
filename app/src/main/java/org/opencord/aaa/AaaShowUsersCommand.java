@@ -37,8 +37,26 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
             String deviceId = stateMachine.supplicantConnectpoint().deviceId().toString();
             String portNum = stateMachine.supplicantConnectpoint().port().toString();
             String username = new String(stateMachine.username());
-            print("UserName=%s,CurrentState=%s,DeviceId=%s,PortNumber=%s",
-                  username, state[stateMachine.state()], deviceId, portNum);
+            print("UserName=%s,CurrentState=%s,DeviceId=%s,PortNumber=%s,MAC=%s",
+                  username, state[stateMachine.state()], deviceId, portNum,
+                    stateMachine.supplicantAddress().toString());
+        }
+
+        for (AaaUserInfo info : AaaManager.usersMap.values()) {
+            String curState = info.state();
+            if (curState == null) {
+                // means the subscriber currently on-going authentication and the rest of the
+                // fields except for username would be null
+                continue;
+            }
+            String deviceId = info.deviceId().toString();
+            String portNum = info.port().toString();
+            String username = new String(info.userName());
+            String mac = info.macAddress().toString();
+            String otherInfo = info.otherInfo();
+            print("UserName=%s,CurrentState=%s,DeviceId=%s,PortNumber=%s,MAC=%s,Info=%s",
+                    username, curState, deviceId, portNum,
+                    mac, otherInfo);
         }
     }
 }

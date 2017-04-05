@@ -18,7 +18,6 @@
 
 package org.opencord.aaa;
 
-import java.util.BitSet;
 import java.util.Map;
 
 import org.onlab.packet.MacAddress;
@@ -48,10 +47,7 @@ class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
-    //map of access identifiers (issued at EAPOL START)
-    static BitSet bitSet = new BitSet();
-
-    private int identifier = -1;
+    private static int identifier = -1;
     private byte challengeIdentifier;
     private byte[] challengeState;
     private byte[] username;
@@ -61,6 +57,7 @@ class StateMachine {
     private ConnectPoint supplicantConnectpoint;
     private MacAddress supplicantAddress;
     private short vlanId;
+    private byte priorityCode;
 
     private String sessionId = null;
 
@@ -134,7 +131,14 @@ class StateMachine {
 
     public static StateMachine lookupStateMachineBySessionId(String sessionId) {
         return sessionIdMap.get(sessionId);
-    }    /**
+    }
+
+    public static void deleteStateMachineMappings(StateMachine machine) {
+        sessionIdMap.entrySet().removeIf(e-> e.getValue().equals(machine));
+        identifierMap.entrySet().removeIf(e-> e.getValue().equals(machine));
+    }
+
+    /**
      * State Machine Constructor.
      *
      * @param sessionId   session Id represented by the switch dpid +  port number
@@ -200,36 +204,30 @@ class StateMachine {
     }
 
     /**
+     * Gets the client's priority Code.
+     *
+     * @return client Priority code
+     */
+    public byte priorityCode() {
+        return priorityCode;
+    }
+
+    /**
+     * Sets the client's priority Code.
+     *
+     * @param priorityCode new client priority Code
+     */
+    public void setPriorityCode(byte priorityCode) {
+        this.priorityCode = priorityCode;
+    }
+
+    /**
      * Gets the client id that is requesting for access.
      *
      * @return The client id.
      */
     public String sessionId() {
         return this.sessionId;
-    }
-
-    /**
-     * Create the identifier for the state machine (happens when goes to STARTED state).
-     */
-    private void createIdentifier() throws StateMachineException {
-        log.debug("Creating Identifier.");
-        int index;
-
-        try {
-            //find the first available spot for identifier assignment
-            index = StateMachine.bitSet.nextClearBit(0);
-
-            //there is a limit of 256 identifiers
-            if (index == 256) {
-                throw new StateMachineException("Cannot handle any new identifier. Limit is 256.");
-            }
-        } catch (IndexOutOfBoundsException e) {
-            throw new StateMachineException(e.getMessage());
-        }
-
-        log.info("Assigning identifier {}", index);
-        StateMachine.bitSet.set(index);
-        this.identifier = index;
     }
 
     /**
@@ -325,20 +323,11 @@ class StateMachine {
      *
      * @return The state machine identifier.
      */
-    public byte identifier() {
+    public synchronized byte identifier() {
+        this.identifier = (this.identifier + 1) % 255;
+        identifierMap.put(this.identifier, this);
         return (byte) this.identifier;
     }
-
-
-    protected void deleteIdentifier() {
-        if (this.identifier != -1) {
-            log.info("Freeing up " + this.identifier);
-            //this state machine should be deleted and free up the identifier
-            StateMachine.bitSet.clear(this.identifier);
-            this.identifier = -1;
-        }
-    }
-
 
     /**
      * Move to the next state.
@@ -359,8 +348,8 @@ class StateMachine {
         states[currentState].start();
         //move to the next state
         next(TRANSITION_START);
-        createIdentifier();
-        identifierMap.put(identifier, this);
+        this.identifier = this.identifier();
+        //identifierMap.put(identifier, this);
     }
 
     /**
@@ -388,7 +377,8 @@ class StateMachine {
 
         // TODO: put in calls to launch vSG here
 
-        deleteIdentifier();
+        // Clear mappings
+        deleteStateMachineMappings(this);
     }
 
     /**
@@ -401,7 +391,8 @@ class StateMachine {
         states[currentState].radiusDenied();
         //move to the next state
         next(TRANSITION_DENY_ACCESS);
-        deleteIdentifier();
+        // Clear mappings
+        deleteStateMachineMappings(this);
     }
 
     /**

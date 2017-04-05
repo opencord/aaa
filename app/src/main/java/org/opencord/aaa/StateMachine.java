@@ -20,6 +20,7 @@ package org.opencord.aaa;
 
 import java.util.BitSet;
 import java.util.Map;
+import java.util.Iterator;
 
 import org.onlab.packet.MacAddress;
 import org.onosproject.net.ConnectPoint;
@@ -61,6 +62,7 @@ class StateMachine {
     private ConnectPoint supplicantConnectpoint;
     private MacAddress supplicantAddress;
     private short vlanId;
+    private byte priorityCode;
 
     private String sessionId = null;
 
@@ -197,6 +199,24 @@ class StateMachine {
      */
     public void setVlanId(short vlanId) {
         this.vlanId = vlanId;
+    }
+
+    /**
+     * Gets the client's priority Code.
+     *
+     * @return client Priority code
+     */
+    public byte priorityCode() {
+        return priorityCode;
+    }
+
+    /**
+     * Sets the client's priority Code.
+     *
+     * @param priorityCode new client priority Code
+     */
+    public void setPriorityCode(byte priorityCode) {
+        this.priorityCode = priorityCode;
     }
 
     /**
@@ -359,6 +379,7 @@ class StateMachine {
         states[currentState].start();
         //move to the next state
         next(TRANSITION_START);
+        deleteIdentifier();
         createIdentifier();
         identifierMap.put(identifier, this);
     }
@@ -424,6 +445,27 @@ class StateMachine {
      */
     public int state() {
         return currentState;
+    }
+
+    /**
+     * Get the port of authenticated subscriber.
+     *
+     * @param mac  MAC address of subscriber
+     * @return The connectPoint of subscriber
+     */
+    public static ConnectPoint getConnectPointIfAuthenticated(String mac) {
+        Map<String, StateMachine> sessionMap = StateMachine.sessionIdMap();
+        Iterator<Map.Entry<String, StateMachine>> entries = sessionMap.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry<String, StateMachine> entry = entries.next();
+            StateMachine stateMachine = entry.getValue();
+            if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
+                if (stateMachine.supplicantAddress().toString().equals(mac)) {
+                    return stateMachine.supplicantConnectpoint();
+                }
+            }
+        }
+        return null;
     }
 
     @Override

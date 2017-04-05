@@ -35,6 +35,9 @@ public class AaaConfig extends Config<ApplicationId> {
     private static final String RADIUS_SECRET = "radiusSecret";
     private static final String RADIUS_SWITCH = "radiusSwitch";
     private static final String RADIUS_PORT = "radiusPort";
+    private static final String RADIUS_VLAN_ID = "vlanId";
+    private static final String RADIUS_USE_SOCKET =  "useSocket";
+    private static final String PACKET_CUSTOMIZER_CLASS_NAME = "packetCustomizerClassName";
 
     // RADIUS server IP address
     protected static final String DEFAULT_RADIUS_IP = "10.128.10.4";
@@ -59,6 +62,16 @@ public class AaaConfig extends Config<ApplicationId> {
 
     // Radius Server UDP Port Number
     protected static final String DEFAULT_RADIUS_SERVER_PORT = "1812";
+
+    // Radius Server Vlan ID
+    protected static final String DEFAULT_RADIUS_VLAN_ID = "4093";
+
+    // Whether to use socket or not to communicate with RADIUS Server
+    protected static final String DEFAULT_RADIUS_USE_SOCKET = "true";
+
+    // Packet Customizer Default value
+    protected static final String DEFAULT_PACKET_CUSTOMIZER_CLASS_NAME = "";
+
 
     /**
      * Gets the value of a string property, protecting for an empty
@@ -234,6 +247,33 @@ public class AaaConfig extends Config<ApplicationId> {
      */
     public BasicElementConfig radiusServerUdpPort(short port) {
         return (BasicElementConfig) setOrClear(RADIUS_SERVER_PORT, (long) port);
+    }
+
+    /**
+     * Returns the RADIUS server vlan ID.
+     *
+     * @return Radius Server VLan id or default if not set
+     */
+    public short radiusServerVlanId() {
+        return Short.parseShort(getStringProperty(RADIUS_VLAN_ID, DEFAULT_RADIUS_VLAN_ID));
+    }
+
+    /**
+     * Returns whether to use socket or not for communication with RADIUS Server.
+     *
+     * @return true if socket is to be used else false
+     */
+    public Boolean radiusUseSocket() {
+        return Boolean.parseBoolean(getStringProperty(RADIUS_USE_SOCKET, DEFAULT_RADIUS_USE_SOCKET));
+    }
+
+    /**
+     * Returns the PACKET CUSTOMIZER CLASS NAME.
+     *
+     * @return PACKET CUSTOMIZER CLASS NAME or Null if not set
+     */
+    public String radiusPktCustomizerClassName() {
+        return getStringProperty(PACKET_CUSTOMIZER_CLASS_NAME, DEFAULT_PACKET_CUSTOMIZER_CLASS_NAME);
     }
 
 }

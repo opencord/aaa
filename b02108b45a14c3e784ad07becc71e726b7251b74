@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba092121_c2e1f39b",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaManagerService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2017-04-10T15:49:15Z",
+      "side": 1,
+      "message": "Remove comments",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 23
+      },
+      "revId": "b02108b45a14c3e784ad07becc71e726b7251b74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_a2eeff89",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2017-04-10T15:49:15Z",
+      "side": 1,
+      "message": "What is this for?",
+      "revId": "b02108b45a14c3e784ad07becc71e726b7251b74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_82f3fb72",
+        "filename": "app/src/main/java/org/opencord/aaa/RadiusPayloadCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2017-04-10T15:49:15Z",
+      "side": 1,
+      "message": "This is a default customizer?",
+      "revId": "b02108b45a14c3e784ad07becc71e726b7251b74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_62e8e77c",
+        "filename": "app/src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2017-04-10T15:49:15Z",
+      "side": 1,
+      "message": "The HostService should return this information.",
+      "revId": "b02108b45a14c3e784ad07becc71e726b7251b74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

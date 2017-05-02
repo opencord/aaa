@@ -39,6 +39,7 @@
         <onos.app.title>AAA App</onos.app.title>
         <onos.app.category>Security</onos.app.category>
         <onos.app.url>http://opencord.org</onos.app.url>
+        <onos.app.requires>org.onosproject.olt</onos.app.requires>
         <onos.app.readme>802.1x authentication service.</onos.app.readme>
     </properties>
 
@@ -67,6 +68,12 @@
             <groupId>org.onosproject</groupId>
             <artifactId>onlab-junit</artifactId>
             <version>${onos.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opencord</groupId>
+            <artifactId>olt-api</artifactId>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

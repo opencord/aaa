@@ -23,6 +23,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.Map;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -56,6 +57,7 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
+import org.opencord.olt.AccessDeviceService;
 import org.slf4j.Logger;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -86,6 +88,9 @@ public class AaaManager {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected NetworkConfigRegistry netCfgService;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected AccessDeviceService accessDeviceService;
+
     // Parsed RADIUS server addresses
     protected InetAddress radiusIpAddress;
     protected String radiusMacAddress;
@@ -105,6 +110,12 @@ public class AaaManager {
 
     // RADIUS server TCP port number
     protected short radiusServerPort;
+
+    // NAS Identifier
+    protected String nasId;
+
+    // bindings
+    protected Map<MacAddress, Info> info;
 
     // our application-specific event handler
     private ReactivePacketProcessor processor = new ReactivePacketProcessor();
@@ -169,7 +180,7 @@ public class AaaManager {
         try {
             radiusSocket = new DatagramSocket(null);
             radiusSocket.setReuseAddress(true);
-            radiusSocket.bind(new InetSocketAddress((int) radiusPort));
+            radiusSocket.bind(new InetSocketAddress((int) radiusServerPort));
         } catch (Exception ex) {
             log.error("Can't open RADIUS socket", ex);
         }
@@ -309,8 +320,35 @@ public class AaaManager {
             radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME,
                                        stateMachine.username());
 
+            radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_CALLING_STATION_ID,
+                            stateMachine.supplicantAddress().toBytes());
+
             radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
-                    AaaManager.this.nasIpAddress.getAddress());
+                            AaaManager.this.nasIpAddress.getAddress());
+
+            radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_ID,
+                            AaaManager.this.nasId.getBytes());
+
+            if (AaaManager.this.info.get(stateMachine.supplicantAddress()) != null) {
+
+                radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_PORT_ID,
+                                AaaManager.this.info.get(stateMachine.supplicantAddress())
+                                .nasPortId().getBytes());
+
+                radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_PORT_TYPE,
+                                ByteBuffer.allocate(4).putInt(
+                                        AaaManager.this.info.get(stateMachine.supplicantAddress())
+                                        .nasPortType()).array());
+
+                radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_PORT,
+                                ByteBuffer.allocate(4).putInt(
+                                        AaaManager.this.info.get(stateMachine.supplicantAddress())
+                                        .nasPort()).array());
+
+                radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_ACCT_SESSION_ID,
+                                AaaManager.this.info.get(stateMachine.supplicantAddress())
+                                .sessionId().getBytes());
+            }
 
             radiusPayload.encapsulateMessage(eapPacket);
 
@@ -332,16 +370,20 @@ public class AaaManager {
             String sessionId = deviceId.toString() + portNumber.toString();
             StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
             if (stateMachine == null) {
-                stateMachine = new StateMachine(sessionId);
+                stateMachine = new StateMachine(sessionId, accessDeviceService);
             }
 
-
             EAPOL eapol = (EAPOL) ethPkt.getPayload();
+            Info supplicantInfo = info.get(srcMac);
 
             switch (eapol.getEapolType()) {
                 case EAPOL.EAPOL_START:
                     stateMachine.start();
                     stateMachine.setSupplicantConnectpoint(inPacket.receivedFrom());
+
+                    if (supplicantInfo != null) {
+                        stateMachine.setCtag(supplicantInfo.ctag());
+                    }
 
                     //send an EAP Request/Identify to the supplicant
                     EAP eapPayload = new EAP(EAP.REQUEST, stateMachine.identifier(), EAP.ATTR_IDENTITY, null);
@@ -580,6 +622,10 @@ public class AaaManager {
             if (newCfg.radiusServerUdpPort() != -1) {
                 radiusServerPort = newCfg.radiusServerUdpPort();
             }
+            if (newCfg.nasId() != null) {
+                nasId = newCfg.nasId();
+            }
+            info = newCfg.info();
         }
 
         @Override

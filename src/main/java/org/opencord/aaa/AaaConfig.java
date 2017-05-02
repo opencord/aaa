@@ -15,12 +15,16 @@
  */
 package org.opencord.aaa;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Maps;
+import org.onlab.packet.MacAddress;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.basics.BasicElementConfig;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * Network config for the AAA app.
@@ -32,9 +36,11 @@ public class AaaConfig extends Config<ApplicationId> {
     private static final String RADIUS_MAC = "radiusMac";
     private static final String NAS_IP = "nasIp";
     private static final String NAS_MAC = "nasMac";
+    private static final String NAS_IDENTIFIER = "nasIdentifier";
     private static final String RADIUS_SECRET = "radiusSecret";
     private static final String RADIUS_SWITCH = "radiusSwitch";
     private static final String RADIUS_PORT = "radiusPort";
+    private static final String BINDINGS = "bindings";
 
     // RADIUS server IP address
     protected static final String DEFAULT_RADIUS_IP = "10.128.10.4";
@@ -47,6 +53,9 @@ public class AaaConfig extends Config<ApplicationId> {
 
     // NAS MAC address
     protected static final String DEFAULT_NAS_MAC = "00:00:00:00:10:01";
+
+    // NAS IDENTIFIER == NODE NAME
+    protected static final String DEFAULT_NAS_IDENTIFIER = "VOLT-123456";
 
     // RADIUS server shared secret
     protected static final String DEFAULT_RADIUS_SECRET = "ONOSecret";
@@ -73,6 +82,15 @@ public class AaaConfig extends Config<ApplicationId> {
             return defaultValue;
         }
         return get(name, defaultValue);
+    }
+
+    /**
+     * Returns the NAS Identifier.
+     *
+     * @return provided value or default if not set
+     */
+    public String nasId() {
+        return getStringProperty(NAS_IDENTIFIER, DEFAULT_NAS_IDENTIFIER);
     }
 
     /**
@@ -236,4 +254,22 @@ public class AaaConfig extends Config<ApplicationId> {
         return (BasicElementConfig) setOrClear(RADIUS_SERVER_PORT, (long) port);
     }
 
+    /**
+     * Get S and C tag bindings.
+     */
+    public Map<MacAddress, Info> info() {
+        Map<MacAddress, Info> info = Maps.newHashMap();
+        if (object == null) {
+            return info;
+        }
+        JsonNode bindings = object.path(BINDINGS);
+        bindings.forEach(jsonNode -> info.put(MacAddress.valueOf(jsonNode.path("mac").asText()),
+                                new Info((short) jsonNode.path("s-tag").asInt(),
+                                        (short) jsonNode.path("c-tag").asInt(),
+                                        (String) jsonNode.path("nas_port_id").asText(),
+                                        (int) jsonNode.path("nas_port_type").asInt(),
+                                        (int) jsonNode.path("nas_port").asInt(),
+                                        (String) jsonNode.path("session_id").asText())));
+        return info;
+    }
 }

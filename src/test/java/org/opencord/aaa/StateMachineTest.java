@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opencord.olt.AccessDeviceService;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -28,13 +29,14 @@ import static org.junit.Assert.assertNull;
 
 public class StateMachineTest {
     StateMachine stateMachine = null;
+    AccessDeviceService accessDeviceService = null;
 
     @Before
     public void setUp() {
         System.out.println("Set Up.");
         StateMachine.bitSet.clear();
         StateMachine.initializeMaps();
-        stateMachine = new StateMachine("session0");
+        stateMachine = new StateMachine("session0", accessDeviceService);
     }
 
     @After
@@ -233,7 +235,7 @@ public class StateMachineTest {
 
         //create 255 others state machines
         for (int i = 1; i <= 255; i++) {
-                StateMachine sm = new StateMachine("session" + i);
+                StateMachine sm = new StateMachine("session" + i, accessDeviceService);
                 sm.start();
                 byte id = sm.identifier();
                 Assert.assertEquals(i, Byte.toUnsignedInt(id));
@@ -259,13 +261,13 @@ public class StateMachineTest {
         sm3.authorizeAccess();
         sm3.logoff();
 
-        StateMachine otherSM3 = new StateMachine("session3b");
+        StateMachine otherSM3 = new StateMachine("session3b", accessDeviceService);
         otherSM3.start();
         otherSM3.requestAccess();
         byte id3 = otherSM3.identifier();
         Assert.assertEquals(3, Byte.toUnsignedInt(id3));
 
-        StateMachine otherSM247 = new StateMachine("session247b");
+        StateMachine otherSM247 = new StateMachine("session247b", accessDeviceService);
         otherSM247.start();
         otherSM247.requestAccess();
         byte id247 = otherSM247.identifier();
@@ -285,8 +287,8 @@ public class StateMachineTest {
                 StateMachine.lookupStateMachineBySessionId(sessionId2);
         assertNull(machine2ShouldBeNull);
 
-        StateMachine stateMachine1 = new StateMachine(sessionId1);
-        StateMachine stateMachine2 = new StateMachine(sessionId2);
+        StateMachine stateMachine1 = new StateMachine(sessionId1, accessDeviceService);
+        StateMachine stateMachine2 = new StateMachine(sessionId2, accessDeviceService);
 
         assertEquals(stateMachine1,
                      StateMachine.lookupStateMachineBySessionId(sessionId1));
@@ -307,9 +309,9 @@ public class StateMachineTest {
                 StateMachine.lookupStateMachineById((byte) 2);
         assertNull(machine2ShouldBeNull);
 
-        StateMachine stateMachine1 = new StateMachine(sessionId1);
+        StateMachine stateMachine1 = new StateMachine(sessionId1, accessDeviceService);
         stateMachine1.start();
-        StateMachine stateMachine2 = new StateMachine(sessionId2);
+        StateMachine stateMachine2 = new StateMachine(sessionId2, accessDeviceService);
         stateMachine2.start();
 
         assertEquals(stateMachine1,

@@ -22,7 +22,9 @@ import java.util.BitSet;
 import java.util.Map;
 
 import org.onlab.packet.MacAddress;
+import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
+import org.opencord.olt.AccessDeviceService;
 import org.slf4j.Logger;
 
 import com.google.common.collect.Maps;
@@ -50,6 +52,7 @@ class StateMachine {
 
     //map of access identifiers (issued at EAPOL START)
     static BitSet bitSet = new BitSet();
+    private final AccessDeviceService accessDeviceService;
 
     private int identifier = -1;
     private byte challengeIdentifier;
@@ -61,11 +64,11 @@ class StateMachine {
     private ConnectPoint supplicantConnectpoint;
     private MacAddress supplicantAddress;
     private short vlanId;
+    private short ctag;
 
     private String sessionId = null;
 
-    private final Logger log = getLogger(getClass());
-
+    private static final Logger log = getLogger(StateMachine.class);
 
     private State[] states = {
             new Idle(), new Started(), new Pending(), new Authorized(), new Unauthorized()
@@ -134,14 +137,26 @@ class StateMachine {
 
     public static StateMachine lookupStateMachineBySessionId(String sessionId) {
         return sessionIdMap.get(sessionId);
-    }    /**
+    }
+
+    /**
+     * deletes the given state machine from the active maps from various device identifiers.
+     */
+    public static void deleteStateMachineMappings(StateMachine machine) {
+        sessionIdMap.entrySet().removeIf(e-> e.getValue().equals(machine));
+        identifierMap.entrySet().removeIf(e-> e.getValue().equals(machine));
+    }
+
+    /**
      * State Machine Constructor.
      *
      * @param sessionId   session Id represented by the switch dpid +  port number
+     * @param accessDeviceService used to processing provisioning rules to the end device
      */
-    public StateMachine(String sessionId) {
-        log.info("Creating a new state machine for {}", sessionId);
+    public StateMachine(String sessionId, AccessDeviceService accessDeviceService) {
+        log.debug("Creating a new state machine for {}", sessionId);
         this.sessionId = sessionId;
+        this.accessDeviceService = accessDeviceService;
         sessionIdMap.put(sessionId, this);
     }
 
@@ -200,6 +215,24 @@ class StateMachine {
     }
 
     /**
+     * Sets the client's C-TAG.
+     *
+     * @param ctag new client CTAG
+     */
+    public void setCtag(short ctag) {
+        this.ctag = ctag;
+    }
+
+    /**
+     * Gets the client's CTAG.
+     *
+     * @return client's CTAG
+     */
+    public short ctag() {
+        return this.ctag;
+    }
+
+    /**
      * Gets the client id that is requesting for access.
      *
      * @return The client id.
@@ -209,10 +242,13 @@ class StateMachine {
     }
 
     /**
-     * Create the identifier for the state machine (happens when goes to STARTED state).
+     * Allocate an identifer from the 256 available. Note this means only 256 clients
+     * may authenticate concurrently.
+     *
+     * @return the allocated identifier
+     * @throws StateMachineException if all identifiers are in use
      */
-    private void createIdentifier() throws StateMachineException {
-        log.debug("Creating Identifier.");
+    private static synchronized int allocateIdentifier() throws StateMachineException {
         int index;
 
         try {
@@ -226,10 +262,26 @@ class StateMachine {
         } catch (IndexOutOfBoundsException e) {
             throw new StateMachineException(e.getMessage());
         }
-
-        log.info("Assigning identifier {}", index);
         StateMachine.bitSet.set(index);
-        this.identifier = index;
+        log.debug("Allocating state machine identifier {}", index);
+        return index;
+    }
+
+    /**
+     * Release an identifier for use by another client.
+     *
+     * @param identifier the identifier to release
+     */
+    protected static void releaseIdentifier(int identifier) {
+        if (identifier >= 0 && identifier < 256) {
+            log.debug("Releasing state machine identifier: {}", identifier);
+            // this state machine should be deleted and free up the identifier
+            synchronized (StateMachine.class) {
+                StateMachine.bitSet.clear(identifier);
+            }
+        } else {
+            log.debug("Attempting to release invalid state machine identifier: {}", identifier);
+        }
     }
 
     /**
@@ -310,7 +362,6 @@ class StateMachine {
         this.requestAuthenticator = authenticator;
     }
 
-
     /**
      * Gets the username.
      *
@@ -328,17 +379,6 @@ class StateMachine {
     public byte identifier() {
         return (byte) this.identifier;
     }
-
-
-    protected void deleteIdentifier() {
-        if (this.identifier != -1) {
-            log.info("Freeing up " + this.identifier);
-            //this state machine should be deleted and free up the identifier
-            StateMachine.bitSet.clear(this.identifier);
-            this.identifier = -1;
-        }
-    }
-
 
     /**
      * Move to the next state.
@@ -359,8 +399,8 @@ class StateMachine {
         states[currentState].start();
         //move to the next state
         next(TRANSITION_START);
-        createIdentifier();
-        identifierMap.put(identifier, this);
+        this.identifier = allocateIdentifier();
+        identifierMap.put(this.identifier, this);
     }
 
     /**
@@ -383,12 +423,18 @@ class StateMachine {
      */
     public void authorizeAccess() throws StateMachineException {
         states[currentState].radiusAccepted();
-        //move to the next state
+        // move to the next state
         next(TRANSITION_AUTHORIZE_ACCESS);
 
-        // TODO: put in calls to launch vSG here
+        if (accessDeviceService != null) {
+            accessDeviceService.provisionSubscriber(this.supplicantConnectpoint(),
+                            VlanId.vlanId(this.ctag));
+        }
 
-        deleteIdentifier();
+        // Clean up identifier usage
+        deleteStateMachineMappings(this);
+        releaseIdentifier(this.identifier);
+        this.identifier = -1;
     }
 
     /**
@@ -401,7 +447,11 @@ class StateMachine {
         states[currentState].radiusDenied();
         //move to the next state
         next(TRANSITION_DENY_ACCESS);
-        deleteIdentifier();
+
+        // Clean up identifier usage
+        deleteStateMachineMappings(this);
+        releaseIdentifier(this.identifier);
+        this.identifier = -1;
     }
 
     /**

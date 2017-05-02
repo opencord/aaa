@@ -24,6 +24,7 @@ import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IpAddress;
+import org.onlab.packet.MacAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
 import org.onosproject.core.CoreServiceAdapter;
@@ -32,6 +33,8 @@ import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -57,6 +60,14 @@ public class AaaManagerTest extends AaaTestBase {
      * RADIUS server.
      */
     static class MockAaaConfig extends AaaConfig {
+        @Override
+        public Map<MacAddress, Info> info() {
+            Map<MacAddress, Info> info = new HashMap<MacAddress, Info>();
+            info.put(MacAddress.valueOf("2A:2A:2A:2A:2A:2A"),
+                            new Info((short) 222, (short) 111, "nas_port_id", 0, 1, ""));
+            return info;
+        }
+
         @Override
         public InetAddress radiusIp() {
             try {

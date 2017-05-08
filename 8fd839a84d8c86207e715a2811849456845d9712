@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba092121_9e8d8b34",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "NAS_IDENTIFIER is added to the AaaConfig Class. However, the NAS_IDENTIFIER is an identifier used by the Radius Server  to uniquely identify the OLT. If the AAA app is serving multiple OLTs, and if it is set in AaaConfig class, how can the the Radius Server identify the OLT? Therefore the NAS_IDENTIFIER should be the OLT\u0027s name.\nAlso refer to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2\n3.2.1.41 The NAS-Identifier in the RADIUS request shall be the TID of the OLT requesting authentication of the port to the RADIUS server. L 2910 \n\nTherefore NAS-Identifier and DEFAULT_NAS_IDENTIFIER should be removed from AaaConfig class.\n\nInstead suggest to add the \"DeviceName\" as configuration for the accessDevice and use that to fill in the NAS-Identifier. The accessDevice can be retrieved based on the OpenFlow EAPoL PacketIn message is received from the OLT.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5e87f30f",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "It is not the responsibility of the AAA app to keep the port to s/c tag bindings. It is the responsibility of \"OLT\" app. \nIs it not desirable for the operator to add every RG\u0027s MAC into ONOS. Also note that the AAA app is only support port-based-authentication(as per AT\u0026T requirement).\n \nComments on the attributes added in bindings:\na) NAS-Port-Id : This should derived from the OF port, i.e. the \"portName\" of the OF port (which will be UNI port in the case of OLT) that is being authenticated. NAS-Port-Id attribute is used by the Radius server to identify the UNI port that is being authenticated. OpenFlow has a ability to learn the PortName dynamically for every OF Port from the device. Why not use that? \n\nAlso with your approach, if the RG is changed, you need to delete and add the binding for the new MAC which is inconvenient. The NAS-Port-Id attribute is used to uniquely identify the subscriber port(i.e. the UNI port on the RG) and not the RG. \n\nSame \"DeviceName\" and \"PortName\" scheme can be used by L2 DHCP Relay as well (Refer below to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2)\n3.2.1.44 The NAS-Port-Id in the RADIUS request shall have the same format as the circuit-id added by the OLT layer2 DHCP relay agent in the Option 82 Agent Circuit-id field. It shall contains the same AID, but with no TID(node identifier). L2940\n\nb) NAS-Port-Type : This should derived from the OF port, i.e. the \"type\". OpenFlow has a ability to learn the portType dynamically for every OF Port from the device. Why not use that? \n\nc) S \u0026 C tags: As mentioned earlier, it is not desirable that these are configured into AAA app. These need to be configured to OLT app directly. There could be multiple C-tags per in future. \n\nd) nas_port: Why configure the NAS-Port into aaa app? This attribute is a unique identifier for the port that is being authenticated. Why not use OF port number here? It is just a number that is supposed to be unique for the OLT. \n\ne) session-id: Looks like this is used to send the session id to Radius for accounting purposes. This session id would be better to be calculated in AAA app and sent to Radius Server. It may not be desirable for the operator to configure this.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3e7c3f20",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Please refer to comments on AaaConfig.java. The same comments apply here.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_de72e348",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on NAS_IDENTIFIER",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_be8f2f23",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on NAS_PORT_ID",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_9e946b38",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on NAS_PORT_TYPE",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_7e99976d",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on NAS_PORT",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5e9ed357",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on SESSION_ID",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1e797b2f",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "What is this c-tag? Is this the same c-tag in the BINDINGs? According to CORD and AAA app design, the initial authentication messages are supposed to use vlanid 0. The S and C tags are added to the OLT following subsequent authentication.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_fe75a732",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on NAS_IDENTIFIER",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3ea31fa0",
+        "filename": "src/main/java/org/opencord/aaa/Info.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "Please Refer to comments in AaaConfig for s/c tags, nasPortId, nasPortType, nasPort \u0026 sessionId",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_feac878e",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "What is this c-tag? According to CORD and AAA app design, the initial authentication messages are supposed to use vlanid 0.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1ea05b8f",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "deleteStateMachineMappings(StateMachine machine) - The session Id for an authorized session is deleted here. If a EAPOL_LOGOFF is received from the supplicant, how to send ACCESS_REJECT to the Radius Server, since the sessionId is no longer present? Similarly whenever RE-AUTHENTICATION is implemented, the session Id will be needed as well.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_dea9c37c",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T02:37:57Z",
+      "side": 1,
+      "message": "deleteStateMachineMappings(StateMachine machine) - The session Id for an authorized session is deleted here. If a EAPOL_LOGOFF is received from the supplicant, how to send ACCESS_REJECT to the Radius Server, since the sessionId is no longer present? Similarly whenever RE-AUTHENTICATION is implemented, the session Id will be needed as well.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

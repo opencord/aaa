@@ -1,0 +1,633 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba092121_5eb5b3cb",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaManagerService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Who uses this Service API? \nThe state machine keeps the supplicantConnectPoint as well. So wondering why this is needed. Can you explain?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3ecaff4f",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "NAS_IDENTIFIER is added to the AaaConfig Class. However, the NAS_IDENTIFIER is an identifier used by the Radius Server  to uniquely identify the OLT. If the AAA app is serving multiple OLTs, and if it is set in AaaConfig class, how can the the Radius Server identify the OLT? Therefore the NAS_IDENTIFIER should be the OLT\u0027s name.\nAlso refer to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2\n3.2.1.41 The NAS-Identifier in the RADIUS request shall be the TID of the OLT requesting authentication of the port to the RADIUS server. L 2910 \nTherefore NAS-Identifier and DEFAULT_NAS_IDENTIFIER should be removed from AaaConfig class.\nInstead, suggest to add the \"DeviceName\" as configuration for the accessDevice and use that to fill in the NAS-Identifier. The accessDevice can be retrieved based on the OpenFlow EAPoL PacketIn message is received from the OLT.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1ec73b47",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "What is the need for RADIUS_VLAN_ID? RADIUS packets are carried over external Mngt VLAN which is visible to the compute server. So it is not clear why you need this.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_fec36736",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Why are you not able to use the socket? What is the need for this?  What is different in your topology when compared to other vendors that you are not able to use socket to reach the Radius server. The Radius Server is reachable via external Management VLAN. The linux kernel on the compute server is setup to be able to reach the external management.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_dec0a32c",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "This customizer class is not clear. Why do you need a customizer class? All the attributes that are being added to the packet in this commit are standard Radius attributes. This customizer class is not desirable.\nIt is also not good practice to provide a name of a class as a part of the configuration.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_beddef16",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It is not the responsibility of the AAA app to keep the port to s/c tag bindings. It is the responsibility of \"OLT\" app. \nIs it not desirable for the operator to add every RG\u0027s MAC into ONOS. Also note that the AAA app is only support port-based-authentication(as per AT\u0026T requirement).\n \nComments on the attributes added in bindings:\na) NAS-Port-Id : This should be derived from the OF port, i.e. the \"portName\" of the OF port (which will be UNI port in the case of OLT) that is being authenticated. NAS-Port-Id attribute is used by the Radius server to identify the UNI port that is being authenticated. OpenFlow has a ability to learn the PortName dynamically for every OF Port from the device. Why not use that? \nAlso with your approach, if the RG is changed, you need to delete and add the binding for the new MAC which is inconvenient. The NAS-Port-Id attribute is used to uniquely identify the subscriber port(i.e. the UNI port on the RG) and not the RG. \nSame \"DeviceName\" and \"PortName\" scheme can be used by L2 DHCP Relay as well (Refer below to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2)\n3.2.1.44 The NAS-Port-Id in the RADIUS request shall have the same format as the circuit-id added by the OLT layer2 DHCP relay agent in the Option 82 Agent Circuit-id field. It shall contains the same AID, but with no TID(node identifier). L2940\nb) S \u0026 C tags: As mentioned earlier, it is not desirable that these are configured into AAA app. These need to be configured to OLT app directly. There could be multiple C-tags per in future.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_9ee22bd4",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "NAS_IDENTIFIER is added to the AaaConfig Class. However, the NAS_IDENTIFIER is an identifier used by the Radius Server  to uniquely identify the OLT. If the AAA app is serving multiple OLTs, and if it is set in AaaConfig class, how can the the Radius Server identify the OLT? Therefore the NAS_IDENTIFIER should be the OLT\u0027s name.\nAlso refer to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2\n3.2.1.41 The NAS-Identifier in the RADIUS request shall be the TID of the OLT requesting authentication of the port to the RADIUS server. L 2910 \nTherefore NAS-Identifier and DEFAULT_NAS_IDENTIFIER should be removed from AaaConfig class.\nInstead suggest to add the \"DeviceName\" as configuration for the accessDevice and use that to fill in the NAS-Identifier. The accessDevice can be retrieved based on the OpenFlow EAPoL PacketIn message is received from the OLT.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_7ee757e5",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Please refer to above comments for VLAN_ID, USE_SOCKET \u0026 CUSTOMIZER_CLASS",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5eec93c7",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Please refer to above comment about NAS_IDENTIFIER and how to derive it.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3ed1dffb",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It is not the responsibility of the AAA app to keep the port to s/c tag bindings. It is the responsibility of \"OLT\" app. \nIs it not desirable for the operator to add every RG\u0027s MAC into ONOS. Also note that the AAA app is only support port-based-authentication(as per AT\u0026T requirement).\n \nComments on the attributes added in bindings:\na) NAS-Port-Id : This should be derived from the OF port, i.e. the \"portName\" of the OF port (which will be UNI port in the case of OLT) that is being authenticated. NAS-Port-Id attribute is used by the Radius server to identify the UNI port that is being authenticated. OpenFlow has a ability to learn the PortName dynamically for every OF Port from the device. Why not use that? \nAlso with your approach, if the RG is changed, you need to delete and add the binding for the new MAC which is inconvenient. The NAS-Port-Id attribute is used to uniquely identify the subscriber port(i.e. the UNI port on the RG) and not the RG. \nSame \"DeviceName\" and \"PortName\" scheme can be used by L2 DHCP Relay as well (Refer below to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2)\n3.2.1.44 The NAS-Port-Id in the RADIUS request shall have the same format as the circuit-id added by the OLT layer2 DHCP relay agent in the Option 82 Agent Circuit-id field. It shall contains the same AID, but with no TID(node identifier). L2940\nb) S \u0026 C tags: As mentioned earlier, it is not desirable that these are configured into AAA app. These need to be configured to OLT app directly. There could be multiple C-tags per in future.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_7eb077dd",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "why did you not rename src/main/java/org/opencord/aaa/AaaManager.java to \tapi/src/main/java/org/opencord/aaa/AaaManager.java and then make the changes? \nIt is not advisable to delete the file and add it elsewhere because history will be lost. So please rename (git mv). It is very difficult to review without history.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_fe1fe7b5",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It is not clear why this connectPoint is needed. Radius Server is reachable from the compute server via the external Management. What is the difference in your topology?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_de1c23c4",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Refer to the AaaConfig.java for the comment on NAS_IDENTIFIER",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_be796ffe",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Please refer to the comments in other files on why the customizer class is required.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_9e7eabe3",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Why are you not able to use socket to reach the Radius Service. Is your compute server not able to reach the external management? External management is quite essential.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_7e83d7cc",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "AS commented before, not clear why customizer class is necessary",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5e8813e7",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "AS mentioned above, The compute server should be reachable to external management network and external mgnt VLAN.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3e6d5f33",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Same as commented before, why is socket option not ok for your case?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1e6a9b1a",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Not clear why the customizer class is necessary. It is better practice not to use configurable customizer class of this sort.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_fe76c705",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "AAA app is for implementing the 802.1x authenticator function and its responsibility is to talk EAPoL towards the supplicant and Radius towards the Radius server. It is not good practice to build ethernet frame as part of this app (violates the layering). If there is indeed a need for resolving the endpoint, it needs to be done as a separate app which is responsible for just resolving end-points. \n\nIt is also not clear why socket option does not suffice for your case.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_9e658b47",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It looks like you are sending Radius Packets via OF PktOut from the ToR Switch. Why? The Radius Server is reachable via the external management network and so is the compute server running the ONOS/aaa app. So it is not clear why your external management connectivity is not ok?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_be604f36",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It looks like you are installing rules and extracting Radius Packets via OpenFlow PktIn from the ToR switch. Why? The Radius Server is reachable via the external management network and so is the compute server running the ONOS/aaa app. So it is not clear why your external management connectivity is not ok?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_de730314",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "same as above comment",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_7e5ab784",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "As mentioned above as well, it is not good practice to violate the layering principles and handle ARP and IPv4 packets here as a part of the AAA app which is meant for interworking between 802.1x and Radius (802.1x Authenticator function). Moreover, the Radius server and compute server should both be reachable via external management network. Otherwise, no provisioning can be done on ONOS in the network deployment!",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5e5ff372",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Please refer to above comment on processing ARP and IPv4 packets as a part of this app which is not desirable.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1e517b62",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Prefer not to use customize Packet. All the Radius attributes that are being added/used are standard attributes. Moreover if some control on the attributes is really needed, it would be better to make it per attribute iso using a customizer class.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3e543f53",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Prefer not to use customize Packet. All the Radius attributes that are being added/used are standard attributes. Moreover if some control on the attributes is really needed, it would be better to make it per attribute iso using a customizer class.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_fe4da7c5",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Prefer not to use customize Packet. All the Radius attributes that are being added/used are standard attributes. Moreover if some control on the attributes is really needed, it would be better to make it per attribute iso using a customizer class.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_de4ae3ab",
+        "filename": "app/src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Please refer to previous comments in the file on these 3 new added attributes",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1ece1b5b",
+        "filename": "app/src/main/java/org/opencord/aaa/CustomizationInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It is not clear what the purpose of this customizationInfo is.  What customization are you doing to Radius packets? All of the requested of the RADIUS attributes are standard defined attributes. So Can you please explain?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_feda4716",
+        "filename": "app/src/main/java/org/opencord/aaa/Info.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Please Refer to comments in AaaConfig for s/c tags, nasPortId since the same are applicable for this as well.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_ded783ec",
+        "filename": "app/src/main/java/org/opencord/aaa/RadiusPayloadCustomizer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Prefer not to use a RadiusPayloadCustomizer. All Radius Attributes that are being added here are standard defined attributes.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_be04cf7e",
+        "filename": "app/src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "Is this the pbit to use in the downstream EAPoL packets towards the RG?",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_9e090b98",
+        "filename": "app/src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "deleteStateMachineMappings(StateMachine machine) - This is called even in the case when the session is authorized and session Id for an authorized session is deleted here. If a EAPOL_LOGOFF is received from the supplicant, how to send ACCESS_REJECT to the Radius Server, since the sessionId is no longer present? Similarly whenever RE-AUTHENTICATION is implemented, the session Id will be needed as well.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_7efe376d",
+        "filename": "app/src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It looks like you changed the sessionId allocation mechanism. It would be better to look at pending changes from other vendors before merging to see which one need to be used.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5e037373",
+        "filename": "app/src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "deleteStateMachineMappings(StateMachine machine) - The session Id for an authorized session is deleted here. If a EAPOL_LOGOFF is received from the supplicant, how to send ACCESS_REJECT to the Radius Server, since the sessionId is no longer present? Similarly whenever RE-AUTHENTICATION is implemented, the session Id will be needed as well.",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3ef8bf7b",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2017-05-08T04:51:48Z",
+      "side": 1,
+      "message": "It is not advisable to delete the file and add it elsewhere because history will be lost. So please rename (git mv).",
+      "revId": "c74cbc43011bf331e3260357cf4236f4346eae74",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba092121_5e7253e6",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-05-08T15:38:01Z",
+      "side": 1,
+      "message": "This solution needs to work for more than one deployment, therefore implementing specific to a given customer deployment is likely not going to be the correct direction.\n\nI would agree a default NAS identifier has very little value and in fact the default should likely default to the name of the device, but I don\u0027t think that can be the only way this operates.",
+      "parentUuid": "ba092121_9e8d8b34",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba092121_5e87f30f",
         "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-08T02:37:57Z",
       "side": 1,
       "message": "It is not the responsibility of the AAA app to keep the port to s/c tag bindings. It is the responsibility of \"OLT\" app. \nIs it not desirable for the operator to add every RG\u0027s MAC into ONOS. Also note that the AAA app is only support port-based-authentication(as per AT\u0026T requirement).\n \nComments on the attributes added in bindings:\na) NAS-Port-Id : This should derived from the OF port, i.e. the \"portName\" of the OF port (which will be UNI port in the case of OLT) that is being authenticated. NAS-Port-Id attribute is used by the Radius server to identify the UNI port that is being authenticated. OpenFlow has a ability to learn the PortName dynamically for every OF Port from the device. Why not use that? \n\nAlso with your approach, if the RG is changed, you need to delete and add the binding for the new MAC which is inconvenient. The NAS-Port-Id attribute is used to uniquely identify the subscriber port(i.e. the UNI port on the RG) and not the RG. \n\nSame \"DeviceName\" and \"PortName\" scheme can be used by L2 DHCP Relay as well (Refer below to AT\u0026T\u0027s requirement in https://wiki.opencord.org/download/attachments/1966449/EPIC_3_SDN.pdf?version\u003d1\u0026modificationDate\u003d1478138202209\u0026api\u003dv2)\n3.2.1.44 The NAS-Port-Id in the RADIUS request shall have the same format as the circuit-id added by the OLT layer2 DHCP relay agent in the Option 82 Agent Circuit-id field. It shall contains the same AID, but with no TID(node identifier). L2940\n\nb) NAS-Port-Type : This should derived from the OF port, i.e. the \"type\". OpenFlow has a ability to learn the portType dynamically for every OF Port from the device. Why not use that? \n\nc) S \u0026 C tags: As mentioned earlier, it is not desirable that these are configured into AAA app. These need to be configured to OLT app directly. There could be multiple C-tags per in future. \n\nd) nas_port: Why configure the NAS-Port into aaa app? This attribute is a unique identifier for the port that is being authenticated. Why not use OF port number here? It is just a number that is supposed to be unique for the OLT. \n\ne) session-id: Looks like this is used to send the session id to Radius for accounting purposes. This session id would be better to be calculated in AAA app and sent to Radius Server. It may not be desirable for the operator to configure this.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_3e779fd6",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-05-08T15:38:01Z",
+      "side": 1,
+      "message": "A couple of things, again the main being that we can\u0027t expect every deployment to be the same and thus cannot code into the system logic that is specific to a given deployment.\n\n- While I agree that it is sub-optimal for the the tags to be maintained as part of the AAA configuration until until there is additional input from other deployments it is prudent to have it here for now. I suspect what needs to happen is that a \"service\" is defined where by the AAA app, and others can call to get the required tag information. This service needs to be define and in fact this information may come from a AAA response from the server (again, until additional reference deployments are done and patterns start to emerge coding any specify logic can be risky.",
+      "parentUuid": "ba092121_5e87f30f",
       "revId": "8fd839a84d8c86207e715a2811849456845d9712",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -64,6 +100,24 @@
       "writtenOn": "2017-05-08T02:37:57Z",
       "side": 1,
       "message": "Refer to the AaaConfig.java for the comment on NAS_IDENTIFIER",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_1e74dbcd",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-05-08T15:38:01Z",
+      "side": 1,
+      "message": "Responses on original comment.",
+      "parentUuid": "ba092121_de72e348",
       "revId": "8fd839a84d8c86207e715a2811849456845d9712",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -223,6 +277,24 @@
     },
     {
       "key": {
+        "uuid": "ba092121_7e44f773",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-05-08T15:38:01Z",
+      "side": 1,
+      "message": "Because the mapping is from a limited resource (256) to a state machine we cannot leave this mappings around indefinitely else the system will only allow 256 authentications.\n\nTo be fair, there are severe limitations to this application because of this limitation and the entire app needs to be reevaluated.\n\nIn my mind, these apps really should be removed from the ONOS process and be standalone containers. The are still part of the \"controller\" just that a controlled doesn\u0027t need to be a single process, but that is a longer change that needs more thought.",
+      "parentUuid": "ba092121_1ea05b8f",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba092121_dea9c37c",
         "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
         "patchSetId": 1
@@ -234,6 +306,24 @@
       "writtenOn": "2017-05-08T02:37:57Z",
       "side": 1,
       "message": "deleteStateMachineMappings(StateMachine machine) - The session Id for an authorized session is deleted here. If a EAPOL_LOGOFF is received from the supplicant, how to send ACCESS_REJECT to the Radius Server, since the sessionId is no longer present? Similarly whenever RE-AUTHENTICATION is implemented, the session Id will be needed as well.",
+      "revId": "8fd839a84d8c86207e715a2811849456845d9712",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba092121_5e49338a",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-05-08T15:38:01Z",
+      "side": 1,
+      "message": "same response as above",
+      "parentUuid": "ba092121_dea9c37c",
       "revId": "8fd839a84d8c86207e715a2811849456845d9712",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

@@ -29,7 +29,7 @@
     <groupId>org.opencord</groupId>
     <artifactId>aaa</artifactId>
     <version>1.2-SNAPSHOT</version>
-    <packaging>bundle</packaging>
+    <packaging>pom</packaging>
 
     <description>ONOS authentication application</description>
 
@@ -41,6 +41,11 @@
         <onos.app.url>http://opencord.org</onos.app.url>
         <onos.app.readme>802.1x authentication service.</onos.app.readme>
     </properties>
+
+    <modules>
+        <module>api</module>
+        <module>app</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -71,22 +76,4 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.onosproject</groupId>
-                <artifactId>onos-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

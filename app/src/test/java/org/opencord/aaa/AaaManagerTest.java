@@ -204,7 +204,7 @@ public class AaaManagerTest extends AaaTestBase {
 
         RADIUS radiusCodeAccessChallengePacket =
                 constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5);
-        aaaManager.radiusListener.handleRadiusPacket(radiusCodeAccessChallengePacket);
+        aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
 
         Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
         checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
@@ -221,7 +221,7 @@ public class AaaManagerTest extends AaaTestBase {
         RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
         checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 0));
+        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 3));
         assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
         //  State machine should be in pending state
@@ -233,7 +233,7 @@ public class AaaManagerTest extends AaaTestBase {
 
         RADIUS successPacket =
                 constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS);
-        aaaManager.radiusListener.handleRadiusPacket((successPacket));
+        aaaManager.handleRadiusPacket((successPacket));
         Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
 
         checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);

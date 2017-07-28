@@ -1,6 +1,5 @@
 /*
- *
- * Copyright 2015 AT&T Foundry
+ * Copyright 2017-present Open Networking Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +17,13 @@
 package org.opencord.aaa;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.onlab.packet.VlanId;
 
 public class StateMachineTest {
     StateMachine stateMachine = null;
@@ -32,15 +31,13 @@ public class StateMachineTest {
     @Before
     public void setUp() {
         System.out.println("Set Up.");
-        StateMachine.bitSet.clear();
         StateMachine.initializeMaps();
-        stateMachine = new StateMachine("session0");
+        stateMachine = new StateMachine("session0", VlanId.vlanId((short) 2));
     }
 
     @After
     public void tearDown() {
         System.out.println("Tear Down.");
-        StateMachine.bitSet.clear();
         StateMachine.destroyMaps();
         stateMachine = null;
     }
@@ -216,62 +213,6 @@ public class StateMachineTest {
         assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
     }
 
-
-    @Test
-    public void testIdentifierAvailability() throws StateMachineException {
-        System.out.println("======= IDENTIFIER TEST =======.");
-        byte identifier = stateMachine.identifier();
-        System.out.println("State: " + stateMachine.state());
-        System.out.println("Identifier: " + Byte.toUnsignedInt(identifier));
-        Assert.assertEquals(-1, identifier);
-        stateMachine.start();
-
-
-        StateMachine sm247 = null;
-        StateMachine sm3 = null;
-
-
-        //create 255 others state machines
-        for (int i = 1; i <= 255; i++) {
-                StateMachine sm = new StateMachine("session" + i);
-                sm.start();
-                byte id = sm.identifier();
-                Assert.assertEquals(i, Byte.toUnsignedInt(id));
-                if (i == 3) {
-                    sm3 = sm;
-                    System.out.println("SM3: " + sm3.toString());
-                }
-                if (i == 247) {
-                    sm247 = sm;
-                    System.out.println("SM247: " + sm247.toString());
-                }
-        }
-
-        //simulate the state machine for a specific session and logoff so we can free up a spot for an identifier
-        //let's choose identifier 247 then we free up 3
-        Assert.assertNotNull(sm247);
-        sm247.requestAccess();
-        sm247.authorizeAccess();
-        sm247.logoff();
-
-        Assert.assertNotNull(sm3);
-        sm3.requestAccess();
-        sm3.authorizeAccess();
-        sm3.logoff();
-
-        StateMachine otherSM3 = new StateMachine("session3b");
-        otherSM3.start();
-        otherSM3.requestAccess();
-        byte id3 = otherSM3.identifier();
-        Assert.assertEquals(3, Byte.toUnsignedInt(id3));
-
-        StateMachine otherSM247 = new StateMachine("session247b");
-        otherSM247.start();
-        otherSM247.requestAccess();
-        byte id247 = otherSM247.identifier();
-        Assert.assertEquals(247, Byte.toUnsignedInt(id247));
-    }
-
     @Test
     public void testSessionIdLookups() {
         String sessionId1 = "session1";
@@ -285,8 +226,8 @@ public class StateMachineTest {
                 StateMachine.lookupStateMachineBySessionId(sessionId2);
         assertNull(machine2ShouldBeNull);
 
-        StateMachine stateMachine1 = new StateMachine(sessionId1);
-        StateMachine stateMachine2 = new StateMachine(sessionId2);
+        StateMachine stateMachine1 = new StateMachine(sessionId1, VlanId.vlanId((short) 2));
+        StateMachine stateMachine2 = new StateMachine(sessionId2, VlanId.vlanId((short) 2));
 
         assertEquals(stateMachine1,
                      StateMachine.lookupStateMachineBySessionId(sessionId1));
@@ -307,9 +248,9 @@ public class StateMachineTest {
                 StateMachine.lookupStateMachineById((byte) 2);
         assertNull(machine2ShouldBeNull);
 
-        StateMachine stateMachine1 = new StateMachine(sessionId1);
+        StateMachine stateMachine1 = new StateMachine(sessionId1, VlanId.vlanId((short) 2));
         stateMachine1.start();
-        StateMachine stateMachine2 = new StateMachine(sessionId2);
+        StateMachine stateMachine2 = new StateMachine(sessionId2, VlanId.vlanId((short) 2));
         stateMachine2.start();
 
         assertEquals(stateMachine1,

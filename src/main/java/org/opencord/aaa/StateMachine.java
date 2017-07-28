@@ -1,6 +1,5 @@
 /*
- *
- * Copyright 2015 AT&T Foundry
+ * Copyright 2017-present Open Networking Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +17,14 @@
 
 package org.opencord.aaa;
 
-import java.util.BitSet;
 import java.util.Map;
 
 import org.onlab.packet.MacAddress;
+import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
+
+import org.opencord.olt.AccessDeviceService;
+
 import org.slf4j.Logger;
 
 import com.google.common.collect.Maps;
@@ -48,10 +50,9 @@ class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
-    //map of access identifiers (issued at EAPOL START)
-    static BitSet bitSet = new BitSet();
+    private static AccessDeviceService accessDeviceService;
 
-    private int identifier = -1;
+    private static int identifier = -1;
     private byte challengeIdentifier;
     private byte[] challengeState;
     private byte[] username;
@@ -61,6 +62,8 @@ class StateMachine {
     private ConnectPoint supplicantConnectpoint;
     private MacAddress supplicantAddress;
     private short vlanId;
+    private VlanId ctag;
+    private byte priorityCode;
 
     private String sessionId = null;
 
@@ -117,11 +120,16 @@ class StateMachine {
     public static void initializeMaps() {
         sessionIdMap = Maps.newConcurrentMap();
         identifierMap = Maps.newConcurrentMap();
+        identifier = -1;
     }
 
     public static void destroyMaps() {
         sessionIdMap = null;
         identifierMap = null;
+    }
+
+    public static void setAccessDeviceService(AccessDeviceService service) {
+        accessDeviceService = service;
     }
 
     public static Map<String, StateMachine> sessionIdMap() {
@@ -134,15 +142,24 @@ class StateMachine {
 
     public static StateMachine lookupStateMachineBySessionId(String sessionId) {
         return sessionIdMap.get(sessionId);
-    }    /**
+    }
+
+    public static void deleteStateMachineMapping(StateMachine machine) {
+        identifierMap.entrySet().removeIf(e -> e.getValue().equals(machine));
+    }
+
+    /**
      * State Machine Constructor.
      *
      * @param sessionId   session Id represented by the switch dpid +  port number
+     * @param ctag        C-TAG for this subscriber
      */
-    public StateMachine(String sessionId) {
-        log.info("Creating a new state machine for {}", sessionId);
+    public StateMachine(String sessionId, VlanId ctag) {
+        log.info("Creating a new state machine for {} C-TAG {}", sessionId,
+                ctag);
         this.sessionId = sessionId;
         sessionIdMap.put(sessionId, this);
+        this.ctag = ctag;
     }
 
     /**
@@ -200,36 +217,30 @@ class StateMachine {
     }
 
     /**
+     * Gets the client's priority Code.
+     *
+     * @return client Priority code
+     */
+    public byte priorityCode() {
+        return priorityCode;
+    }
+
+    /**
+     * Sets the client's priority Code.
+     *
+     * @param priorityCode new client priority Code
+     */
+    public void setPriorityCode(byte priorityCode) {
+        this.priorityCode = priorityCode;
+    }
+
+    /**
      * Gets the client id that is requesting for access.
      *
      * @return The client id.
      */
     public String sessionId() {
         return this.sessionId;
-    }
-
-    /**
-     * Create the identifier for the state machine (happens when goes to STARTED state).
-     */
-    private void createIdentifier() throws StateMachineException {
-        log.debug("Creating Identifier.");
-        int index;
-
-        try {
-            //find the first available spot for identifier assignment
-            index = StateMachine.bitSet.nextClearBit(0);
-
-            //there is a limit of 256 identifiers
-            if (index == 256) {
-                throw new StateMachineException("Cannot handle any new identifier. Limit is 256.");
-            }
-        } catch (IndexOutOfBoundsException e) {
-            throw new StateMachineException(e.getMessage());
-        }
-
-        log.info("Assigning identifier {}", index);
-        StateMachine.bitSet.set(index);
-        this.identifier = index;
     }
 
     /**
@@ -325,20 +336,11 @@ class StateMachine {
      *
      * @return The state machine identifier.
      */
-    public byte identifier() {
-        return (byte) this.identifier;
+    public synchronized byte identifier() {
+        identifier = (identifier + 1) % 255;
+        identifierMap.put(identifier, this);
+        return (byte) identifier;
     }
-
-
-    protected void deleteIdentifier() {
-        if (this.identifier != -1) {
-            log.info("Freeing up " + this.identifier);
-            //this state machine should be deleted and free up the identifier
-            StateMachine.bitSet.clear(this.identifier);
-            this.identifier = -1;
-        }
-    }
-
 
     /**
      * Move to the next state.
@@ -359,8 +361,7 @@ class StateMachine {
         states[currentState].start();
         //move to the next state
         next(TRANSITION_START);
-        createIdentifier();
-        identifierMap.put(identifier, this);
+        identifier = this.identifier();
     }
 
     /**
@@ -386,9 +387,15 @@ class StateMachine {
         //move to the next state
         next(TRANSITION_AUTHORIZE_ACCESS);
 
-        // TODO: put in calls to launch vSG here
+        if (accessDeviceService != null) {
+            log.info("Provisioning subscriber at {} with C-TAG {}",
+                    supplicantConnectpoint(), ctag);
+            accessDeviceService.provisionSubscriber(supplicantConnectpoint(),
+                                                    ctag);
+        }
 
-        deleteIdentifier();
+        // Clear mapping
+        deleteStateMachineMapping(this);
     }
 
     /**
@@ -401,7 +408,8 @@ class StateMachine {
         states[currentState].radiusDenied();
         //move to the next state
         next(TRANSITION_DENY_ACCESS);
-        deleteIdentifier();
+        // Clear mappings
+        deleteStateMachineMapping(this);
     }
 
     /**

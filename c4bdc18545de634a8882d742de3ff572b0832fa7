@@ -296,6 +296,24 @@
     },
     {
       "key": {
+        "uuid": "1a1a2d67_62c108e4",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-28T19:08:57Z",
+      "side": 1,
+      "message": "Sorry, my mistake in understanding. Agree to your point. Will do the changes",
+      "parentUuid": "1a1a2d67_a28f20cc",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_420ccc94",
         "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
         "patchSetId": 1

@@ -121,6 +121,24 @@
     },
     {
       "key": {
+        "uuid": "1a1a2d67_e28518ae",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-28T19:02:57Z",
+      "side": 1,
+      "message": "Please see in the comment below what exactly are the customer specific things here. It might not be used exactly as is by some other operator also. Idea is to extend the class PacketCustomizer and make changes specific for that scenario.\n\nI can think of two options\n\n1. Place this file somewhere else (not sure where), but each time we build the application we need to copy the file from there to the aaa directory before the build\n\n2. Rename this file to SamplePacketCustomizer.java and remove all occurences of the name of the operator from the file. So it can still be used, and when different filling of the RADIUS Attributes is needed extend and create new classes.\n\nPlease let me know your inputs on these.",
+      "parentUuid": "1a1a2d67_223af036",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_023ff426",
         "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
         "patchSetId": 1
@@ -172,6 +190,24 @@
     },
     {
       "key": {
+        "uuid": "1a1a2d67_829544e6",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-28T19:02:57Z",
+      "side": 1,
+      "message": "nodeName used to set the RADIUS Attritube NasId is coming from the Sadis configuration. We are looking for the device in the configuration using the serial number of the device and this is generic and not specific to any customer.\n\nThe things which are customer specific here are like, filling in the MAC address of the RG in the RADIUS Attribute \"Username\", \"NAS Port Type\" as 15 (Ethernet), ACCT_SESSION_ID.",
+      "parentUuid": "1a1a2d67_a245e0b4",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_8212e4b2",
         "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
         "patchSetId": 1
@@ -189,6 +225,24 @@
     },
     {
       "key": {
+        "uuid": "1a1a2d67_629a2816",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-28T19:02:57Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "1a1a2d67_8212e4b2",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_6217c8a4",
         "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
         "patchSetId": 1
@@ -200,6 +254,24 @@
       "writtenOn": "2017-07-28T16:29:23Z",
       "side": 1,
       "message": "why the wrapper, why not just call implementation directly? wrapper method should be removed.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_429f2c04",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-28T19:02:57Z",
+      "side": 1,
+      "message": "Used the wrapper because depending on \"useSocket\" flag behaviour changes. Earlier I was doing if (useSocket) {} else {} clauses and calling the exact functionality in each case... but then the code becomes to cluttered and difficult to manage. Having separate inner classes is easier to maintain/debug. Also have tried not to break any of the existing functionality of the app as it is used by RCORD and ONOS (I guess) also, so keeping separate inner classes makes it easier.",
+      "parentUuid": "1a1a2d67_6217c8a4",
       "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -251,6 +323,24 @@
       "writtenOn": "2017-07-28T16:29:23Z",
       "side": 1,
       "message": "Should this interface and implementations be moved to separate files? Putting them here makes the source file longer with no real benefit.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_22a43056",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-28T19:02:57Z",
+      "side": 1,
+      "message": "Yes can be done. I did give a thought to it, but was unsure of the conventions followed. Right now the configuration parameters are members of the outer class, so accessible to the inner classes. If I move them to different files, I would need to pass the config object to these 2 classes, but that shouldn\u0027t be a problem I guess.\n\nOnce I close all the other review comments, will move the interface and the 2 classes to separate files",
+      "parentUuid": "1a1a2d67_e222b800",
       "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

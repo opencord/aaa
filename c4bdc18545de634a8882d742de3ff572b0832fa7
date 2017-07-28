@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a1a2d67_e2f4f888",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "trailing space",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_c2f1fc96",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "i wonder if we can bond this to a variable somewhere so that all apps projects are based on the same onos version. nothing to be done for this commit, just a thought.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_a2ee00b3",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "trailing space",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_822b04eb",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "trailing spaces",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_6230e856",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "why not just remove this?",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_4235ec44",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "remove if import is not being used.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_223af036",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "nothing in open cord should be specific to a given customer\u0027s deployment. If this is really specific to a customer then we need to talk about how and where to put customer specific things.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_023ff426",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "remove if not needed",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_e23bd836",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "nothing customer specific please.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_a245e0b4",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "Is using the device serial number as the nodeName something that is customer specific or universal? If customer specific we need to think about how this might be customized at a given deployment. Reasonable to use the serial number as a default I suspect.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_8212e4b2",
+        "filename": "src/main/java/org/opencord/aaa/ATnTPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "please take out reference to atnt and we need to think about how to customize this so other customers could use something else.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_6217c8a4",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "why the wrapper, why not just call implementation directly? wrapper method should be removed.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_420ccc94",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "remove wrapper method, call implementation directory.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_2211d0ac",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "remove wrapper method, call implementation directly",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_e222b800",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "Should this interface and implementations be moved to separate files? Putting them here makes the source file longer with no real benefit.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_c21fbcb6",
+        "filename": "src/main/java/org/opencord/aaa/PacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "2017?",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_627ea8e6",
+        "filename": "src/test/java/org/opencord/aaa/StateMachineTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T16:29:23Z",
+      "side": 1,
+      "message": "can we just remove the test then? leaving the test, but commenting out everything, gives the impression the test is still being run and always passing, better to remove the test if it is no longer valid.",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

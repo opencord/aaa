@@ -278,6 +278,24 @@
     },
     {
       "key": {
+        "uuid": "1a1a2d67_a28f20cc",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-28T19:06:08Z",
+      "side": 1,
+      "message": "but is looks like all the wrappers do is call `impl....`, so can\u0027t you just replace all the wrapper calls with calls to impl? You shouldn\u0027t have to use `if useSocket\"",
+      "parentUuid": "1a1a2d67_429f2c04",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_420ccc94",
         "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
         "patchSetId": 1

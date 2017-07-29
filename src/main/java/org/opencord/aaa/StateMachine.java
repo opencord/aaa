@@ -149,6 +149,29 @@ class StateMachine {
     }
 
     /**
+     * Deletes authentication state machine records for a given MAC address.
+     * @param mac mac address of the suppliant who's state machine should be removed
+     */
+    public static void deleteByMac(MacAddress mac) {
+
+        // Walk the map from session IDs to state machines looking for a MAC match
+        for (Map.Entry<String, StateMachine> e : sessionIdMap.entrySet()) {
+
+            // If a MAC match is found then delete the entry from the session ID
+            // and identifier map as well as call delete identifier to clean up
+            // the identifier bit set.
+            if (e.getValue() != null && e.getValue().supplicantAddress != null &&
+                   e.getValue().supplicantAddress.equals(mac)) {
+                sessionIdMap.remove(e.getValue().sessionId);
+                if (e.getValue().identifier != -1) {
+                    deleteStateMachineMapping(e.getValue());
+                }
+                break;
+            }
+        }
+    }
+
+    /**
      * State Machine Constructor.
      *
      * @param sessionId   session Id represented by the switch dpid +  port number
@@ -301,7 +324,6 @@ class StateMachine {
     protected void setUsername(byte[] username) {
         this.username = username;
     }
-
 
     /**
      * Gets the username.

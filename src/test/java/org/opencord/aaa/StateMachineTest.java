@@ -20,8 +20,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.onlab.packet.MacAddress;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 import org.onlab.packet.VlanId;
 
@@ -257,5 +260,43 @@ public class StateMachineTest {
                      StateMachine.lookupStateMachineById(stateMachine1.identifier()));
         assertEquals(stateMachine2,
                      StateMachine.lookupStateMachineById(stateMachine2.identifier()));
+    }
+
+    @Test
+    /**
+     * Test state machine deletes
+     */
+    public void testStateMachineReset() throws StateMachineException {
+
+        int count = 256;
+
+        //StateMachine.initializeMaps();
+        StateMachine.lookupStateMachineById((byte) 1);
+
+        // Instantiate a bunch of state machines
+        for (int i = 0; i < count; i += 1) {
+            String mac = String.format("00:00:00:00:00:%02x", i);
+            StateMachine sm = new StateMachine(mac, VlanId.vlanId((short) i));
+            sm.start();
+            sm.setSupplicantAddress(MacAddress.valueOf(mac));
+        }
+
+        // Verify all state machines with a "even" MAC exist
+        for (int i = 0; i < count; i += 2) {
+            String mac = String.format("00:00:00:00:00:%02x", i);
+            assertNotNull(StateMachine.lookupStateMachineBySessionId(mac));
+        }
+
+        // Delete all state machines with a "even" MAC
+        for (int i = 0; i < count; i += 2) {
+            String mac = String.format("00:00:00:00:00:%02x", i);
+            StateMachine.deleteByMac(MacAddress.valueOf(mac));
+        }
+
+        // Verify all the delete state machines no long exist
+        for (int i = 0; i < count; i += 2) {
+            String mac = String.format("00:00:00:00:00:%02x", i);
+            assertNull(StateMachine.lookupStateMachineBySessionId(mac));
+        }
     }
 }

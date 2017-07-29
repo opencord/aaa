@@ -134,7 +134,26 @@ class StateMachine {
 
     public static StateMachine lookupStateMachineBySessionId(String sessionId) {
         return sessionIdMap.get(sessionId);
-    }    /**
+    }
+
+    public static void deleteByMac(MacAddress mac) {
+
+        // Delete from the session ID map
+        for (Map.Entry<String, StateMachine> e : sessionIdMap.entrySet()) {
+            if (e.getValue() != null && e.getValue().supplicantAddress != null && e.getValue().supplicantAddress.equals(mac)) {
+                // clear the bit for this state machine
+                StateMachine.bitSet.clear(e.getValue().identifier);
+                sessionIdMap.remove(e.getValue().sessionId);
+            }
+
+        }
+
+        // Delete from the ID map
+        identifierMap.entrySet().removeIf(e-> e.getValue() != null && e.getValue().supplicantAddress != null &&
+                e.getValue().supplicantAddress.equals(mac));
+    }
+
+    /**
      * State Machine Constructor.
      *
      * @param sessionId   session Id represented by the switch dpid +  port number
@@ -290,7 +309,6 @@ class StateMachine {
     protected void setUsername(byte[] username) {
         this.username = username;
     }
-
 
     /**
      * Gets the username.

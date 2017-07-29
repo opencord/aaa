@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a1a2d67_4dcabda2",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-29T02:03:28Z",
+      "side": 1,
+      "message": "Could we break out of the for loop once we find a match and remove from the sessionIdMap?",
+      "revId": "6dc412a95fb94fe465f7ebfaff013f1d28b6fbc9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

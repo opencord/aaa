@@ -34,6 +34,24 @@
       "revId": "6dc412a95fb94fe465f7ebfaff013f1d28b6fbc9",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_8dc7b512",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-31T16:51:53Z",
+      "side": 1,
+      "message": "Actually, found a way to clean up the loop, so only a single map is walked. Makes things cleaner, coming to a patchset update soon.",
+      "parentUuid": "1a1a2d67_cd4dadc6",
+      "revId": "6dc412a95fb94fe465f7ebfaff013f1d28b6fbc9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

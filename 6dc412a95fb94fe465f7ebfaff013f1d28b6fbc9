@@ -16,6 +16,24 @@
       "revId": "6dc412a95fb94fe465f7ebfaff013f1d28b6fbc9",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_cd4dadc6",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-07-31T16:35:09Z",
+      "side": 1,
+      "message": "Agreed. Also for the loop below it will be better to break that into a normal Map.Entry walk and break out as opposed to use lambdas.",
+      "parentUuid": "1a1a2d67_4dcabda2",
+      "revId": "6dc412a95fb94fe465f7ebfaff013f1d28b6fbc9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

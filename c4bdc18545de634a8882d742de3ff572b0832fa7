@@ -314,6 +314,24 @@
     },
     {
       "key": {
+        "uuid": "1a1a2d67_6d30d956",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-07-31T08:01:52Z",
+      "side": 1,
+      "message": "Changed for all except for sendRadiusPacket as test cases override this method to get the packets back into the test infrastructure, so we need to have this method.",
+      "parentUuid": "1a1a2d67_62c108e4",
+      "revId": "c4bdc18545de634a8882d742de3ff572b0832fa7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_420ccc94",
         "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
         "patchSetId": 1

@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a1a2d67_fc36d8e6",
+        "filename": "pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-01T23:24:27Z",
+      "side": 1,
+      "message": "need to convert everything back to 1.8.0 until everything is ready to move to 1.10.3",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_dc331cf5",
+        "filename": "pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-01T23:24:27Z",
+      "side": 1,
+      "message": "1.8.0",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_bc3060e9",
+        "filename": "pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-01T23:24:27Z",
+      "side": 1,
+      "message": "1.0.0-SNAPSHOT",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_1c3ab4cd",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-01T23:24:27Z",
+      "side": 1,
+      "message": "When running this, I saw an exception on this line. If I change the condition to include looking for the empty string then the exception goes away. not sure about the conditions to get the pktCustomizerClassName \u003d \"\"\n\nif (pktCustomizerClassName \u003d\u003d null || pktCustomizerClassName \u003d\u003d \"\") {",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

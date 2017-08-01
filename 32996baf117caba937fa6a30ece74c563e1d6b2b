@@ -67,6 +67,23 @@
       "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1a2d67_5c6eecca",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-01T23:41:35Z",
+      "side": 1,
+      "message": "This won\u0027t really work in ONOS, as OSGi won\u0027t allow you to load a JAR from outside you component space. So this would really only work if all the packet customizers were already in the aaa OAR file.\n\nOSGi is set up to leverage services, so if could work if different aaa customizer service implementations were available, but that is a bit more heavy weight.\n\nI like the idea behind this, but this implementation really won\u0027t work, or rather really isn\u0027t as dynamically extensible as I think you would like.",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

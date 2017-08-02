@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "fa3479d7_3226d069",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-08-02T06:21:30Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "1a1a2d67_1c3ab4cd",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1a2d67_5c6eecca",
         "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
         "patchSetId": 4
@@ -81,6 +99,24 @@
       "writtenOn": "2017-08-01T23:41:35Z",
       "side": 1,
       "message": "This won\u0027t really work in ONOS, as OSGi won\u0027t allow you to load a JAR from outside you component space. So this would really only work if all the packet customizers were already in the aaa OAR file.\n\nOSGi is set up to leverage services, so if could work if different aaa customizer service implementations were available, but that is a bit more heavy weight.\n\nI like the idea behind this, but this implementation really won\u0027t work, or rather really isn\u0027t as dynamically extensible as I think you would like.",
+      "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa3479d7_f21f2808",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-08-02T06:21:30Z",
+      "side": 1,
+      "message": "Agreed with your comments David.\n\nYes it is not flexible enough to use any packet customization implementation from outside, but choose from the customizations that might be available within aaa. So aaa might have say 3 different implementations (and ppl can add more into aaa) and when we activate the app we choose which implementation we would want. This will help in using the same app across different scenarios else we will need to have a different aaa for each case. The current app is completely backward compatible with the RCORD use case (we just don\u0027t specify a customizer) and serves the AT\u0026T use case also with the SamplePacketCustomizer.",
+      "parentUuid": "1a1a2d67_5c6eecca",
       "revId": "32996baf117caba937fa6a30ece74c563e1d6b2b",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa3479d7_b2e400ad",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-02T17:25:45Z",
+      "side": 1,
+      "message": "I still don\u0027t quite understand what is being accomplished here and what dynamic class loading is meant to accomplish as the class must be in the same bundle to be loaded within in OSGi container. Would you please provide an explanation so that I can better understand.",
+      "revId": "3bfc5a95f2c5a7e6c13d190bb2bc7badc2a26bb6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

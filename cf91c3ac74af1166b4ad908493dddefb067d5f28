@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa3479d7_98b59d33",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-03T16:59:31Z",
+      "side": 1,
+      "message": "wonder if the setting should be RADIUS_CONNECTION_TYPE with values of socket or packet_out ?",
+      "revId": "cf91c3ac74af1166b4ad908493dddefb067d5f28",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa3479d7_f8aee9e6",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-03T16:59:31Z",
+      "side": 1,
+      "message": "can we split this into its own file?",
+      "revId": "cf91c3ac74af1166b4ad908493dddefb067d5f28",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa3479d7_d8ab25d5",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-03T16:59:31Z",
+      "side": 1,
+      "message": "can we split this into its own file",
+      "revId": "cf91c3ac74af1166b4ad908493dddefb067d5f28",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa3479d7_b8b8612b",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-03T16:59:31Z",
+      "side": 1,
+      "message": "can we split this into its own file",
+      "revId": "cf91c3ac74af1166b4ad908493dddefb067d5f28",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

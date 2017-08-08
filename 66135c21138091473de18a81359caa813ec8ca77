@@ -34,6 +34,24 @@
       "revId": "66135c21138091473de18a81359caa813ec8ca77",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_0fcf25b2",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-08-08T17:39:46Z",
+      "side": 1,
+      "message": "Yes David, with the rollover logic existing transactions in the identifier map would be overwritten in case of very heavy load.\n\nWe definitely need to address it, but I don\u0027t know if there is a simple/easy solution to this.\n\nOne option could be:\n\n* While allocating an identifier value, make sure it does not exist in the identifier map.\n* Since RADIUS goes on top of UDP, it is possible that messages are lost, so we need to have some kind of timer mechanism to time out each initiated transaction, so that identifier can be freed up.\n* Also I guess we need to use some kind of heuristic, to leave some part of the identifier space (0-255) empty (while starting new StateMachines) so that under very heavy loads existing procedures are not starved of identifier values and can complete before new StateMachines take up identifiers.\n\nI guess we should visit this at a later point of time.",
+      "parentUuid": "9a437d4f_2f7c2972",
+      "revId": "66135c21138091473de18a81359caa813ec8ca77",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_8fb55533",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-08-08T17:16:51Z",
+      "side": 1,
+      "message": "\"identifier\" is a static member of the class, so this logic would cause problems. I suggest instead of the lines 166-168, we should just call the function deleteStateMachineMappings(e.getValue())",
+      "revId": "66135c21138091473de18a81359caa813ec8ca77",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

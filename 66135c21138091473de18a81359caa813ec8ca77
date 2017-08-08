@@ -16,6 +16,24 @@
       "revId": "66135c21138091473de18a81359caa813ec8ca77",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_2f7c2972",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-08T17:22:29Z",
+      "side": 1,
+      "message": "ok, i will change this. there was a change in a previous commit that i think we need to revisit where a bit set was used to keep track of which \"indexes\" are in use. The current implementation is using a wrap around queue which means indexes that are in \"use\" could be overwritten. with the bit set the code was able to tell when there were no free indexes and could error out as well as allocate identifiers from a free space as opposed to sequentially.\n\nthat being said, I will update this code to call deleteStateMachineMapping().",
+      "parentUuid": "9a437d4f_8fb55533",
+      "revId": "66135c21138091473de18a81359caa813ec8ca77",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

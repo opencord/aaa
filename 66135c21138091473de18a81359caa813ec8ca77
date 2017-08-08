@@ -52,6 +52,24 @@
       "revId": "66135c21138091473de18a81359caa813ec8ca77",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_2f58a9f9",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-08-08T17:48:38Z",
+      "side": 1,
+      "message": "Agreed we need to address these issues, and perhaps need to address it post POC3. I will open a Jira.",
+      "parentUuid": "9a437d4f_0fcf25b2",
+      "revId": "66135c21138091473de18a81359caa813ec8ca77",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

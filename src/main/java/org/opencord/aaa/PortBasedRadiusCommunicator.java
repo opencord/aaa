@@ -129,7 +129,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         mastershipService.addListener(changeListener);
         deviceService.addListener(deviceListener);
 
-        log.error("Created PortBased");
+        log.info("Created PortBased");
     }
 
     private void initializeLocalState() {
@@ -142,13 +142,12 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                         if (deviceService.isAvailable(cp.deviceId())) {
                             radiusServerConnectPoint = cp;
                         }
-                        log.warn("RADIUS connectPoint selected is {}", cp);
                         break;
                     }
                 }
             }
 
-            log.warn("RADIUS connectPoint in initializeLocalState is {}", radiusServerConnectPoint);
+            log.info("RADIUS connectPoint in initializeLocalState is {}", radiusServerConnectPoint);
 
             if (radiusServerConnectPoint == null) {
                 log.error("Master of none, can't send radius Message to server");
@@ -248,7 +247,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         SubscriberAndDeviceInformation deviceInfo = subsService.get(serialNo);
 
         if (deviceInfo == null) {
-            log.error("No Device found with SN {}", serialNo);
+            log.warn("No Device found with SN {}", serialNo);
             return;
         }
         ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
@@ -325,7 +324,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         }
         MacAddress senderMac = subsService.get(serialNo).hardwareIdentifier();
         if (senderMac == null) {
-            log.error("ARP resolution, MAC address not found for SN {}", serialNo);
+            log.warn("ARP resolution, MAC address not found for SN {}", serialNo);
             return;
         }
 

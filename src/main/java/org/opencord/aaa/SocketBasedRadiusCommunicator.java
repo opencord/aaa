@@ -132,7 +132,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             radiusIpAddress, radiusServerPort);
 
             socket.send(packet);
-            log.warn("Packet sent to Radius Server using socket packet = {}", packet);
+            log.info("Packet sent to Radius Server using socket packet = {}", packet);
         } catch (IOException e) {
             log.info("Cannot send packet to RADIUS server", e);
         }

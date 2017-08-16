@@ -423,6 +423,9 @@ public class AaaManager {
                             subsService.get(nasPortId);
                     if (subscriber != null) {
                         stateMachine = new StateMachine(sessionId, subscriber.cTag());
+                    } else {
+                        log.error("Could not create new state machine for {}", nasPortId);
+                        return;
                     }
                 } else {
                     stateMachine = new StateMachine(sessionId, VlanId.vlanId((short) 0));

@@ -51,3 +51,29 @@ As of today AAA App provides two different customizers
 "sample" : This is a sample customization wherein specific RADIUS attributes and filled with values from `Sadis` Service. The src MAC and src IP of the RADIUS messages are set according to the OLT device (from which the EAP Start message is received) configured in `Sadis`
 
 More customizers might be added to AAA App later which can fill Subscriber specific atrributes into the RADIUS attributes/messages by querying data from `Sadis`. The key to get data from Sadis is the PortName of the Port from which EAP messages are received.
+
+# Example configuration of Sadis
+```sh
+   "org.opencord.sadis" : {
+      "sadis" : {
+        "integration" : {
+          "cache" : {
+            "enabled" : true,
+            "maxsize" : 50,
+            "ttl" : "PT1m"
+          }
+        },
+        "entries" : [ {
+          "id" : "uni-128", # (This is an entry for a subscriber) Same as the portName of the Port as seen in onos ports command
+          "cTag" : 2, # C-tag of the subscriber
+          "sTag" : 2, # S-tag of the subscriber
+          "nasPortId" : "uni-128"  # NAS Port Id of the subscriber, could be different from the id above
+        }, {
+          "id" : "1d3eafb52e4e44b08818ab9ebaf7c0d4", # (This is an entry for an OLT device) Same as the serial of the OLT logical device as seen in the onos devices command
+          "hardwareIdentifier" : "00:1b:22:00:b1:78", # MAC address to be used for this OLT
+          "ipAddress" : "192.168.1.252", # IP address to be used for this OLT
+          "nasId" : "B100-NASID" # NAS ID to be used for this OLT
+        } ]
+      }
+    }
+ ```

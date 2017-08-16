@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a2585a7_33ddb043",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-08-16T04:23:14Z",
+      "side": 1,
+      "message": "For this change we would need to change the version of olt app also to 1.2.0. Are you taking care of that as well?",
+      "revId": "e7a288f36105e1cfd695f077894bf6d5df03d7e1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

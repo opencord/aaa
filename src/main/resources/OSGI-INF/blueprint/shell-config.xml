@@ -19,5 +19,8 @@
         <command>
             <action class="org.opencord.aaa.AaaShowUsersCommand"/>
         </command>
+        <command>
+            <action class="org.opencord.aaa.AaaResetDeviceCommand"/>
+        </command>
     </command-bundle>
 </blueprint>

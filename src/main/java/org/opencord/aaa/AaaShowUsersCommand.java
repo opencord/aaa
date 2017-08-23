@@ -17,6 +17,11 @@ package org.opencord.aaa;
 
 import org.apache.karaf.shell.commands.Command;
 import org.onosproject.cli.AbstractShellCommand;
+import org.onosproject.net.AnnotationKeys;
+import org.onosproject.net.device.DeviceService;
+
+import org.opencord.sadis.SubscriberAndDeviceInformation;
+import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
 /**
  * Shows the users in the aaa.
@@ -33,13 +38,28 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
                 "AUTHORIZED",
                 "UNAUTHORIZED"
         };
+
+        DeviceService devService = AbstractShellCommand.get(DeviceService.class);
+        SubscriberAndDeviceInformationService subsService =
+                AbstractShellCommand.get(SubscriberAndDeviceInformationService.class);
+
         for (StateMachine stateMachine : StateMachine.sessionIdMap().values()) {
             String deviceId = stateMachine.supplicantConnectpoint().deviceId().toString();
             String portNum = stateMachine.supplicantConnectpoint().port().toString();
             String username = new String(stateMachine.username());
             String mac = stateMachine.supplicantAddress().toString();
-            print("UserName=%s,CurrentState=%s,DeviceId=%s,MAC=%s,PortNumber=%s",
-                  username, state[stateMachine.state()], deviceId, mac, portNum);
+
+            String nasPortId = devService.getPort(stateMachine.supplicantConnectpoint()).
+                    annotations().value(AnnotationKeys.PORT_NAME);
+
+            String subsId = "Unknown";
+            SubscriberAndDeviceInformation subscriber = subsService.get(nasPortId);
+            if (subscriber != null) {
+                subsId = subscriber.nasPortId();
+            }
+
+            print("UserName=%s,CurrentState=%s,DeviceId=%s,MAC=%s,PortNumber=%s,SubscriberId=%s",
+                  username, state[stateMachine.state()], deviceId, mac, portNum, subsId);
         }
     }
 }

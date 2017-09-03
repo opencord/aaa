@@ -92,6 +92,12 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
 
         log.info("Setting user={} nasId={} nasPort{}", srcMac, nodeName,
                 nasPortId);
+        if (nodeName == null || nasPortId == null) {
+            log.warn("Insufficient data to proceed with Customizing packet, " +
+                    "nasId = {}, nasPortId = {}",
+                     nodeName, nasPortId);
+            return inPkt;
+        }
         inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME,
                 srcMac.toString().getBytes());
 
@@ -141,6 +147,12 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
 
         if (deviceInfo == null) {
             log.warn("No Device found with SN {}", serialNo);
+            return inPkt;
+        }
+        if (deviceInfo.hardwareIdentifier() == null || deviceInfo.ipAddress() == null) {
+            log.warn("Insufficient data to proceed with Customizing Ethernet IPHeaders, " +
+                    "nasId = {}, nasPortId = {}",
+                    deviceInfo.hardwareIdentifier(), deviceInfo.ipAddress());
             return inPkt;
         }
 

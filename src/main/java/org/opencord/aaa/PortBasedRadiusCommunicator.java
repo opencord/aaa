@@ -250,6 +250,10 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
             log.warn("No Device found with SN {}", serialNo);
             return;
         }
+        if (deviceInfo.ipAddress() == null) {
+            log.warn("ipAddress not found for device with serialNo : {}", serialNo);
+            return;
+        }
         ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
 
         // send the message out

@@ -90,10 +90,7 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
         }
         String nodeName = deviceInfo.nasId();
 
-        log.info("Setting user={} nasId={} nasPort{}", srcMac, nodeName,
-                nasPortId);
-        inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME,
-                srcMac.toString().getBytes());
+        log.info("Setting nasId={} nasPortId{}", nodeName, nasPortId);
 
         inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
                 deviceInfo.ipAddress().toOctets());

@@ -238,7 +238,7 @@ public class AaaManager {
         packetService.removeProcessor(processor);
         processor = null;
         StateMachine.destroyMaps();
-
+        netCfgService.removeListener(cfgListener);
         impl.deactivate();
 
         log.info("Stopped");

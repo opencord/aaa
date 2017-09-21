@@ -120,6 +120,8 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.netCfgService = new TestNetworkConfigRegistry();
         aaaManager.coreService = new CoreServiceAdapter();
         aaaManager.packetService = new MockPacketService();
+        aaaManager.deviceService = new TestDeviceService();
+        aaaManager.subsService = new MockSubService();
         aaaManager.activate();
     }
 

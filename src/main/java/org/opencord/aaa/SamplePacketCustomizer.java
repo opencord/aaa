@@ -90,10 +90,7 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
         }
         String nodeName = deviceInfo.nasId();
 
-        log.info("Setting user={} nasId={} nasPort{}", srcMac, nodeName,
-                nasPortId);
-        inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME,
-                srcMac.toString().getBytes());
+        log.info("Setting nasId={} nasPortId{}", nodeName, nasPortId);
 
         inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
                 deviceInfo.ipAddress().toOctets());
@@ -105,9 +102,8 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_PORT_TYPE,
                 ByteBuffer.allocate(4).putInt(15).array());
 
-        // Check - This may not be needed but was used in PoC2
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_PORT,
-                ByteBuffer.allocate(4).putInt(46178304).array());
+                ByteBuffer.allocate(4).putInt((int) p.number().toLong()).array());
         // Check - If this is needed, worked with this value in PoC2
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_ACCT_SESSION_ID,
                 "023:27:46:00000".getBytes());

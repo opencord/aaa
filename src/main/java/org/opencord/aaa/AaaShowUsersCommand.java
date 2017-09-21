@@ -46,8 +46,15 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
         for (StateMachine stateMachine : StateMachine.sessionIdMap().values()) {
             String deviceId = stateMachine.supplicantConnectpoint().deviceId().toString();
             String portNum = stateMachine.supplicantConnectpoint().port().toString();
-            String username = new String(stateMachine.username());
-            String mac = stateMachine.supplicantAddress().toString();
+
+            String username = "UNKNOWN";
+            if (stateMachine.username() != null) {
+                username = new String(stateMachine.username());
+            }
+            String mac = "UNKNOWN";
+            if (stateMachine.supplicantAddress() != null) {
+                mac = stateMachine.supplicantAddress().toString();
+            }
 
             String nasPortId = devService.getPort(stateMachine.supplicantConnectpoint()).
                     annotations().value(AnnotationKeys.PORT_NAME);

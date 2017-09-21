@@ -41,6 +41,8 @@ import org.onosproject.net.config.ConfigFactory;
 import org.onosproject.net.config.NetworkConfigEvent;
 import org.onosproject.net.config.NetworkConfigListener;
 import org.onosproject.net.config.NetworkConfigRegistry;
+import org.onosproject.net.device.DeviceEvent;
+import org.onosproject.net.device.DeviceListener;
 import org.onosproject.net.device.DeviceService;
 import org.onosproject.net.flow.DefaultTrafficTreatment;
 import org.onosproject.net.flow.TrafficTreatment;
@@ -63,6 +65,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * AAA application for ONOS.
@@ -97,6 +100,8 @@ public class AaaManager {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected AccessDeviceService accessDeviceService;
+
+    private final DeviceListener deviceListener = new InternalDeviceListener();
 
     // NAS IP address
     protected InetAddress nasIpAddress;
@@ -228,6 +233,8 @@ public class AaaManager {
 
         impl.requestIntercepts();
 
+        deviceService.addListener(deviceListener);
+
         log.info("Started");
     }
 
@@ -240,6 +247,7 @@ public class AaaManager {
         StateMachine.destroyMaps();
 
         impl.deactivate();
+        deviceService.removeListener(deviceListener);
 
         log.info("Stopped");
     }
@@ -583,6 +591,29 @@ public class AaaManager {
                 reconfigureNetwork(cfg);
 
                 log.info("Reconfigured");
+            }
+        }
+    }
+
+    private class InternalDeviceListener implements DeviceListener {
+        @Override
+        public void event(DeviceEvent event) {
+
+            switch (event.type()) {
+                case PORT_REMOVED:
+                    DeviceId devId = event.subject().id();
+                    PortNumber portNumber = event.port().number();
+                    String sessionId = devId.toString() + portNumber.toString();
+
+                    Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
+                    StateMachine removed = sessionIdMap.remove(sessionId);
+                    if (removed != null) {
+                        StateMachine.deleteStateMachineMapping(removed);
+                    }
+
+                    break;
+                default:
+                    return;
             }
         }
     }

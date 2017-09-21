@@ -20,7 +20,16 @@ import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
+import org.onlab.packet.Ip4Address;
 import org.onlab.packet.MacAddress;
+import org.onlab.packet.VlanId;
+
+import org.onosproject.net.Annotations;
+import org.onosproject.net.device.DeviceServiceAdapter;
+import org.onosproject.net.ConnectPoint;
+import org.onosproject.net.Element;
+import org.onosproject.net.Port;
+import org.onosproject.net.PortNumber;
 import org.onosproject.net.packet.DefaultInboundPacket;
 import org.onosproject.net.packet.DefaultPacketContext;
 import org.onosproject.net.packet.InboundPacket;
@@ -29,10 +38,14 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketServiceAdapter;
 
+import org.opencord.sadis.SubscriberAndDeviceInformation;
+import org.opencord.sadis.SubscriberAndDeviceInformationService;
+
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -86,6 +99,88 @@ public class AaaTestBase {
         }
     }
 
+    /**
+     * Mocks the DeviceService.
+     */
+    final class TestDeviceService extends DeviceServiceAdapter {
+        @Override
+        public Port getPort(ConnectPoint cp) {
+            return new MockPort();
+        }
+    }
+    private class  MockPort implements Port {
+
+        @Override
+        public boolean isEnabled() {
+            return true;
+        }
+        public long portSpeed() {
+            return 1000;
+        }
+        public Element element() {
+            return null;
+        }
+        public PortNumber number() {
+            return null;
+        }
+        public Annotations annotations() {
+            return new MockAnnotations();
+        }
+        public Type type() {
+            return Port.Type.FIBER;
+        }
+
+        private class MockAnnotations implements Annotations {
+
+            @Override
+            public String value(String val) {
+                return "PON 1/1";
+            }
+            public Set<String> keys() {
+                return null;
+            }
+        }
+    }
+
+    private class MockSubscriberAndDeviceInformation extends SubscriberAndDeviceInformation {
+
+        MockSubscriberAndDeviceInformation(String id, VlanId ctag,
+                                           VlanId stag, String nasPortId,
+                                           String circuitId, MacAddress hardId,
+                                           Ip4Address ipAddress) {
+            this.setCTag(ctag);
+            this.setHardwareIdentifier(hardId);
+            this.setId(id);
+            this.setIPAddress(ipAddress);
+            this.setSTag(stag);
+            this.setNasPortId(nasPortId);
+            this.setCircuitId(circuitId);
+        }
+    }
+
+    final class MockSubService implements SubscriberAndDeviceInformationService {
+        private final VlanId clientCtag = VlanId.vlanId((short) 999);
+        private final VlanId clientStag = VlanId.vlanId((short) 111);
+        private final String clientNasPortId = "PON 1/1";
+        private final String clientCircuitId = "CIR-PON 1/1";
+
+        MockSubscriberAndDeviceInformation sub =
+                new MockSubscriberAndDeviceInformation(clientNasPortId, clientCtag,
+                        clientStag, clientNasPortId, clientCircuitId, null, null);
+        @Override
+        public SubscriberAndDeviceInformation get(String id) {
+
+                return  sub;
+
+        }
+
+        @Override
+        public void invalidateAll() {}
+        public void invalidateId(String id) {}
+        public SubscriberAndDeviceInformation getfromCache(String id) {
+            return null;
+        }
+    }
     /**
      * Mocks the DefaultPacketContext.
      */

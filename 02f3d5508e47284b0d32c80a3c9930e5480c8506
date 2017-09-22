@@ -16,6 +16,24 @@
       "revId": "02f3d5508e47284b0d32c80a3c9930e5480c8506",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_50581dfa",
+        "filename": "src/main/java/org/opencord/aaa/AaaShowUsersCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-09-22T14:33:08Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "9a5c5d37_f047111c",
+      "revId": "02f3d5508e47284b0d32c80a3c9930e5480c8506",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

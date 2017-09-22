@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_f047111c",
+        "filename": "src/main/java/org/opencord/aaa/AaaShowUsersCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-09-22T14:22:34Z",
+      "side": 1,
+      "message": "should this be ALL CAPS, to be consistent?",
+      "revId": "02f3d5508e47284b0d32c80a3c9930e5480c8506",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

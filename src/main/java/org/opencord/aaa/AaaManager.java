@@ -15,12 +15,10 @@
  */
 package org.opencord.aaa;
 
-import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
 import org.onlab.packet.EthType;
@@ -29,7 +27,6 @@ import org.onlab.packet.MacAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
 import org.onlab.packet.VlanId;
-
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipService;
@@ -52,26 +49,25 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
-
 import org.opencord.olt.AccessDeviceService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.opencord.sadis.SubscriberAndDeviceInformationService;
-
+import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
-
-import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
+import static org.slf4j.LoggerFactory.getLogger;
+
 /**
  * AAA application for ONOS.
  */
 @Component(immediate = true)
-public class AaaManager {
+public class
+AaaManager {
     private static final String APP_NAME = "org.opencord.aaa";
 
     // for verbose output
@@ -199,31 +195,13 @@ public class AaaManager {
     public void activate() {
         netCfgService.registerConfigFactory(factory);
         appId = coreService.registerApplication(APP_NAME);
-
+        customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
+        configureRadiusCommunication();
 
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
 
-        customInfo = new CustomizationInfo(subsService, deviceService);
-
-        switch (customizer.toLowerCase()) {
-            case "sample":
-                pktCustomizer = new SamplePacketCustomizer(customInfo);
-                log.info("Created SamplePacketCustomizer");
-                break;
-            default:
-                pktCustomizer = new PacketCustomizer(customInfo);
-                log.info("Created default PacketCustomizer");
-                break;
-        }
-
-        if (radiusConnectionType.toLowerCase().equals("socket")) {
-            impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
-        } else {
-            impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
-                    deviceService, subsService, pktCustomizer, this);
-        }
 
         StateMachine.initializeMaps();
         StateMachine.setAccessDeviceService(accessDeviceService);
@@ -238,18 +216,40 @@ public class AaaManager {
         log.info("Started");
     }
 
+
     @Deactivate
     public void deactivate() {
         impl.withdrawIntercepts();
         // de-register and null our handler
         packetService.removeProcessor(processor);
         processor = null;
-        StateMachine.destroyMaps();
         netCfgService.removeListener(cfgListener);
+        StateMachine.destroyMaps();
         impl.deactivate();
         deviceService.removeListener(deviceListener);
-
         log.info("Stopped");
+    }
+
+    private void configureRadiusCommunication() {
+        if (radiusConnectionType.toLowerCase().equals("socket")) {
+            impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
+        } else {
+            impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
+                    deviceService, subsService, pktCustomizer, this);
+        }
+    }
+
+    private void configurePacketCustomizer() {
+        switch (customizer.toLowerCase()) {
+            case "sample":
+                pktCustomizer = new SamplePacketCustomizer(customInfo);
+                log.info("Created SamplePacketCustomizer");
+                break;
+            default:
+                pktCustomizer = new PacketCustomizer(customInfo);
+                log.info("Created default PacketCustomizer");
+                break;
+        }
     }
 
     /**
@@ -571,10 +571,25 @@ public class AaaManager {
                 radiusSecret = newCfg.radiusSecret();
             }
 
-            radiusConnectionType = newCfg.radiusConnectionType();
-            customizer = newCfg.radiusPktCustomizer();
+            boolean reconfigureCustomizer = false;
+            if (customizer == null || !customizer.equals(newCfg.radiusPktCustomizer())) {
+                customizer = newCfg.radiusPktCustomizer();
+                configurePacketCustomizer();
+                reconfigureCustomizer = true;
+            }
 
-            if (impl != null) {
+            if (radiusConnectionType == null
+                    || reconfigureCustomizer
+                    || !radiusConnectionType.equals(newCfg.radiusConnectionType())) {
+                radiusConnectionType = newCfg.radiusConnectionType();
+                if (impl != null) {
+                    impl.withdrawIntercepts();
+                    impl.clearLocalState();
+                }
+                configureRadiusCommunication();
+                impl.initializeLocalState(newCfg);
+                impl.requestIntercepts();
+            } else if (impl != null) {
                 impl.clearLocalState();
                 impl.initializeLocalState(newCfg);
             }

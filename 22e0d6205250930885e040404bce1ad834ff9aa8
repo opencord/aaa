@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_e9cdec5e",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-09-27T19:13:03Z",
+      "side": 1,
+      "message": "why is this TODO as opposed to part of this patch?",
+      "range": {
+        "startLine": 572,
+        "startChar": 0,
+        "endLine": 572,
+        "endChar": 51
+      },
+      "revId": "22e0d6205250930885e040404bce1ad834ff9aa8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

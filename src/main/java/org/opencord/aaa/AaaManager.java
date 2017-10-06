@@ -233,6 +233,7 @@ public class AaaManager {
 
     @Deactivate
     public void deactivate() {
+        netCfgService.unregisterConfigFactory(factory);
         impl.withdrawIntercepts();
         // de-register and null our handler
         packetService.removeProcessor(processor);

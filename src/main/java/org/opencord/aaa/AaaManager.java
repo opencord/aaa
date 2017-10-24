@@ -21,6 +21,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 
+import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
 import org.onlab.packet.EthType;
@@ -53,7 +54,6 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
 
-import org.opencord.olt.AccessDeviceService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
@@ -98,8 +98,9 @@ public class AaaManager {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipService mastershipService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    protected AccessDeviceService accessDeviceService;
+    // FIXME: can't depend on AccessDeviceService
+//    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+//    protected AccessDeviceService accessDeviceService;
 
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
@@ -226,7 +227,8 @@ public class AaaManager {
         }
 
         StateMachine.initializeMaps();
-        StateMachine.setAccessDeviceService(accessDeviceService);
+        // FIXME: can't depend on AccessDeviceService
+//        StateMachine.setAccessDeviceService(accessDeviceService);
 
         impl.initializeLocalState(newCfg);
         netCfgService.addListener(cfgListener);
@@ -268,7 +270,7 @@ public class AaaManager {
      * @param radiusPacket RADIUS packet coming from the RADIUS server.
      * @throws StateMachineException if an illegal state transition is triggered
      */
-    public void handleRadiusPacket(RADIUS radiusPacket) throws StateMachineException {
+    public void handleRadiusPacket(RADIUS radiusPacket) throws StateMachineException, DeserializationException {
         StateMachine stateMachine = StateMachine.lookupStateMachineById(radiusPacket.getIdentifier());
         if (stateMachine == null) {
             log.error("Invalid session identifier {}, exiting...", radiusPacket.getIdentifier());
@@ -298,8 +300,7 @@ public class AaaManager {
                 //send an EAPOL - Success to the supplicant.
                 byte[] eapMessageSuccess =
                         radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
-                eapPayload = new EAP();
-                eapPayload = (EAP) eapPayload.deserialize(eapMessageSuccess, 0, eapMessageSuccess.length);
+                eapPayload = deserializeEAP(eapMessageSuccess);
                 eth = buildEapolResponse(stateMachine.supplicantAddress(),
                         MacAddress.valueOf(nasMacAddress),
                         stateMachine.vlanId(),
@@ -321,7 +322,7 @@ public class AaaManager {
                     eapPayload.setLength(EAP.EAP_HDR_LEN_SUC_FAIL);
                 } else {
                     eapMessageFailure = radiusAttrEap.getValue();
-                    eapPayload = (EAP) eapPayload.deserialize(eapMessageFailure, 0, eapMessageFailure.length);
+                    eapPayload = deserializeEAP(eapMessageFailure);
                 }
                 eth = buildEapolResponse(stateMachine.supplicantAddress(),
                         MacAddress.valueOf(nasMacAddress),
@@ -335,6 +336,18 @@ public class AaaManager {
             default:
                 log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());
         }
+    }
+
+    // Isolate the method call to deserialize the EAP payload --
+    //  Note: the deserialize() instance method was deprecated in
+    //  ONOS Cardinal (1.2), and removed in ONOS Loon (1.11)
+    private EAP deserializeEAP(byte[] eapBytes) throws DeserializationException {
+        // == Old way of deserializing
+//        EAP eapPayload = new EAP();
+//        return (EAP) eapPayload.deserialize(eapBytes, 0, eapBytes.length);
+
+        // == Preferred way of deserializing
+        return EAP.deserializer().deserialize(eapBytes, 0, eapBytes.length);
     }
 
     /**

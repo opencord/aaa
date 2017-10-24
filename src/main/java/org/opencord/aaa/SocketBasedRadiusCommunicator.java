@@ -105,7 +105,9 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
     }
 
     @Override
-    public void deactivate() { }
+    public void deactivate() {
+       clearLocalState();
+    }
 
     @Override
     public void requestIntercepts() {

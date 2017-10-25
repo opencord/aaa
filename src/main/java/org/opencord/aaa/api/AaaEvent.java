@@ -19,6 +19,8 @@ import org.onlab.packet.VlanId;
 import org.onosproject.event.AbstractEvent;
 import org.onosproject.net.ConnectPoint;
 
+import java.util.Objects;
+
 /**
  * Describes an authentication event.
  */
@@ -116,6 +118,26 @@ public class AaaEvent extends AbstractEvent<AaaEvent.Type, ConnectPoint> {
      */
     public VlanId vlanId() {
         return vlanId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof AaaEvent) {
+            final AaaEvent other = (AaaEvent) o;
+            return Objects.equals(this.type(), other.type()) &&
+                    Objects.equals(this.subject(), other.subject()) &&
+                    Objects.equals(this.time(), other.time()) &&
+                    Objects.equals(this.vlanId(), other.vlanId());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type(), subject(), time(), vlanId());
     }
 
     @Override

@@ -19,8 +19,11 @@ import org.junit.Test;
 import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.PrintableTest;
+import org.opencord.aaa.api.AaaEvent.Type;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.onosproject.net.ConnectPoint.deviceConnectPoint;
 
 /**
@@ -28,29 +31,61 @@ import static org.onosproject.net.ConnectPoint.deviceConnectPoint;
  */
 public class AaaEventTest extends PrintableTest {
 
-    private static final long TIME = 12345L;
-    private static final ConnectPoint CP = deviceConnectPoint("of:01/1");
+    private static final long TIME1 = 12345L;
+    private static final long TIME2 = 54321L;
+    private static final ConnectPoint CP1 = deviceConnectPoint("of:01/1");
+    private static final ConnectPoint CP2 = deviceConnectPoint("of:02/2");
     private static final VlanId VLAN_32 = VlanId.vlanId((short) 32);
+    private static final VlanId VLAN_64 = VlanId.vlanId((short) 64);
+
+    private static final AaaEvent AEV_1 =
+            new AaaEvent(Type.AUTH_START, CP1, TIME1);
+    private static final AaaEvent AEV_2 =
+            new AaaEvent(Type.AUTH_START, CP1, TIME1, VLAN_32);
+    private static final AaaEvent AEV_3 =
+            new AaaEvent(Type.AUTH_LOGOFF, CP1, TIME1);
+    private static final AaaEvent AEV_4 =
+            new AaaEvent(Type.AUTH_LOGOFF, CP1, TIME2);
+    private static final AaaEvent AEV_5 =
+            new AaaEvent(Type.AUTH_LOGOFF, CP2, TIME2);
+    private static final AaaEvent AEV_6 =
+            new AaaEvent(Type.AUTH_LOGOFF, CP2, VLAN_64);
+    private static final AaaEvent AEV_7 =
+            new AaaEvent(Type.AUTH_REQUEST_ACCESS, CP1, TIME1, VLAN_64);
+    private static final AaaEvent AEV_7_AGAIN =
+            new AaaEvent(Type.AUTH_REQUEST_ACCESS, CP1, TIME1, VLAN_64);
+
 
     private AaaEvent event;
 
     @Test
     public void basic() {
-        event = new AaaEvent(AaaEvent.Type.ACCESS_DENIED, CP, TIME);
+        event = new AaaEvent(Type.ACCESS_DENIED, CP1, TIME1);
         print(event);
-        assertEquals(AaaEvent.Type.ACCESS_DENIED, event.type());
-        assertEquals(TIME, event.time());
-        assertEquals(CP, event.subject());
+        assertEquals(Type.ACCESS_DENIED, event.type());
+        assertEquals(TIME1, event.time());
+        assertEquals(CP1, event.subject());
         assertEquals(null, event.vlanId());
     }
 
     @Test
     public void vlan32() {
-        event = new AaaEvent(AaaEvent.Type.ACCESS_AUTHORIZED, CP, VLAN_32);
+        event = new AaaEvent(Type.ACCESS_AUTHORIZED, CP1, VLAN_32);
         print(event);
-        assertEquals(AaaEvent.Type.ACCESS_AUTHORIZED, event.type());
-        assertEquals(CP, event.subject());
+        assertEquals(Type.ACCESS_AUTHORIZED, event.type());
+        assertEquals(CP1, event.subject());
         assertEquals(VLAN_32, event.vlanId());
     }
 
+    @Test
+    public void checkEquivalence() {
+        assertNotEquals(AEV_1, AEV_2);
+        assertNotEquals(AEV_1, AEV_3);
+        assertNotEquals(AEV_3, AEV_4);
+        assertNotEquals(AEV_4, AEV_5);
+        assertNotEquals(AEV_5, AEV_6);
+        assertNotEquals(AEV_6, AEV_7);
+        assertNotSame(AEV_7, AEV_7_AGAIN);
+        assertEquals(AEV_7, AEV_7_AGAIN);
+    }
 }

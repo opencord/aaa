@@ -22,6 +22,30 @@
       "revId": "05e819319b8d48494774b077c1ebd7d72d25f039",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_2c2c1bab",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-10-25T22:37:45Z",
+      "side": 1,
+      "message": "Do you have any suggestion as to what the action should be when we catch the DeserializationException?\n\nif we can\u0027t get the payload, we can\u0027t embed it in an EAPOL response.",
+      "parentUuid": "9a5c5d37_ecc163e5",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 44
+      },
+      "revId": "05e819319b8d48494774b077c1ebd7d72d25f039",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

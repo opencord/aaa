@@ -46,6 +46,30 @@
       "revId": "05e819319b8d48494774b077c1ebd7d72d25f039",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_973af0cb",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2017-10-25T23:19:27Z",
+      "side": 1,
+      "message": "An unhandled DeserializationException will terminate the thread. It looks like this is run in the same thread of packet processor and that worries me.\n\nIf a deserializer is triggered by packet_in, DefaultOpenFlowPacketContext will capture the exception and print an error message. However, since you are invoking the deserializer directly, it is not protected by that.\n\nI would suggest just print an error message and abort the processing of this packet.",
+      "parentUuid": "9a5c5d37_2c2c1bab",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 44
+      },
+      "revId": "05e819319b8d48494774b077c1ebd7d72d25f039",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

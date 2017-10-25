@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_ecf3a371",
+        "filename": "src/main/java/org/opencord/aaa/api/AaaEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2017-10-25T21:40:24Z",
+      "side": 1,
+      "message": "Please override equals() and hashCode()",
+      "range": {
+        "startLine": 25,
+        "startChar": 13,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "8e1a0c7653f0e91d9a4053b091bd77dfe2eaeec3",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

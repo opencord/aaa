@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_ecc163e5",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2017-10-25T21:45:47Z",
+      "side": 1,
+      "message": "These comments doesn\u0027t seem very informative to me. I would suggest remove them.\n\nAlso, we should probably handle the DeserializationException.",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 44
+      },
+      "revId": "05e819319b8d48494774b077c1ebd7d72d25f039",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

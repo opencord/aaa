@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_ec8de332",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2017-10-25T15:50:38Z",
+      "side": 1,
+      "message": "Assuming that this should not be merged until this is added?",
+      "revId": "310d486c4f85111104af939cb93a26137984f2b3",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

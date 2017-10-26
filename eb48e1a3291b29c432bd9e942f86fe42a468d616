@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_77f65cd9",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-10-26T07:30:08Z",
+      "side": 1,
+      "message": "radiusConnectionType cannot be null, if not configured it will have the default value (currently \"socket\")\n\nI guess you would have wanted to remove line 580 above",
+      "revId": "eb48e1a3291b29c432bd9e942f86fe42a468d616",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_570358b8",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-10-26T07:30:08Z",
+      "side": 1,
+      "message": "With the current code this will always be true. Please check",
+      "revId": "eb48e1a3291b29c432bd9e942f86fe42a468d616",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

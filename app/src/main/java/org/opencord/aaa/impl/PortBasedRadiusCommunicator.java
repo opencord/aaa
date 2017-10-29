@@ -259,13 +259,21 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
             aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             return;
         }
-        ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
+
         if (radiusPacket.getIdentifier() == RadiusOperationalStatusManager.AAA_REQUEST_ID_STATUS_REQUEST ||
                 radiusPacket.getIdentifier() == RadiusOperationalStatusManager.AAA_REQUEST_ID_FAKE_ACCESS_REQUEST) {
             aaaManager.radiusOperationalStatusService.setOutTimeInMillis(radiusPacket.getIdentifier());
         } else {
             aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
         }
+
+        Ip4Address ipAddress = deviceInfo.ipAddress();
+        if (ipAddress != null) {
+            ipToSnMap.put(ipAddress, serialNo);
+        } else {
+            log.warn("Cannot Map IpAddress to SerialNo : ipAddress = {}", ipAddress);
+        }
+
         // send the message out
         sendFromRadiusServerPort(pktCustomizer.
                 customizeEthernetIPHeaders(ethReply, inPkt));

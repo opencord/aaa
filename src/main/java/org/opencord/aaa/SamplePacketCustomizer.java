@@ -16,6 +16,7 @@
 package org.opencord.aaa;
 
 import org.onlab.packet.Ethernet;
+import org.onlab.packet.Ip4Address;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.IPv4;
 import org.onlab.packet.RADIUS;
@@ -89,11 +90,19 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
             return inPkt;
         }
         String nodeName = deviceInfo.nasId();
+        Ip4Address ipAddress = deviceInfo.ipAddress();
+        if (nasPortId == null || nodeName == null || ipAddress == null) {
+            log.warn("Insufficient data to Customize packet" +
+                    " : nasPortId = {}, nodeName = {}, ipAddress = {}",
+                    nasPortId, nodeName, ipAddress);
+            return inPkt;
+        }
+
 
         log.info("Setting nasId={} nasPortId{}", nodeName, nasPortId);
 
         inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
-                deviceInfo.ipAddress().toOctets());
+                ipAddress.toOctets());
 
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_CALLING_STATION_ID,
                 srcMac.toString().getBytes());
@@ -140,10 +149,18 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
             return inPkt;
         }
 
-        inPkt.setSourceMACAddress(deviceInfo.hardwareIdentifier());
+        MacAddress macAddress = deviceInfo.hardwareIdentifier();
+        Ip4Address ipAddress = deviceInfo.ipAddress();
+        if (macAddress == null || ipAddress == null) {
+            log.warn("Insufficient data to Customize Ethernet IP Headers" +
+                    " : hardwareIdentifier = {}, ipAddress = {}",
+                    macAddress, ipAddress);
+            return inPkt;
+        }
+        inPkt.setSourceMACAddress(macAddress);
 
         IPv4 ipv4Packet = (IPv4) inPkt.getPayload();
-        ipv4Packet.setSourceAddress(deviceInfo.ipAddress().toString());
+        ipv4Packet.setSourceAddress(ipAddress.toString());
         inPkt.setPayload(ipv4Packet);
 
         return inPkt;

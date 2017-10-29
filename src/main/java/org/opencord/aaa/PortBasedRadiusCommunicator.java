@@ -261,7 +261,12 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
             log.warn("No Device found with SN {}", serialNo);
             return;
         }
-        ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
+        Ip4Address ipAddress = deviceInfo.ipAddress();
+        if (ipAddress != null) {
+            ipToSnMap.put(ipAddress, serialNo);
+        } else {
+            log.warn("Cannot Map IpAddress to SerialNo : ipAddress = {}", ipAddress);
+        }
 
         // send the message out
         sendFromRadiusServerPort(pktCustomizer.

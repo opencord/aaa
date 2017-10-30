@@ -66,7 +66,8 @@ import static org.slf4j.LoggerFactory.getLogger;
  * AAA application for ONOS.
  */
 @Component(immediate = true)
-public class AaaManager {
+public class
+AaaManager {
     private static final String APP_NAME = "org.opencord.aaa";
 
     // for verbose output
@@ -200,33 +201,13 @@ public class AaaManager {
     public void activate() {
         netCfgService.registerConfigFactory(factory);
         appId = coreService.registerApplication(APP_NAME);
-
+        customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
+        configureRadiusCommunication();
 
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
 
-        customInfo = new CustomizationInfo(subsService, deviceService);
-
-        switch (customizer.toLowerCase()) {
-            case "sample":
-                pktCustomizer = new SamplePacketCustomizer(customInfo);
-                log.info("Created SamplePacketCustomizer");
-                break;
-            default:
-                pktCustomizer = new PacketCustomizer(customInfo);
-                log.info("Created default PacketCustomizer");
-                break;
-        }
-
-        if (radiusConnectionType.toLowerCase().equals("socket")) {
-            impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
-        } else {
-            impl = new PortBasedRadiusCommunicator(appId, packetService,
-                                                   mastershipService,
-                                                   deviceService, subsService,
-                                                   pktCustomizer, this);
-        }
 
         StateMachine.initializeMaps();
         // FIXME: can't depend on AccessDeviceService
@@ -242,18 +223,40 @@ public class AaaManager {
         log.info("Started");
     }
 
+
     @Deactivate
     public void deactivate() {
         impl.withdrawIntercepts();
         // de-register and null our handler
         packetService.removeProcessor(processor);
         processor = null;
-        StateMachine.destroyMaps();
         netCfgService.removeListener(cfgListener);
+        StateMachine.destroyMaps();
         impl.deactivate();
         deviceService.removeListener(deviceListener);
-
         log.info("Stopped");
+    }
+
+    private void configureRadiusCommunication() {
+        if (radiusConnectionType.toLowerCase().equals("socket")) {
+            impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
+        } else {
+            impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
+                                                   deviceService, subsService, pktCustomizer, this);
+        }
+    }
+
+    private void configurePacketCustomizer() {
+        switch (customizer.toLowerCase()) {
+            case "sample":
+                pktCustomizer = new SamplePacketCustomizer(customInfo);
+                log.info("Created SamplePacketCustomizer");
+                break;
+            default:
+                pktCustomizer = new PacketCustomizer(customInfo);
+                log.info("Created default PacketCustomizer");
+                break;
+        }
     }
 
     /**
@@ -596,10 +599,25 @@ public class AaaManager {
                 radiusSecret = newCfg.radiusSecret();
             }
 
-            radiusConnectionType = newCfg.radiusConnectionType();
-            customizer = newCfg.radiusPktCustomizer();
+            boolean reconfigureCustomizer = false;
+            if (customizer == null || !customizer.equals(newCfg.radiusPktCustomizer())) {
+                customizer = newCfg.radiusPktCustomizer();
+                configurePacketCustomizer();
+                reconfigureCustomizer = true;
+            }
 
-            if (impl != null) {
+            if (radiusConnectionType == null
+                    || reconfigureCustomizer
+                    || !radiusConnectionType.equals(newCfg.radiusConnectionType())) {
+                radiusConnectionType = newCfg.radiusConnectionType();
+                if (impl != null) {
+                    impl.withdrawIntercepts();
+                    impl.clearLocalState();
+                }
+                configureRadiusCommunication();
+                impl.initializeLocalState(newCfg);
+                impl.requestIntercepts();
+            } else if (impl != null) {
                 impl.clearLocalState();
                 impl.initializeLocalState(newCfg);
             }

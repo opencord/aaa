@@ -180,7 +180,10 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
     }
 
     @Override
-    public void clearLocalState() {}
+    public void clearLocalState() {
+        mastershipService.removeListener(changeListener);
+        deviceService.removeListener(deviceListener);
+    }
 
     @Override
     public void deactivate() {
@@ -199,6 +202,10 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                 .matchIPProtocol(IPv4.PROTOCOL_UDP)
                 .matchUdpSrc(TpPort.tpPort(radiusServerPort));
         packetService.requestPackets(selectorServer.build(), CONTROL, appId);
+
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+               selector.matchEthType(EthType.EtherType.EAPOL.ethType().toShort());
+               packetService.requestPackets(selector.build(), CONTROL, appId);
     }
 
     @Override
@@ -212,6 +219,10 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                 .matchIPProtocol(IPv4.PROTOCOL_UDP)
                 .matchUdpSrc(TpPort.tpPort(radiusServerPort));
         packetService.cancelPackets(selectorServer.build(), CONTROL, appId);
+
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+        selector.matchEthType(EthType.EtherType.EAPOL.ethType().toShort());
+        packetService.cancelPackets(selector.build(), CONTROL, appId);
     }
 
     @Override

@@ -28,7 +28,7 @@
 
     <groupId>org.opencord</groupId>
     <artifactId>aaa</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>ONOS authentication application</description>
@@ -44,8 +44,8 @@
               org.onosproject.olt,
               org.opencord.sadis
         </onos.app.requires>
-        <sadis.api.version>1.1.2</sadis.api.version>
-	<olt.api.version>1.3.1</olt.api.version>
+        <sadis.api.version>1.1.3-SNAPSHOT</sadis.api.version>
+	<olt.api.version>1.3.2-SNAPSHOT</olt.api.version>
     </properties>
 
     <dependencies>

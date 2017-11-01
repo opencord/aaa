@@ -34,6 +34,24 @@
       "revId": "6ee94c8280cc65a24bbaad5300a7412071ad84d6",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_0f46e4bf",
+        "filename": "src/test/java/org/opencord/aaa/api/AaaConfigTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-01T18:09:37Z",
+      "side": 1,
+      "message": "Since this review has been merged, I modified PrintableTest and uploaded the change to the StateMachine re-write patchset. You\u0027ll be able to review it there.",
+      "parentUuid": "9a5c5d37_ef2cb04c",
+      "revId": "6ee94c8280cc65a24bbaad5300a7412071ad84d6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

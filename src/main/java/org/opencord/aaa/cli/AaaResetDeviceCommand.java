@@ -30,16 +30,6 @@ public class AaaResetDeviceCommand extends AbstractShellCommand {
 
     @Override
     protected void execute() {
-        AaaService aaaService = get(AaaService.class);
-
-        // FIXME: access needs to be through AaaService - Proposal...
-//        aaaService.resetAuthenticationSessionsByDeviceMac(macs);
-
-        // We shouldn't have visibility to StateMachine.
-        /*
-        for (String mac : macs) {
-            StateMachine.deleteByMac(MacAddress.valueOf(mac));
-        }
-        */
+        get(AaaService.class).resetAuthenticationSessionsByDeviceMac(macs);
     }
 }

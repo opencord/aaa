@@ -18,7 +18,10 @@ package org.opencord.aaa.api;
 
 /**
  * Exception raised when the transition from one state to another is invalid.
+ *
+ * @deprecated it appears this is not needed
  */
+@Deprecated
 public class StateMachineInvalidTransitionException extends StateMachineException {
     public StateMachineInvalidTransitionException(String message) {
         super(message);

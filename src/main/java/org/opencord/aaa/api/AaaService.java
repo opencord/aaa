@@ -15,9 +15,6 @@
  */
 package org.opencord.aaa.api;
 
-
-import org.opencord.aaa.PacketCustomizer;
-
 /**
  * Service API for interacting with the AAA application.
  */

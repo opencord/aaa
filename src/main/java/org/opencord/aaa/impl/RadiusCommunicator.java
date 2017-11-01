@@ -19,6 +19,8 @@ import org.onlab.packet.RADIUS;
 import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.opencord.aaa.api.AaaConfig;
+import org.opencord.aaa.api.PacketCustomizer;
+import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
 /**
  * Interface to the implementations for RADIUS server side communication.
@@ -68,4 +70,20 @@ public interface RadiusCommunicator {
      * @param context incoming packet context
      */
     void handlePacketFromServer(PacketContext context);
+
+    /**
+     * Sets a new packet customizer instance.
+     *
+     * @param customizer the packet customizer
+     */
+    void setPacketCustomizer(PacketCustomizer customizer);
+
+    /**
+     * Invoked when the SADIS service is bound or unbound. If the service was
+     * bound, the parameter will be a reference to the service implementation.
+     * If the service was unbound, the parameter will be null.
+     *
+     * @param sadis the bound service (or null, if unbound)
+     */
+    void sadisServiceChanged(SubscriberAndDeviceInformationService sadis);
 }

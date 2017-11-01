@@ -16,7 +16,6 @@
 package org.opencord.aaa.api;
 
 import org.onlab.packet.MacAddress;
-import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.DeviceId;
 import org.onosproject.net.PortNumber;
@@ -38,9 +37,6 @@ public final class AaaSession {
     // VLAN from the EAP eth packet
     private final short vlanId;
 
-    // VLAN from subscriber info : C-Tag
-    private final VlanId ctag;
-
     // Current authentication state of this session
     private final AaaAuthState state;
 
@@ -51,17 +47,15 @@ public final class AaaSession {
      * @param username               the associated user name
      * @param supplicantMacAddress   the associated mac address
      * @param vlanId                 the VLAN ID
-     * @param ctag                   the C-TAG VLAN ID
      * @param state                  the current authentication state
      */
     public AaaSession(ConnectPoint supplicantConnectPoint, String username,
-                      MacAddress supplicantMacAddress, short vlanId, VlanId ctag,
+                      MacAddress supplicantMacAddress, short vlanId,
                       AaaAuthState state) {
         this.supplicantConnectPoint = supplicantConnectPoint;
         this.username = username;
         this.supplicantMacAddress = supplicantMacAddress;
         this.vlanId = vlanId;
-        this.ctag = ctag;
         this.state = state;
     }
 
@@ -110,8 +104,6 @@ public final class AaaSession {
         return supplicantMacAddress;
     }
 
-    // TODO: Review this description of vlanId for correctness
-
     /**
      * The VLAN identifier for the supplicant connection.
      *
@@ -121,17 +113,6 @@ public final class AaaSession {
         return vlanId;
     }
 
-    // TODO: Review - does this make sense in the general (other-than-VOLTHA) case?
-
-    /**
-     * The C-TAG associated with this supplicant's session.
-     *
-     * @return the C-TAG VLAN ID
-     */
-    public VlanId cTag() {
-        return ctag;
-    }
-
     /**
      * The current state of this session.
      *
@@ -139,5 +120,12 @@ public final class AaaSession {
      */
     public AaaAuthState state() {
         return state;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{CP:%s,user:\"%s\",mac:%s,vlan:%d,state:%s}",
+                             supplicantConnectPoint, username,
+                             supplicantMacAddress, vlanId, state);
     }
 }

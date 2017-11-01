@@ -15,8 +15,7 @@
  */
 package org.opencord.aaa.api;
 
-
-import org.opencord.aaa.PacketCustomizer;
+import java.util.List;
 
 /**
  * Service API for interacting with the AAA application.
@@ -37,10 +36,20 @@ public interface AaaService {
      */
     void removeListener(AaaListener listener);
 
+    /**
+     * Returns a list of session descriptors for the currently active sessions.
+     *
+     * @return a list of current sessions
+     */
+    List<AaaSession> currentSessions();
 
-    // TODO: need to provide method to report current status
-    //    for each state machine: {ConnectPoint, StateMachine.currentState}
-
+    /**
+     * Resets (removes internal records) of authentication sessions that
+     * originate from the device(s) with the given MAC(s).
+     *
+     * @param macs one or more device MAC addresses
+     */
+    void resetAuthenticationSessionsByDeviceMac(String... macs);
 
     /**
      * Registers a packet customizer with AAA, to be used to customize
@@ -59,5 +68,4 @@ public interface AaaService {
      * @param customizer the customizer to unregister
      */
     void unregisterPacketCustomizer(PacketCustomizer customizer);
-
 }

@@ -38,4 +38,14 @@ public abstract class PrintableTest {
         print(o.toString());
     }
 
+    /**
+     * Prints the formatted string with given parameters to stdout.
+     *
+     * @param fmt    format string
+     * @param params parameters
+     * @see String#format(String, Object...)
+     */
+    protected void print(String fmt, Object... params) {
+        print(String.format(fmt, params));
+    }
 }

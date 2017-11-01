@@ -26,9 +26,6 @@ import org.opencord.aaa.api.AaaSession;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Shows the users in the aaa.
  */
@@ -41,16 +38,11 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
     @Override
     protected void execute() {
         DeviceService devService = get(DeviceService.class);
-        SubscriberAndDeviceInformationService subsService =
+        SubscriberAndDeviceInformationService sadis =
                 get(SubscriberAndDeviceInformationService.class);
-        AaaService aaaService = get(AaaService.class);
 
-// TODO: add currentSessions() to AaaService API
-//        List<AaaSession> sessionList = aaaService.currentSessions();
-        List<AaaSession> sessionList = new ArrayList<>();
-
-        for (AaaSession s : sessionList) {
-            String subsId = getSubscriberId(devService, subsService, s.getConnectPoint());
+        for (AaaSession s : get(AaaService.class).currentSessions()) {
+            String subsId = getSubscriberId(devService, sadis, s.getConnectPoint());
             print("UserName=%s,CurrentState=%s,DeviceId=%s,MAC=%s,PortNumber=%s,SubscriberId=%s",
                   s.username(), s.state(), s.deviceId(), s.macAddress(), s.portNumber(), subsId);
         }
@@ -59,6 +51,9 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
     private String getSubscriberId(DeviceService devService,
                                    SubscriberAndDeviceInformationService sadis,
                                    ConnectPoint cp) {
+        if (sadis == null) {
+            return UNKNOWN;
+        }
         Port p = devService.getPort(cp);
         String nasPortId = p.annotations().value(AnnotationKeys.PORT_NAME);
         SubscriberAndDeviceInformation subscriber = sadis.get(nasPortId);

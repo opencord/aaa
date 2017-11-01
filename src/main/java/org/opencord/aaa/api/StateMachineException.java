@@ -18,7 +18,10 @@ package org.opencord.aaa.api;
 
 /**
  * Exception for the AAA State Machine.
+ *
+ * @deprecated it appears this is not needed
  */
+@Deprecated
 public class StateMachineException extends Exception {
     public StateMachineException(String message) {
         super(message);

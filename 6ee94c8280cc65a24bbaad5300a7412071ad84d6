@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_ef2cb04c",
+        "filename": "src/test/java/org/opencord/aaa/api/AaaConfigTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-01T15:18:41Z",
+      "side": 1,
+      "message": "Can the PrintableTest.java be uploaded to the review? Is it going to be a common class or specific to aaa?",
+      "revId": "6ee94c8280cc65a24bbaad5300a7412071ad84d6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

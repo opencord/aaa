@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a5c5d37_e51291b3",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-02T20:59:20Z",
+      "side": 1,
+      "message": "Perfect. I\u0027ll plan on removing it from the state machine fields.",
+      "parentUuid": "9a5c5d37_453efdb9",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a5c5d37_254b095b",
         "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-02T18:55:22Z",
       "side": 1,
       "message": "Yes it would be better to add the supplicant connection related information as well as the radius session information to the String, would help in debugging.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_c5178da2",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-02T20:59:20Z",
+      "side": 1,
+      "message": "Okay - will revise this method do add the additional information.",
+      "parentUuid": "9a5c5d37_254b095b",
       "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9a5c5d37_e5ee118b",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-02T20:59:20Z",
+      "side": 1,
+      "message": "The main reason for the change in style was to improve readability of the code, and to use a more Java-like code style; the original code looks like it was lifted from a C++ implementation and just dropped in place into this class.\n\nAs to the newer implementation; this does everything the previous version did - as evidenced by the replicated unit tests.\n\nIf it turns out that we need to differentiate the transition paths into the started state, then we can simply pass \u0027currentState\u0027 as an additional parameter into \u0027allowTransition(...)\u0027 and take alternative actions there.",
+      "parentUuid": "9a5c5d37_a5e7f9e3",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a5c5d37_0548055a",
         "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "9a5c5d37_e57971fd",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-02T20:59:20Z",
+      "side": 1,
+      "message": "Okay, I\u0027ll double check that.\n\nSo, the sessionID map should contain all currently in-progress sessions, as well as all completed (authorized) sessions, yes?\n\nI assume that denied sessions are simply dropped from the sessionID map once the RADIUS server denies the request.. right?",
+      "parentUuid": "9a5c5d37_0548055a",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a5c5d37_e574d19d",
         "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2017-11-02T18:55:22Z",
       "side": 1,
       "message": "Should we change the name of the variable from authStart to something like event? It gives the impression that we expect an \"authentication start\" event.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_c57e6de4",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-02T20:59:20Z",
+      "side": 1,
+      "message": "You are right, this was an artifact from auto-generating the method, that I failed to correct. The variable name should be \u0027eventType\u0027.",
+      "parentUuid": "9a5c5d37_e574d19d",
       "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

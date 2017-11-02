@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_453efdb9",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-02T18:55:22Z",
+      "side": 1,
+      "message": "The cTag was needed only to create the subscriber in the OLT App. Now with the changed scheme of things this should not be needed any more.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_254b095b",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-02T18:55:22Z",
+      "side": 1,
+      "message": "Yes it would be better to add the supplicant connection related information as well as the radius session information to the String, would help in debugging.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_a5e7f9e3",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-02T18:55:22Z",
+      "side": 1,
+      "message": "Any specific reason why we moved from the earlier state machine implementation to this kind of an implementation? I thought the earlier implementation had more flexibilities (although not needed currently) of having cleaner implementations on receiving the same event type in different states; for example on reception of EAP_START, if we had to do something different in AUTHORIZED or UNAUTHORIZED state before transistioning to the STARTED state.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_0548055a",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-02T18:55:22Z",
+      "side": 1,
+      "message": "The deleteStateMachineMapping function removes the statemachine only from the identifierMap and not from the sessionIdMap. The aaa-users command line used to use the sessionId Map so this should be fine.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_e574d19d",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-02T18:55:22Z",
+      "side": 1,
+      "message": "Should we change the name of the variable from authStart to something like event? It gives the impression that we expect an \"authentication start\" event.",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

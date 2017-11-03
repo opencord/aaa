@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "9a5c5d37_652581c1",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1000277
+      },
+      "writtenOn": "2017-11-03T01:33:32Z",
+      "side": 1,
+      "message": "NOTE: currentState doesn\u0027t need to be passed to the method, since it is a field of the class.\n\nsee line 404 (of this version of the source) for the log file that shows from and to states.",
+      "parentUuid": "9a5c5d37_e5ee118b",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a5c5d37_0548055a",
         "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
         "patchSetId": 3

@@ -160,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "9a5c5d37_00ea330f",
+        "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2017-11-05T14:01:49Z",
+      "side": 1,
+      "message": "Once a statemachine is put in the sessionIdMap it is never dropped from the map, it just changes states. If the denied sessions were to be dropped(which would delete the statemachine) then there would be no need of the UNAUTHORIZED state.",
+      "parentUuid": "9a5c5d37_e57971fd",
+      "revId": "49a6d900d65a4389fa3a46a307df70552904fcc1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a5c5d37_e574d19d",
         "filename": "src/main/java/org/opencord/aaa/impl/StateMachine.java",
         "patchSetId": 3

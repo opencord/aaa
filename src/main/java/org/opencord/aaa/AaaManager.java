@@ -19,6 +19,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
 import org.onlab.packet.EthType;
@@ -267,8 +268,10 @@ AaaManager {
      *
      * @param radiusPacket RADIUS packet coming from the RADIUS server.
      * @throws StateMachineException if an illegal state transition is triggered
+     * @throws DeserializationException if packet deserialization fails
      */
-    public void handleRadiusPacket(RADIUS radiusPacket) throws StateMachineException {
+    public void handleRadiusPacket(RADIUS radiusPacket)
+            throws StateMachineException, DeserializationException {
         StateMachine stateMachine = StateMachine.lookupStateMachineById(radiusPacket.getIdentifier());
         if (stateMachine == null) {
             log.error("Invalid session identifier {}, exiting...", radiusPacket.getIdentifier());
@@ -298,8 +301,8 @@ AaaManager {
                 //send an EAPOL - Success to the supplicant.
                 byte[] eapMessageSuccess =
                         radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
-                eapPayload = new EAP();
-                eapPayload = (EAP) eapPayload.deserialize(eapMessageSuccess, 0, eapMessageSuccess.length);
+                eapPayload = EAP.deserializer().deserialize(
+                        eapMessageSuccess, 0, eapMessageSuccess.length);
                 eth = buildEapolResponse(stateMachine.supplicantAddress(),
                         MacAddress.valueOf(nasMacAddress),
                         stateMachine.vlanId(),
@@ -321,7 +324,8 @@ AaaManager {
                     eapPayload.setLength(EAP.EAP_HDR_LEN_SUC_FAIL);
                 } else {
                     eapMessageFailure = radiusAttrEap.getValue();
-                    eapPayload = (EAP) eapPayload.deserialize(eapMessageFailure, 0, eapMessageFailure.length);
+                    eapPayload = EAP.deserializer().deserialize(
+                            eapMessageFailure, 0, eapMessageFailure.length);
                 }
                 eth = buildEapolResponse(stateMachine.supplicantAddress(),
                         MacAddress.valueOf(nasMacAddress),

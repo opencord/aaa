@@ -17,17 +17,14 @@
 
 package org.opencord.aaa;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
-
 import org.opencord.olt.AccessDeviceService;
-
 import org.slf4j.Logger;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

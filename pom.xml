@@ -41,11 +41,11 @@
         <onos.app.url>http://opencord.org</onos.app.url>
         <onos.app.readme>802.1x authentication service.</onos.app.readme>
         <onos.app.requires>
-              org.onosproject.olt,
+              org.opencord.olt,
               org.opencord.sadis
         </onos.app.requires>
-        <sadis.api.version>2.1.0-SNAPSHOT</sadis.api.version>
-        <olt.api.version>1.4.0-SNAPSHOT</olt.api.version>
+        <sadis.api.version>2.1.0</sadis.api.version>
+        <olt.api.version>1.4.0</olt.api.version>
     </properties>
 
     <dependencies>

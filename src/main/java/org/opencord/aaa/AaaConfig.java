@@ -17,6 +17,7 @@ package org.opencord.aaa;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -286,5 +287,10 @@ public class AaaConfig extends Config<ApplicationId> {
             }
         }
         return builder.build();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

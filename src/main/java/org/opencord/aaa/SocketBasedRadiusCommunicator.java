@@ -92,6 +92,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
             log.error("Can't open RADIUS socket", ex);
         }
 
+        log.info("Remote RADIUS Server: {}:{}", radiusIpAddress, radiusServerPort);
+
         executor = Executors.newSingleThreadExecutor(
                 new ThreadFactoryBuilder()
                         .setNameFormat("AAA-radius-%d").build());
@@ -134,7 +136,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             radiusIpAddress, radiusServerPort);
 
             socket.send(packet);
-            log.info("Packet sent to Radius Server using socket packet = {}", packet);
+            log.info("Packet sent to Radius Server {}:{} using socket packet = {}",
+                    radiusIpAddress, radiusServerPort, packet);
         } catch (IOException e) {
             log.info("Cannot send packet to RADIUS server", e);
         }

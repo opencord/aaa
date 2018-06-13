@@ -92,6 +92,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
             log.error("Can't open RADIUS socket", ex);
         }
 
+        log.info("Remote RADIUS Server: {}:{}", radiusIpAddress, radiusServerPort);
+
         executor = Executors.newSingleThreadExecutor(
                 new ThreadFactoryBuilder()
                         .setNameFormat("AAA-radius-%d").build());
@@ -134,7 +136,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             radiusIpAddress, radiusServerPort);
 
             socket.send(packet);
-            log.info("Packet sent to Radius Server using socket packet = {}", packet);
+            log.debug("Packet sent to Radius Server {}:{} using socket",
+                    radiusIpAddress, radiusServerPort);
         } catch (IOException e) {
             log.info("Cannot send packet to RADIUS server", e);
         }
@@ -145,7 +148,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
         InboundPacket pkt = context.inPacket();
         Ethernet ethPkt = pkt.parsed();
 
-        log.trace("Skipping Ethernet packet type {}",
+        log.debug("Skipping Ethernet packet type {}",
                 EthType.EtherType.lookup(ethPkt.getEtherType()));
     }
 
@@ -165,7 +168,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             new DatagramPacket(packetBuffer, packetBuffer.length);
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
-                    log.info("Packet #{} received", packetNumber++);
+                    log.debug("Packet #{} received", packetNumber++);
                     try {
                         inboundRadiusPacket =
                                 RADIUS.deserializer()

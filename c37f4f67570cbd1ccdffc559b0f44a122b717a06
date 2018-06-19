@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e04d605_b13a9af7",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2018-06-19T23:33:52Z",
+      "side": 1,
+      "message": "eth.toString is going to be called on each packet, even if not in debug mode, do we really want that? Or should we protect this statement with a conditional based on the log level?\n\nThis may not matter for the number of devices we are dealing with now, but put 1M or 100K on this and then it may.",
+      "revId": "c37f4f67570cbd1ccdffc559b0f44a122b717a06",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

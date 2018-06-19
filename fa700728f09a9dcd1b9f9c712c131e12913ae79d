@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca4a301f_054fcc19",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2018-06-19T21:46:19Z",
+      "side": 1,
+      "message": "Why the version number change?",
+      "range": {
+        "startLine": 31,
+        "startChar": 17,
+        "endLine": 31,
+        "endChar": 18
+      },
+      "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "449ff5de_c03942fc",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2018-06-19T21:46:19Z",
+      "side": 1,
+      "message": "Not sure we want to log per-packet at info level - seems like debug level would be better so it\u0027s not enabled by default.",
+      "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

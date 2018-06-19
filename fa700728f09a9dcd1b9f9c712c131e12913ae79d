@@ -39,6 +39,24 @@
       "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ea87658_7155b000",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2018-06-19T22:15:25Z",
+      "side": 1,
+      "message": "Another thing to consider, even if the logs are not written at info, say debug for example, the predicates are evaluated i.e. .String, etc, and this takes CPU cycles.",
+      "parentUuid": "449ff5de_c03942fc",
+      "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

@@ -34,6 +34,24 @@
       "revId": "c37f4f67570cbd1ccdffc559b0f44a122b717a06",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "93a0a45b_521cf1ca",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1000436
+      },
+      "writtenOn": "2018-06-20T00:46:45Z",
+      "side": 1,
+      "message": "Ill just get rid of the eth.toString. There wasnt much to see there anyway.  Ill just print the nasMacAddress",
+      "parentUuid": "8b63ac57_de958e10",
+      "revId": "c37f4f67570cbd1ccdffc559b0f44a122b717a06",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

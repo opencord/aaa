@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1adc2742_8d717892",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000436
+      },
+      "writtenOn": "2018-06-20T00:46:45Z",
+      "side": 1,
+      "message": "To keep track of the iterative versions i was deploying in my environment.  I can change back to 1.7.0-SNAPSHOT.  Though im curious what motivates a change in the version.  Is it only a per-sprint release where this changes?",
+      "parentUuid": "ca4a301f_054fcc19",
+      "range": {
+        "startLine": 31,
+        "startChar": 17,
+        "endLine": 31,
+        "endChar": 18
+      },
+      "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "449ff5de_c03942fc",
         "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
         "patchSetId": 2
@@ -54,6 +78,24 @@
       "side": 1,
       "message": "Another thing to consider, even if the logs are not written at info, say debug for example, the predicates are evaluated i.e. .String, etc, and this takes CPU cycles.",
       "parentUuid": "449ff5de_c03942fc",
+      "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad984dd2_0bb7f0a2",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000436
+      },
+      "writtenOn": "2018-06-20T00:46:45Z",
+      "side": 1,
+      "message": "I do agree that info is too high.  Initially it was this way because ssh per-packet tracking into onos is also debug, which makes debug effectively worthless when ssh\u0027ed in and tailing logs.  Ill lower to debug.  However the cost in CPU for debug is worth it in situations where there is no visibility at all and trying to track down and issue.  Production or otherwise.",
+      "parentUuid": "8ea87658_7155b000",
       "revId": "fa700728f09a9dcd1b9f9c712c131e12913ae79d",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

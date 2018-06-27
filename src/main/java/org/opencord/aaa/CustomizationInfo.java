@@ -19,8 +19,6 @@ package org.opencord.aaa;
 import org.onosproject.net.device.DeviceService;
 import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
-//import java.util.Map;
-
 /**
  * Info required to do customization to packets.
  */

@@ -22,8 +22,8 @@
     <parent>
         <groupId>org.onosproject</groupId>
         <artifactId>onos-dependencies</artifactId>
-        <version>1.10.9</version>
-        <relativePath></relativePath>
+        <version>1.12.1-SNAPSHOT</version>
+        <relativePath>../onos/lib/pom.xml</relativePath>
     </parent>
 
     <groupId>org.opencord</groupId>
@@ -35,7 +35,7 @@
 
     <properties>
         <onos.app.name>org.opencord.aaa</onos.app.name>
-        <onos.version>1.10.9</onos.version>
+        <onos.version>1.12.1-SNAPSHOT</onos.version>
         <onos.app.title>AAA App</onos.app.title>
         <onos.app.category>Security</onos.app.category>
         <onos.app.url>http://opencord.org</onos.app.url>
@@ -44,8 +44,8 @@
               org.onosproject.olt,
               org.opencord.sadis
         </onos.app.requires>
-        <sadis.api.version>2.0.0</sadis.api.version>
-        <olt.api.version>1.3.1</olt.api.version>
+        <sadis.api.version>2.0.1-SNAPSHOT</sadis.api.version>
+        <olt.api.version>1.3.2-SNAPSHOT</olt.api.version>
     </properties>
 
     <dependencies>
@@ -84,6 +84,28 @@
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onlab-junit</artifactId>
+            <version>${onos.version}</version>
+        </dependency>
+    
+         <dependency>
+              <groupId>org.onosproject</groupId>
+              <artifactId>onos-protocols-netconf-api</artifactId>
+              <version>1.8.5-SNAPSHOT</version>
+          </dependency>
+          <dependency>
+              <groupId>org.onosproject</groupId>
+              <artifactId>onos-protocols-netconf-ctl</artifactId>
+              <version>1.8.5-SNAPSHOT</version>
+          </dependency>
+
+          <dependency>
+              <groupId>org.apache.karaf.shell</groupId>
+              <artifactId>org.apache.karaf.shell.console</artifactId>
+         </dependency>
+
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onos-core-common</artifactId>
             <version>${onos.version}</version>
         </dependency>
 

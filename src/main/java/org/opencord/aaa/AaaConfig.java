@@ -37,6 +37,7 @@ import java.util.Set;
  */
 public class AaaConfig extends Config<ApplicationId> {
 
+    private static final String RADIUS_HOST = "radiusHost";
     private static final String RADIUS_IP = "radiusIp";
     private static final String RADIUS_SERVER_PORT = "radiusServerPort";
     private static final String RADIUS_MAC = "radiusMac";
@@ -121,6 +122,10 @@ public class AaaConfig extends Config<ApplicationId> {
      */
     public BasicElementConfig nasIp(String ip) {
         return (BasicElementConfig) setOrClear(NAS_IP, ip);
+    }
+
+    public String radiusHostName() {
+        return getStringProperty(RADIUS_HOST, null);
     }
 
     /**

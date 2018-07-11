@@ -15,32 +15,30 @@
  */
 package org.opencord.aaa;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.RADIUS;
-
 import org.onosproject.core.ApplicationId;
 import org.onosproject.net.flow.DefaultTrafficSelector;
 import org.onosproject.net.flow.TrafficSelector;
 import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketService;
-
 import org.slf4j.Logger;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import static org.onosproject.net.packet.PacketPriority.CONTROL;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.onosproject.net.packet.PacketPriority.CONTROL;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Handles Socket based communication with the RADIUS server.
@@ -58,6 +56,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
 
     // Socket used for UDP communications with RADIUS server
     private DatagramSocket radiusSocket;
+
+    private String radiusHost;
 
     // Parsed RADIUS server addresses
     protected InetAddress radiusIpAddress;
@@ -83,6 +83,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
             radiusIpAddress = newCfg.radiusIp();
         }
         radiusServerPort = newCfg.radiusServerUdpPort();
+        radiusHost = newCfg.radiusHostName();
 
         try {
             radiusSocket = new DatagramSocket(null);
@@ -131,13 +132,22 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
             final byte[] data = radiusPacket.serialize();
             final DatagramSocket socket = radiusSocket;
 
-            DatagramPacket packet =
-                    new DatagramPacket(data, data.length,
-                            radiusIpAddress, radiusServerPort);
+            try {
+                InetAddress address;
+                if (radiusHost != null) {
+                    address = InetAddress.getByName(radiusHost);
+                } else {
+                    address = radiusIpAddress;
+                }
+                DatagramPacket packet =
+                        new DatagramPacket(data, data.length, address, radiusServerPort);
 
-            socket.send(packet);
-            log.debug("Packet sent to Radius Server {}:{} using socket",
-                    radiusIpAddress, radiusServerPort);
+                socket.send(packet);
+                log.debug("Packet sent to Radius Server {}:{} using socket",
+                        address, radiusServerPort);
+            } catch (UnknownHostException uhe) {
+                log.warn("Unable to resolve host {}", radiusHost);
+            }
         } catch (IOException e) {
             log.info("Cannot send packet to RADIUS server", e);
         }

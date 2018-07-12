@@ -15,11 +15,11 @@
  */
 package org.opencord.aaa;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
@@ -28,11 +28,9 @@ import org.onlab.packet.Ethernet;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
-import org.onlab.packet.VlanId;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipService;
-import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.DeviceId;
 import org.onosproject.net.PortNumber;
@@ -51,8 +49,6 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
-import org.opencord.olt.AccessDeviceService;
-import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.opencord.sadis.SubscriberAndDeviceInformationService;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
@@ -95,9 +91,6 @@ AaaManager {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipService mastershipService;
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    protected AccessDeviceService accessDeviceService;
 
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
@@ -209,7 +202,6 @@ AaaManager {
 
 
         StateMachine.initializeMaps();
-        StateMachine.setAccessDeviceService(accessDeviceService);
 
         impl.initializeLocalState(newCfg);
 
@@ -441,21 +433,7 @@ AaaManager {
             String sessionId = deviceId.toString() + portNumber.toString();
             StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
             if (stateMachine == null) {
-                if (deviceService != null) {
-                    String nasPortId = deviceService.getPort(inPacket.receivedFrom()).
-                            annotations().value(AnnotationKeys.PORT_NAME);
-
-                    SubscriberAndDeviceInformation subscriber =
-                            subsService.get(nasPortId);
-                    if (subscriber != null) {
-                        stateMachine = new StateMachine(sessionId, subscriber.cTag());
-                    } else {
-                        log.error("Could not create new state machine for {}", nasPortId);
-                        return;
-                    }
-                } else {
-                    stateMachine = new StateMachine(sessionId, VlanId.vlanId((short) 0));
-                }
+                stateMachine = new StateMachine(sessionId);
             }
 
             EAPOL eapol = (EAPOL) ethPkt.getPayload();

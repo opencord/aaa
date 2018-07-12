@@ -19,14 +19,11 @@ package org.opencord.aaa;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.onlab.packet.MacAddress;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
-
-import org.onlab.packet.VlanId;
+import static org.junit.Assert.assertNull;
 
 public class StateMachineTest {
     StateMachine stateMachine = null;
@@ -35,7 +32,7 @@ public class StateMachineTest {
     public void setUp() {
         System.out.println("Set Up.");
         StateMachine.initializeMaps();
-        stateMachine = new StateMachine("session0", VlanId.vlanId((short) 2));
+        stateMachine = new StateMachine("session0");
     }
 
     @After
@@ -229,8 +226,8 @@ public class StateMachineTest {
                 StateMachine.lookupStateMachineBySessionId(sessionId2);
         assertNull(machine2ShouldBeNull);
 
-        StateMachine stateMachine1 = new StateMachine(sessionId1, VlanId.vlanId((short) 2));
-        StateMachine stateMachine2 = new StateMachine(sessionId2, VlanId.vlanId((short) 2));
+        StateMachine stateMachine1 = new StateMachine(sessionId1);
+        StateMachine stateMachine2 = new StateMachine(sessionId2);
 
         assertEquals(stateMachine1,
                      StateMachine.lookupStateMachineBySessionId(sessionId1));
@@ -251,9 +248,9 @@ public class StateMachineTest {
                 StateMachine.lookupStateMachineById((byte) 2);
         assertNull(machine2ShouldBeNull);
 
-        StateMachine stateMachine1 = new StateMachine(sessionId1, VlanId.vlanId((short) 2));
+        StateMachine stateMachine1 = new StateMachine(sessionId1);
         stateMachine1.start();
-        StateMachine stateMachine2 = new StateMachine(sessionId2, VlanId.vlanId((short) 2));
+        StateMachine stateMachine2 = new StateMachine(sessionId2);
         stateMachine2.start();
 
         assertEquals(stateMachine1,
@@ -276,7 +273,7 @@ public class StateMachineTest {
         // Instantiate a bunch of state machines
         for (int i = 0; i < count; i += 1) {
             String mac = String.format("00:00:00:00:00:%02x", i);
-            StateMachine sm = new StateMachine(mac, VlanId.vlanId((short) i));
+            StateMachine sm = new StateMachine(mac);
             sm.start();
             sm.setSupplicantAddress(MacAddress.valueOf(mac));
         }

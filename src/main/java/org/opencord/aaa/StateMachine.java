@@ -19,9 +19,7 @@ package org.opencord.aaa;
 
 import com.google.common.collect.Maps;
 import org.onlab.packet.MacAddress;
-import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
-import org.opencord.olt.AccessDeviceService;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -47,8 +45,6 @@ class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
-    private static AccessDeviceService accessDeviceService;
-
     private static int identifier = -1;
     private byte challengeIdentifier;
     private byte[] challengeState;
@@ -59,7 +55,6 @@ class StateMachine {
     private ConnectPoint supplicantConnectpoint;
     private MacAddress supplicantAddress;
     private short vlanId;
-    private VlanId ctag;
     private byte priorityCode;
 
     private String sessionId = null;
@@ -125,10 +120,6 @@ class StateMachine {
         identifierMap = null;
     }
 
-    public static void setAccessDeviceService(AccessDeviceService service) {
-        accessDeviceService = service;
-    }
-
     public static Map<String, StateMachine> sessionIdMap() {
         return sessionIdMap;
     }
@@ -169,17 +160,14 @@ class StateMachine {
     }
 
     /**
-     * State Machine Constructor.
+     * Creates a new StateMachine with the given session ID.
      *
-     * @param sessionId   session Id represented by the switch dpid +  port number
-     * @param ctag        C-TAG for this subscriber
+     * @param sessionId session Id represented by the switch dpid +  port number
      */
-    public StateMachine(String sessionId, VlanId ctag) {
-        log.info("Creating a new state machine for {} C-TAG {}", sessionId,
-                ctag);
+    public StateMachine(String sessionId) {
+        log.info("Creating a new state machine for {}", sessionId);
         this.sessionId = sessionId;
         sessionIdMap.put(sessionId, this);
-        this.ctag = ctag;
     }
 
     /**
@@ -406,12 +394,7 @@ class StateMachine {
         //move to the next state
         next(TRANSITION_AUTHORIZE_ACCESS);
 
-        if (accessDeviceService != null) {
-            log.info("Provisioning subscriber at {} with C-TAG {}",
-                    supplicantConnectpoint(), ctag);
-            accessDeviceService.provisionSubscriber(supplicantConnectpoint(),
-                                                    ctag);
-        }
+        // TODO send state machine change event
 
         // Clear mapping
         deleteStateMachineMapping(this);

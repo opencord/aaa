@@ -28,7 +28,7 @@
 
     <groupId>org.opencord</groupId>
     <artifactId>aaa</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>ONOS authentication application</description>
@@ -41,11 +41,9 @@
         <onos.app.url>http://opencord.org</onos.app.url>
         <onos.app.readme>802.1x authentication service.</onos.app.readme>
         <onos.app.requires>
-              org.opencord.olt,
               org.opencord.sadis
         </onos.app.requires>
         <sadis.api.version>2.1.0</sadis.api.version>
-        <olt.api.version>1.4.0</olt.api.version>
     </properties>
 
     <dependencies>
@@ -60,12 +58,6 @@
             <artifactId>sadis-api</artifactId>
 	    <version>${sadis.api.version}</version>
         </dependency>
-
-        <dependency>
-             <groupId>org.opencord</groupId>
-             <artifactId>olt-api</artifactId>
-	     <version>${olt.api.version}</version>
-         </dependency>
 
         <dependency>
             <groupId>org.onosproject</groupId>

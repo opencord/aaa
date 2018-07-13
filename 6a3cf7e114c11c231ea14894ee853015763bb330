@@ -16,6 +16,24 @@
       "revId": "6a3cf7e114c11c231ea14894ee853015763bb330",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4ad800b_3587ac24",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2018-07-13T16:33:48Z",
+      "side": 1,
+      "message": "Yeah agreed. You can configure both, but the way I have written it is that the radiusHost will take precedence if the connection type is \u0027socket\u0027.\n\nActually it should be possible to configure an IP address directly in the \u0027radiusHost\u0027 field. I would make this change except that the \u0027radiusIp\u0027 is used for the \u0027port\u0027 based connection type so I can\u0027t remove it now. I think going forward the configurations for the two connection types should be separated out and that would make it clearer.",
+      "parentUuid": "de447976_2f44a08b",
+      "revId": "6a3cf7e114c11c231ea14894ee853015763bb330",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

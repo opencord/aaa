@@ -19,6 +19,7 @@ import com.google.common.base.Charsets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.onlab.junit.TestUtils;
 import org.onlab.packet.BasePacket;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
@@ -27,13 +28,19 @@ import org.onlab.packet.IpAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
 import org.onosproject.core.CoreServiceAdapter;
+import org.onosproject.event.DefaultEventSinkRegistry;
+import org.onosproject.event.Event;
+import org.onosproject.event.EventDeliveryService;
+import org.onosproject.event.EventSink;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.onosproject.net.packet.InboundPacket;
 
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -82,6 +89,27 @@ public class AaaManagerTest extends AaaTestBase {
         }
     }
 
+    public static class TestEventDispatcher extends DefaultEventSinkRegistry
+            implements EventDeliveryService {
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public synchronized void post(Event event) {
+            EventSink sink = getSink(event.getClass());
+            checkState(sink != null, "No sink for event %s", event);
+            sink.process(event);
+        }
+
+        @Override
+        public void setDispatchTimeLimit(long millis) {
+        }
+
+        @Override
+        public long getDispatchTimeLimit() {
+            return 0;
+        }
+    }
+
     /**
      * Constructs an Ethernet packet containing a RADIUS challenge
      * packet.
@@ -111,6 +139,20 @@ public class AaaManagerTest extends AaaTestBase {
         return radius;
     }
 
+    public static void injectEventDispatcher(Object manager, EventDeliveryService svc) {
+        Class mc = manager.getClass();
+        for (Field f : mc.getSuperclass().getDeclaredFields()) {
+            if (f.getType().equals(EventDeliveryService.class)) {
+                try {
+                    TestUtils.setField(manager, f.getName(), svc);
+                } catch (TestUtils.TestUtilsException e) {
+                    throw new IllegalArgumentException("Unable to inject reference", e);
+                }
+                break;
+            }
+        }
+    }
+
     /**
      * Sets up the services required by the AAA application.
      */
@@ -122,6 +164,7 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.packetService = new MockPacketService();
         aaaManager.deviceService = new TestDeviceService();
         aaaManager.subsService = new MockSubService();
+        TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
         aaaManager.activate();
     }
 

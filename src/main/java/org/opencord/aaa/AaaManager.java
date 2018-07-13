@@ -20,6 +20,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
@@ -30,6 +31,7 @@ import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
+import org.onosproject.event.AbstractListenerManager;
 import org.onosproject.mastership.MastershipService;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.DeviceId;
@@ -63,20 +65,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * AAA application for ONOS.
  */
+@Service
 @Component(immediate = true)
-public class
-AaaManager {
+public class AaaManager
+        extends AbstractListenerManager<AuthenticationEvent, AuthenticationEventListener>
+        implements AuthenticationService {
+
     private static final String APP_NAME = "org.opencord.aaa";
 
-    // for verbose output
     private final Logger log = getLogger(getClass());
 
-    // a list of our dependencies :
-    // to register with ONOS as an application - described next
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected CoreService coreService;
 
-    // to receive Packet-in events that we'll respond to
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected PacketService packetService;
 
@@ -98,7 +99,7 @@ AaaManager {
     protected InetAddress nasIpAddress;
 
     // self MAC address
-    protected static String nasMacAddress;
+    protected String nasMacAddress;
 
     // Parsed RADIUS server addresses
     protected InetAddress radiusIpAddress;
@@ -108,9 +109,6 @@ AaaManager {
 
     // RADIUS server secret
     protected String radiusSecret;
-
-    // NAS Identifier
-    protected String nasId;
 
     // bindings
     protected CustomizationInfo customInfo;
@@ -131,7 +129,7 @@ AaaManager {
     // "socket" or "packet_out"
     private String radiusConnectionType;
 
-    // Object for the spcific type of communication with the RADIUS
+    // Object for the specific type of communication with the RADIUS
     // server, socket based or packet_out based
     RadiusCommunicator impl = null;
 
@@ -151,6 +149,8 @@ AaaManager {
 
     // Listener for config changes
     private final InternalConfigListener cfgListener = new InternalConfigListener();
+
+    private StateMachineDelegate delegate = new InternalStateMachineDelegate();
 
     /**
      * Builds an EAPOL packet based on the given parameters.
@@ -189,6 +189,7 @@ AaaManager {
     @Activate
     public void activate() {
         appId = coreService.registerApplication(APP_NAME);
+        eventDispatcher.addSink(AuthenticationEvent.class, listenerRegistry);
         netCfgService.addListener(cfgListener);
         netCfgService.registerConfigFactory(factory);
         customInfo = new CustomizationInfo(subsService, deviceService);
@@ -202,6 +203,7 @@ AaaManager {
 
 
         StateMachine.initializeMaps();
+        StateMachine.setDelegate(delegate);
 
         impl.initializeLocalState(newCfg);
 
@@ -216,13 +218,13 @@ AaaManager {
     @Deactivate
     public void deactivate() {
         impl.withdrawIntercepts();
-        // de-register and null our handler
         packetService.removeProcessor(processor);
-        processor = null;
         netCfgService.removeListener(cfgListener);
+        StateMachine.unsetDelegate(delegate);
         StateMachine.destroyMaps();
         impl.deactivate();
         deviceService.removeListener(deviceListener);
+        eventDispatcher.removeSink(AuthenticationEvent.class);
         log.info("Stopped");
     }
 
@@ -441,8 +443,8 @@ AaaManager {
             switch (eapol.getEapolType()) {
                 case EAPOL.EAPOL_START:
                     log.debug("EAP packet: EAPOL_START");
-                    stateMachine.start();
                     stateMachine.setSupplicantConnectpoint(inPacket.receivedFrom());
+                    stateMachine.start();
 
                     //send an EAP Request/Identify to the supplicant
                     EAP eapPayload = new EAP(EAP.REQUEST, stateMachine.identifier(), EAP.ATTR_IDENTITY, null);
@@ -538,6 +540,19 @@ AaaManager {
                 default:
                     log.debug("Skipping EAPOL message {}", eapol.getEapolType());
             }
+        }
+    }
+
+    /**
+     * Delegate allowing the StateMachine to notify us of events.
+     */
+    private class InternalStateMachineDelegate implements StateMachineDelegate {
+
+        @Override
+        public void notify(AuthenticationEvent authenticationEvent) {
+            log.info("Auth event {} for {}",
+                    authenticationEvent.type(), authenticationEvent.subject());
+            post(authenticationEvent);
         }
     }
 

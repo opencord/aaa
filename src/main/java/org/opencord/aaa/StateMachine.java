@@ -109,6 +109,8 @@ class StateMachine {
     private static Map<String, StateMachine> sessionIdMap;
     private static Map<Integer, StateMachine> identifierMap;
 
+    private static StateMachineDelegate delegate;
+
     public static void initializeMaps() {
         sessionIdMap = Maps.newConcurrentMap();
         identifierMap = Maps.newConcurrentMap();
@@ -118,6 +120,16 @@ class StateMachine {
     public static void destroyMaps() {
         sessionIdMap = null;
         identifierMap = null;
+    }
+
+    public static void setDelegate(StateMachineDelegate delagate) {
+        StateMachine.delegate = delagate;
+    }
+
+    public static void unsetDelegate(StateMachineDelegate delegate) {
+        if (StateMachine.delegate == delegate) {
+            StateMachine.delegate = null;
+        }
     }
 
     public static Map<String, StateMachine> sessionIdMap() {
@@ -366,6 +378,10 @@ class StateMachine {
      */
     public void start() throws StateMachineException {
         states[currentState].start();
+
+        delegate.notify(new AuthenticationEvent(
+                AuthenticationEvent.Type.STARTED, supplicantConnectpoint));
+
         //move to the next state
         next(TRANSITION_START);
         identifier = this.identifier();
@@ -379,6 +395,10 @@ class StateMachine {
      */
     public void requestAccess() throws StateMachineException {
         states[currentState].requestAccess();
+
+        delegate.notify(new AuthenticationEvent(
+                AuthenticationEvent.Type.REQUESTED, supplicantConnectpoint));
+
         //move to the next state
         next(TRANSITION_REQUEST_ACCESS);
     }
@@ -394,7 +414,8 @@ class StateMachine {
         //move to the next state
         next(TRANSITION_AUTHORIZE_ACCESS);
 
-        // TODO send state machine change event
+        delegate.notify(new AuthenticationEvent(
+                AuthenticationEvent.Type.APPROVED, supplicantConnectpoint));
 
         // Clear mapping
         deleteStateMachineMapping(this);
@@ -410,6 +431,10 @@ class StateMachine {
         states[currentState].radiusDenied();
         //move to the next state
         next(TRANSITION_DENY_ACCESS);
+
+        delegate.notify(new AuthenticationEvent(
+                AuthenticationEvent.Type.DENIED, supplicantConnectpoint));
+
         // Clear mappings
         deleteStateMachineMapping(this);
     }

@@ -20,6 +20,9 @@ import org.apache.karaf.shell.commands.Argument;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onlab.packet.MacAddress;
 
+/**
+ * Removes a AAA state machine.
+ */
 @Command(scope = "onos", name = "aaa-reset-device",
          description = "Resets the authentication state machine for a given device")
 public class AaaResetDeviceCommand extends AbstractShellCommand {

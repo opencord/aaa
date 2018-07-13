@@ -32,6 +32,7 @@ public class StateMachineTest {
     public void setUp() {
         System.out.println("Set Up.");
         StateMachine.initializeMaps();
+        StateMachine.setDelegate(e -> { });
         stateMachine = new StateMachine("session0");
     }
 

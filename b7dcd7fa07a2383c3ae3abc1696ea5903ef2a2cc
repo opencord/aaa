@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebe78a84_8eb2b878",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000436
+      },
+      "writtenOn": "2018-07-13T15:10:44Z",
+      "side": 1,
+      "message": "Shouldnt this get updated to 2.0.0-SNAPSHOT, given the change to a member that other API may rely on?",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 37
+      },
+      "revId": "b7dcd7fa07a2383c3ae3abc1696ea5903ef2a2cc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

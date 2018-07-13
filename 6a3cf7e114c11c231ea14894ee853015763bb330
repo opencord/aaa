@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de447976_2f44a08b",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2018-07-13T04:50:17Z",
+      "side": 1,
+      "message": "The radiusHost and radiusIp are mutually exclusive and radiusHost has priority if not NULL. We should document this behavior of the app somewhere.",
+      "revId": "6a3cf7e114c11c231ea14894ee853015763bb330",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

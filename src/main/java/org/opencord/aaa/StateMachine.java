@@ -17,7 +17,8 @@
 
 package org.opencord.aaa;
 
-import com.google.common.collect.Maps;
+
+import java.util.concurrent.ConcurrentHashMap;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.VlanId;
 import org.onosproject.net.ConnectPoint;
@@ -115,8 +116,10 @@ class StateMachine {
     private static Map<Integer, StateMachine> identifierMap;
 
     public static void initializeMaps() {
-        sessionIdMap = Maps.newConcurrentMap();
-        identifierMap = Maps.newConcurrentMap();
+        //sessionIdMap = Maps.newConcurrentMap();
+        sessionIdMap =  new ConcurrentHashMap<>();
+       // identifierMap = Maps.newConcurrentMap();
+       identifierMap = new ConcurrentHashMap<>();
         identifier = -1;
     }
 

@@ -15,8 +15,6 @@
  */
 package org.opencord.aaa;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.google.common.collect.ImmutableSet;
@@ -67,7 +65,7 @@ public class AaaConfig extends Config<ApplicationId> {
     protected static final String DEFAULT_NAS_MAC = "00:00:00:00:10:01";
 
     // RADIUS server shared secret
-    protected static final String DEFAULT_RADIUS_SECRET = "ONOSecret";
+     protected static final String DEFAULT_RADIUS_SECRET = "ONOSecret";
 
     // Radius Server UDP Port Number
     protected static final String DEFAULT_RADIUS_SERVER_PORT = "1812";
@@ -272,21 +270,7 @@ public class AaaConfig extends Config<ApplicationId> {
         if (!object.has(RADIUS_SERVER_CONNECTPOINTS)) {
             return ImmutableSet.of();
         }
-
-        ImmutableSet.Builder<ConnectPoint> builder = ImmutableSet.builder();
-        ArrayNode arrayNode = (ArrayNode) object.path(RADIUS_SERVER_CONNECTPOINTS);
-        for (JsonNode jsonNode : arrayNode) {
-            String portName = jsonNode.asText(null);
-            if (portName == null) {
-                return null;
-            }
-            try {
-                builder.add(ConnectPoint.deviceConnectPoint(portName));
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-        return builder.build();
+        return new HashSet<ConnectPoint>();
     }
 
     @Override

@@ -45,7 +45,7 @@ public class AaaConfig extends Config<ApplicationId> {
     private static final String RADIUS_SECRET = "radiusSecret";
     private static final String RADIUS_VLAN_ID = "vlanId";
     private static final String RADIUS_VLAN_PRIORITY_BIT = "radiusPBit";
-    private static final String RADIUS_CONNECTION_TYPE =  "radiusConnectionType";
+    private static final String RADIUS_CONNECTION_TYPE = "radiusConnectionType";
     private static final String RADIUS_SERVER_CONNECTPOINTS = "radiusServerConnectPoints";
     // Which packet customizer to use
     // "packetCustomizer" : "sample" -- Means use SamplePAcketCustomizer
@@ -89,7 +89,7 @@ public class AaaConfig extends Config<ApplicationId> {
      * Gets the value of a string property, protecting for an empty
      * JSON object.
      *
-     * @param name name of the property
+     * @param name         name of the property
      * @param defaultValue default value if none has been specified
      * @return String value if one os found, default value otherwise
      */
@@ -210,7 +210,7 @@ public class AaaConfig extends Config<ApplicationId> {
      */
     public short radiusServerUdpPort() {
         return Short.parseShort(getStringProperty(RADIUS_SERVER_PORT,
-                                                  DEFAULT_RADIUS_SERVER_PORT));
+                DEFAULT_RADIUS_SERVER_PORT));
     }
 
     /**
@@ -273,20 +273,20 @@ public class AaaConfig extends Config<ApplicationId> {
             return ImmutableSet.of();
         }
 
-        ImmutableSet.Builder<ConnectPoint> builder = ImmutableSet.builder();
         ArrayNode arrayNode = (ArrayNode) object.path(RADIUS_SERVER_CONNECTPOINTS);
+        ImmutableSet<ConnectPoint> connectPoints = ImmutableSet.of();
         for (JsonNode jsonNode : arrayNode) {
             String portName = jsonNode.asText(null);
             if (portName == null) {
                 return null;
             }
             try {
-                builder.add(ConnectPoint.deviceConnectPoint(portName));
+                connectPoints.add(ConnectPoint.deviceConnectPoint(portName));
             } catch (IllegalArgumentException e) {
                 return null;
             }
         }
-        return builder.build();
+        return connectPoints;
     }
 
     @Override

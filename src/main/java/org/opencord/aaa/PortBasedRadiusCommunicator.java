@@ -49,7 +49,6 @@ import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
 import org.slf4j.Logger;
 
-import com.google.common.collect.Maps;
 
 import static org.onosproject.net.packet.PacketPriority.CONTROL;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -58,6 +57,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles communication with the RADIUS server through ports
@@ -125,7 +125,8 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         this.pktCustomizer = pktCustomizer;
         this.aaaManager = aaaManager;
 
-        ipToSnMap = Maps.newConcurrentMap();
+        //ipToSnMap = Maps.newConcurrentMap();
+        ipToSnMap = new ConcurrentHashMap<>();
         mastershipService.addListener(changeListener);
         deviceService.addListener(deviceListener);
 

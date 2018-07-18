@@ -112,11 +112,11 @@
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
 
-            <plugin>
+         <!--   <plugin>
                 <groupId>org.onosproject</groupId>
                 <artifactId>onos-maven-plugin</artifactId>
-                <version>1.11</version>
-            </plugin>
+                
+            </plugin>-->
         </plugins>
     </build>
 

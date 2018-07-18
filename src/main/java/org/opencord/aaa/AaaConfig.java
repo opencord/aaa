@@ -55,7 +55,8 @@ public class AaaConfig extends Config<ApplicationId> {
     private static final String PACKET_CUSTOMIZER = "packetCustomizer";
 
     // RADIUS server IP address
-    protected static final String DEFAULT_RADIUS_IP = "10.128.10.4";
+   // protected static final String DEFAULT_RADIUS_IP = "10.128.10.4";
+    protected static final String DEFAULT_RADIUS_IP = "192.168.1.14";
 
     // RADIUS MAC address
     protected static final String DEFAULT_RADIUS_MAC = "00:00:00:00:01:10";
@@ -67,7 +68,8 @@ public class AaaConfig extends Config<ApplicationId> {
     protected static final String DEFAULT_NAS_MAC = "00:00:00:00:10:01";
 
     // RADIUS server shared secret
-    protected static final String DEFAULT_RADIUS_SECRET = "ONOSecret";
+    //protected static final String DEFAULT_RADIUS_SECRET = "ONOSecret";
+     protected static final String DEFAULT_RADIUS_SECRET = "karaf";
 
     // Radius Server UDP Port Number
     protected static final String DEFAULT_RADIUS_SERVER_PORT = "1812";
@@ -273,7 +275,7 @@ public class AaaConfig extends Config<ApplicationId> {
             return ImmutableSet.of();
         }
 
-        ImmutableSet.Builder<ConnectPoint> builder = ImmutableSet.builder();
+       /* ImmutableSet.Builder<ConnectPoint> builder = ImmutableSet.builder();
         ArrayNode arrayNode = (ArrayNode) object.path(RADIUS_SERVER_CONNECTPOINTS);
         for (JsonNode jsonNode : arrayNode) {
             String portName = jsonNode.asText(null);
@@ -286,7 +288,8 @@ public class AaaConfig extends Config<ApplicationId> {
                 return null;
             }
         }
-        return builder.build();
+        return builder.build();*/
+        return new HashSet<ConnectPoint>();
     }
 
     @Override

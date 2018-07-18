@@ -17,6 +17,7 @@
 
 package org.opencord.aaa;
 
+
 import com.google.common.collect.Maps;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.VlanId;
@@ -115,9 +116,9 @@ class StateMachine {
     private static Map<Integer, StateMachine> identifierMap;
 
     public static void initializeMaps() {
-        sessionIdMap = Maps.newConcurrentMap();
-        identifierMap = Maps.newConcurrentMap();
-        identifier = -1;
+       sessionIdMap = Maps.newConcurrentHashMap();
+       identifierMap = Maps.newConcurrentHashMap();
+       identifier = -1;
     }
 
     public static void destroyMaps() {

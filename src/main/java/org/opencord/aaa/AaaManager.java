@@ -23,6 +23,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
+import org.onlab.packet.EAPOLMkpdu;
+import org.onlab.packet.EAPOLMkpduBasicParameterSet.SCI;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.MacAddress;
@@ -35,6 +37,7 @@ import org.onosproject.mastership.MastershipService;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.DeviceId;
+import org.onosproject.net.Port;
 import org.onosproject.net.PortNumber;
 import org.onosproject.net.config.ConfigFactory;
 import org.onosproject.net.config.NetworkConfigEvent;
@@ -45,6 +48,8 @@ import org.onosproject.net.device.DeviceListener;
 import org.onosproject.net.device.DeviceService;
 import org.onosproject.net.flow.DefaultTrafficTreatment;
 import org.onosproject.net.flow.TrafficTreatment;
+import org.onosproject.net.intf.Interface;
+import org.onosproject.net.intf.InterfaceService;
 import org.onosproject.net.packet.DefaultOutboundPacket;
 import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.net.packet.OutboundPacket;
@@ -59,10 +64,16 @@ import org.slf4j.Logger;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.AbstractMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
 import static org.slf4j.LoggerFactory.getLogger;
+
 
 /**
  * AAA application for ONOS.
@@ -98,6 +109,9 @@ AaaManager {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected AccessDeviceService accessDeviceService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected InterfaceService interfaceService;
 
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
@@ -145,19 +159,51 @@ AaaManager {
     // latest configuration
     AaaConfig newCfg;
 
+    //MACSec verion
+    private String version;
+
+    //MACSec capability
+    private String capability;
+
+    //Secure Connectivity Association Key NameK
+    private String mkaCkn;
+
+    //Secure Connectivity Association Key
+    private String mkaCak;
+
+    //Default Netconf Device ID
+    private DeviceId defaultNetconfDeviceId;
+
+   //SecY Driver Interface
+    private String secYDriver;
+
     // Configuration properties factory
     private final ConfigFactory factory =
             new ConfigFactory<ApplicationId, AaaConfig>(APP_SUBJECT_FACTORY,
-                                                         AaaConfig.class,
-                                                         "AAA") {
+                    AaaConfig.class,
+                    "AAA") {
                 @Override
                 public AaaConfig createConfig() {
                     return new AaaConfig();
                 }
             };
+    // Configuration properties factory with MACSec
+    private final ConfigFactory factoryWithMacSec =
+            new ConfigFactory<ApplicationId, MacSecConfig>(APP_SUBJECT_FACTORY,
+                    MacSecConfig.class,
+                    "MACSEC") {
+                @Override
+                public MacSecConfig createConfig() {
+                    return new MacSecConfig();
+                }
+            };
 
     // Listener for config changes
     private final InternalConfigListener cfgListener = new InternalConfigListener();
+
+    // MACSec KaY store and SecY drivers
+    private Map<DeviceId, Map.Entry<MacSecKaY, MacSecSecY>>
+            mkaStore = new ConcurrentHashMap<>();
 
     /**
      * Builds an EAPOL packet based on the given parameters.
@@ -201,7 +247,10 @@ AaaManager {
         customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
         log.info("Starting with config {} {}", this, newCfg);
-
+        /* Enable MACSec configuration Support */
+        netCfgService.registerConfigFactory(factoryWithMacSec);
+        cfgListener.reconfigureNetworkWithMacSec(netCfgService.getConfig(appId, MacSecConfig.class));
+        deviceService.addListener(new InternalDeviceListener());
         configureRadiusCommunication();
 
         // register our event handler
@@ -212,6 +261,7 @@ AaaManager {
         StateMachine.setAccessDeviceService(accessDeviceService);
 
         impl.initializeLocalState(newCfg);
+        netCfgService.addListener(cfgListener);
 
         impl.requestIntercepts();
 
@@ -231,6 +281,7 @@ AaaManager {
         StateMachine.destroyMaps();
         impl.deactivate();
         deviceService.removeListener(deviceListener);
+        macSecThreadPool.shutdown();
         log.info("Stopped");
     }
 
@@ -270,7 +321,7 @@ AaaManager {
      * Handles RADIUS packets.
      *
      * @param radiusPacket RADIUS packet coming from the RADIUS server.
-     * @throws StateMachineException if an illegal state transition is triggered
+     * @throws StateMachineException    if an illegal state transition is triggered
      * @throws DeserializationException if packet deserialization fails
      */
     public void handleRadiusPacket(RADIUS radiusPacket)
@@ -287,38 +338,49 @@ AaaManager {
         switch (radiusPacket.getCode()) {
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
-                RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);
-                byte[] challengeState = null;
-                if (radiusAttrState != null) {
-                    challengeState = radiusAttrState.getValue();
+                try {
+                    RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);
+                    byte[] challengeState = null;
+                    if (radiusAttrState != null) {
+                        challengeState = radiusAttrState.getValue();
+                    }
+
+                    eapPayload = radiusPacket.decapsulateMessage();
+
+                    stateMachine.setChallengeInfo(eapPayload.getIdentifier(), challengeState);
+                    eth = buildEapolResponse(stateMachine.supplicantAddress(),
+                            MacAddress.valueOf(nasMacAddress),
+                            stateMachine.vlanId(),
+                            EAPOL.EAPOL_PACKET,
+                            eapPayload, stateMachine.priorityCode());
+                    log.debug("Send EAP challenge response to supplicant {}",
+                            stateMachine.supplicantAddress().toString());
+                    sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                } catch (DeserializationException e) {
+                    e.printStackTrace();
                 }
-                eapPayload = radiusPacket.decapsulateMessage();
-                stateMachine.setChallengeInfo(eapPayload.getIdentifier(), challengeState);
-                eth = buildEapolResponse(stateMachine.supplicantAddress(),
-                        MacAddress.valueOf(nasMacAddress),
-                        stateMachine.vlanId(),
-                        EAPOL.EAPOL_PACKET,
-                        eapPayload, stateMachine.priorityCode());
-                log.debug("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
-                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
                 //send an EAPOL - Success to the supplicant.
-                byte[] eapMessageSuccess =
-                        radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
-                eapPayload = EAP.deserializer().deserialize(
-                        eapMessageSuccess, 0, eapMessageSuccess.length);
-                eth = buildEapolResponse(stateMachine.supplicantAddress(),
-                        MacAddress.valueOf(nasMacAddress),
-                        stateMachine.vlanId(),
-                        EAPOL.EAPOL_PACKET,
-                        eapPayload, stateMachine.priorityCode());
-                log.info("Send EAP success message to supplicant {}", stateMachine.supplicantAddress().toString());
-                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
-
-                stateMachine.authorizeAccess();
-
+                try {
+                    //send an EAPOL - Success to the supplicant.
+                    byte[] eapMessageSuccess =
+                            radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
+                    eapPayload = new EAP();
+                    //eapPayload = (EAP) eapPayload.deserialize(eapMessageSuccess, 0, eapMessageSuccess.length);
+                    eapPayload = eapPayload.deserializer().deserialize(eapMessageSuccess, 0, eapMessageSuccess.length);
+                    eth = buildEapolResponse(stateMachine.supplicantAddress(),
+                            MacAddress.valueOf(nasMacAddress),
+                            stateMachine.vlanId(),
+                            EAPOL.EAPOL_PACKET,
+                            eapPayload, stateMachine.priorityCode());
+                    log.info("Send EAP success message to supplicant {}", stateMachine.supplicantAddress().toString());
+                    sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                    stateMachine.authorizeAccess();
+                } catch (DeserializationException e) {
+                    log.error("Error in processing RADIUS message {}", e);
+                }
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
@@ -359,7 +421,7 @@ AaaManager {
     private void sendPacketToSupplicant(Ethernet ethernetPkt, ConnectPoint connectPoint) {
         TrafficTreatment treatment = DefaultTrafficTreatment.builder().setOutput(connectPoint.port()).build();
         OutboundPacket packet = new DefaultOutboundPacket(connectPoint.deviceId(),
-                                                          treatment, ByteBuffer.wrap(ethernetPkt.serialize()));
+                treatment, ByteBuffer.wrap(ethernetPkt.serialize()));
         packetService.emit(packet);
     }
 
@@ -403,20 +465,20 @@ AaaManager {
          * Creates and initializes common fields of a RADIUS packet.
          *
          * @param stateMachine state machine for the request
-         * @param eapPacket  EAP packet
+         * @param eapPacket    EAP packet
          * @return RADIUS packet
          */
         private RADIUS getRadiusPayload(StateMachine stateMachine, byte identifier, EAP eapPacket) {
             RADIUS radiusPayload =
                     new RADIUS(RADIUS.RADIUS_CODE_ACCESS_REQUEST,
-                               eapPacket.getIdentifier());
+                            eapPacket.getIdentifier());
 
             // set Request Authenticator in StateMachine
             stateMachine.setRequestAuthenticator(radiusPayload.generateAuthCode());
 
             radiusPayload.setIdentifier(identifier);
             radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME,
-                                       stateMachine.username());
+                    stateMachine.username());
 
             radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
                     AaaManager.this.nasIpAddress.getAddress());
@@ -469,11 +531,11 @@ AaaManager {
                     //send an EAP Request/Identify to the supplicant
                     EAP eapPayload = new EAP(EAP.REQUEST, stateMachine.identifier(), EAP.ATTR_IDENTITY, null);
                     if (ethPkt.getVlanID() != Ethernet.VLAN_UNTAGGED) {
-                       stateMachine.setPriorityCode(ethPkt.getPriorityCode());
+                        stateMachine.setPriorityCode(ethPkt.getPriorityCode());
                     }
                     Ethernet eth = buildEapolResponse(srcMac, MacAddress.valueOf(nasMacAddress),
-                                                      ethPkt.getVlanID(), EAPOL.EAPOL_PACKET,
-                                                      eapPayload, stateMachine.priorityCode());
+                            ethPkt.getVlanID(), EAPOL.EAPOL_PACKET,
+                            eapPayload, stateMachine.priorityCode());
 
                     stateMachine.setSupplicantAddress(srcMac);
                     stateMachine.setVlanId(ethPkt.getVlanID());
@@ -520,8 +582,8 @@ AaaManager {
                                 //send the RADIUS challenge response
                                 radiusPayload =
                                         getRadiusPayload(stateMachine,
-                                                         stateMachine.identifier(),
-                                                         eapPacket);
+                                                stateMachine.identifier(),
+                                                eapPacket);
                                 radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
 
                                 if (stateMachine.challengeState() != null) {
@@ -555,6 +617,77 @@ AaaManager {
                         default:
                             log.warn("Unknown EAP packet type");
                             return;
+                    }
+                    break;
+
+                case EAPOL.EAPOL_MKA:
+                    // Received MACSec PDU from supplicant.
+                    /* For version 1.0 Logon Process (IEEE802.1X 2010 Clause 12.5) starts here.
+                     * Currently only authenticated & secure connections are supported.
+                     * */
+
+                     /* TODO : Ensure AAA authentication is success. */
+
+                    /* Perform Sanity Check */
+
+                    EAPOLMkpdu mkpdu = (EAPOLMkpdu) eapol.getPayload();
+
+                     /* TODO :  Sanity checking
+                       if(!MKPDUSanityCheck(mkpdu)) {
+                       log.warn("Sanity failed for MKPDU from {}, dropping it.", srcMac);
+                       return;
+                       }*/
+
+                    // Load participant details(key <device><port>) and let it process packet.
+
+                    Map.Entry<MacSecKaY, MacSecSecY> mka = mkaStore.getOrDefault(deviceId, null);
+                    if (mka == null) {
+                        log.error("EAPOL-MKA received from undetected device {}. Ignoring.", deviceId);
+                        return;
+                    }
+                    MacSecKaY kaY = mka.getKey();
+                    MkaParticipant participant = kaY.lookupParticipantByID(sessionId);
+                    if (participant != null) {
+                        participant.receive(mkpdu);
+                    } else {
+                        // New MKA actor; prepare default resources.
+                     /* TODO : Locate CAK, CKN for <device>:<port>.
+                      * Currently global CAK & CKN. */
+
+                        byte[] cak = MkaKeyUtils.hexStringToByteArray(mkaCak);
+                        byte[] ckn = MkaKeyUtils.hexStringToByteArray(mkaCkn);
+
+                        // Initialize participant details
+                        Port port = deviceService.getPort(deviceId, portNumber);
+                        MacAddress portMac = null;
+                        Optional<MacAddress> macAddress = interfaceService.getInterfacesByPort(inPacket.receivedFrom())
+                                .stream()
+                                .map(Interface::mac).findFirst();
+                        if (macAddress.isPresent()) {
+                            portMac = macAddress.get();
+                        } else {
+                            log.warn("Fetching EAPOL-MKA ingress port MAC from annotations.");
+                            portMac = MacAddress.valueOf(port.annotations().value("portMac"));
+                        }
+                        participant = new MkaParticipant(stateMachine, packetService,
+                                macSecThreadPool,
+                                kaY, mka.getValue(), cak, ckn,
+                                new SCI(portMac.toBytes(), (short) (port.number().toLong())),
+                                deviceId, port);
+
+                        // Initialize CP state machine.
+                        CpStateMachine cpSM = new CpStateMachine(participant, mka.getValue(),
+                                kaY.defaultCipherSuit(), participant.latestKI(),
+                                participant.latestAN(), macSecThreadPool);
+
+                        // Update per port details in store
+                        kaY.addPortDetails(stateMachine.sessionId(), participant, cpSM);
+
+                        // Handover EAPOL_MKPDU to participant to handle it.
+                        participant.receive(mkpdu);
+                        // Start participant Hello timer & CP state machine.
+                        participant.startTicking();
+                        cpSM.startStateMachine();
                     }
                     break;
                 default:
@@ -622,6 +755,39 @@ AaaManager {
             }
         }
 
+        /**
+         * Reconfigures the AAA application according to the
+         * configuration parameters passed.
+         *
+         * @param cfg configuration object
+         **/
+        private void reconfigureNetworkWithMacSec(MacSecConfig cfg) {
+            MacSecConfig newCfg;
+            if (cfg == null) {
+                newCfg = new MacSecConfig();
+            } else {
+                newCfg = cfg;
+            }
+            if (newCfg.version() != null) {
+                version = newCfg.version();
+            }
+            if (newCfg.capability() != null) {
+                capability = newCfg.capability();
+            }
+            if (newCfg.ckn() != null) {
+                mkaCkn = newCfg.ckn();
+            }
+            if (newCfg.cak() != null) {
+                mkaCak = newCfg.cak();
+            }
+            if (newCfg.netConfDeviceId() != null) {
+                defaultNetconfDeviceId = newCfg.netConfDeviceId();
+            }
+            if (newCfg.driverName() != null) {
+                secYDriver = newCfg.driverName();
+            }
+           }
+
         @Override
         public void event(NetworkConfigEvent event) {
 
@@ -631,6 +797,9 @@ AaaManager {
 
                 AaaConfig cfg = netCfgService.getConfig(appId, AaaConfig.class);
                 reconfigureNetwork(cfg);
+                //include MacSec
+                MacSecConfig cfgMacSec = netCfgService.getConfig(appId, MacSecConfig.class);
+                reconfigureNetworkWithMacSec(cfgMacSec);
 
                 log.info("Reconfigured: {}", cfg.toString());
             }
@@ -640,10 +809,9 @@ AaaManager {
     private class InternalDeviceListener implements DeviceListener {
         @Override
         public void event(DeviceEvent event) {
-
+            DeviceId devId = event.subject().id();
             switch (event.type()) {
                 case PORT_REMOVED:
-                    DeviceId devId = event.subject().id();
                     PortNumber portNumber = event.port().number();
                     String sessionId = devId.toString() + portNumber.toString();
 
@@ -652,11 +820,45 @@ AaaManager {
                     if (removed != null) {
                         StateMachine.deleteStateMachineMapping(removed);
                     }
+                case DEVICE_ADDED:
+                case DEVICE_AVAILABILITY_CHANGED:
+                    // Derive paired netconf device id from openflow device id
+                    DeviceId netconfId = getNetconfPairId(devId);
+                    if (netconfId == null) {
+                        netconfId = defaultNetconfDeviceId;
+                    }
+                    // Update store with KaY and SecY device details.
+                    MacSecSecY secY;
+                    if (secYDriver.equalsIgnoreCase("ofdpa")) {
+                        secY = new OfdpaSecY(netconfId);
+                    } else if (secYDriver.equalsIgnoreCase("secY")) {
+                        secY = new Ieee802AE(netconfId);
+                    } else {
+                        secY = new DefaultSecYDriver(netconfId);
+                    }
+                    MacSecKaY kaY = new MacSecKaY(secY);
+                    mkaStore.put(devId,
+                            new AbstractMap.SimpleEntry<MacSecKaY, MacSecSecY>(kaY, secY));
+                    break;
 
+                case DEVICE_REMOVED:
+                    mkaStore.remove(devId);
                     break;
                 default:
                     return;
             }
         }
+
+        // Openflow device to netconf device mapping logic for MACSec SecY switches
+        private DeviceId getNetconfPairId(DeviceId deviceID) {
+         /* TODO : Finalize and implement logic */
+            return null;
+        }
     }
+
+    // Device listener for MACSec capability loading.
+//     // MACSec Thread Pool. TODO: Pool Size Fixing.
+    private static final int MACSEC_THREAD_POOL_SIZE = 10;
+    private ScheduledExecutorService macSecThreadPool =
+            Executors.newScheduledThreadPool(MACSEC_THREAD_POOL_SIZE);
 }

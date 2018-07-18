@@ -93,6 +93,24 @@
         </dependency>
 
         <dependency>
+              <groupId>org.onosproject</groupId>
+              <artifactId>onos-protocols-netconf-api</artifactId>
+              <version>1.8.5-SNAPSHOT</version>
+          </dependency>
+
+          <dependency>
+              <groupId>org.onosproject</groupId>
+              <artifactId>onos-protocols-netconf-ctl</artifactId>
+              <version>1.8.5-SNAPSHOT</version>
+          </dependency>
+
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onos-core-common</artifactId>
+            <version>${onos.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>22.0</version>
@@ -112,11 +130,11 @@
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
 
-            <plugin>
+         <!--   <plugin>
                 <groupId>org.onosproject</groupId>
                 <artifactId>onos-maven-plugin</artifactId>
-                <version>1.11</version>
-            </plugin>
+                
+            </plugin>-->
         </plugins>
     </build>
 

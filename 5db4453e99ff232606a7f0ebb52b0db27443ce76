@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ee261f6_3bf1032b",
+        "filename": "src/main/java/org/opencord/aaa/AuthenticationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2018-07-25T19:41:05Z",
+      "side": 1,
+      "message": "Since now we are exposing a service from AAA app, should we put this file in an api directory as is being done by the other apps?",
+      "revId": "5db4453e99ff232606a7f0ebb52b0db27443ce76",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,774 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2c8e8fc_bb35ba32",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please not change this. it must be changed during config.",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 69
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b882314f_d6f32e45",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please not change this. it must be changed during config.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 67
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19012e1e_382c5698",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "this returns always an empty set. I believe this to be wrong. please remove line 290 and uncomment 276 to 289",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 43
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b035c9e_f15daa59",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please remove this otherwise you are doing redundant operations at line 264",
+      "range": {
+        "startLine": 245,
+        "startChar": 8,
+        "endLine": 245,
+        "endChar": 47
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec427961_073a11c5",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "minor, please move this before log.info",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 253,
+        "endChar": 64
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "403937d9_31e2359b",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "this is already done at line 268, please remove listener registration",
+      "range": {
+        "startLine": 253,
+        "startChar": 9,
+        "endLine": 253,
+        "endChar": 64
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e94ed9d_d5f23ef3",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "Avoid catching deserialisation exceptions in order to allow to fail fast and show the cause at the root. also please avoid complexity printing to std out, use instead the log.",
+      "range": {
+        "startLine": 359,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 17
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78201bcc_bf4cf160",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same, I\u0027d avoid catching.",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 383,
+        "endChar": 17
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1231ab1f_3fd00061",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "I would avoid merging this into ONOS with un unfinished logic. at least always put the defaultnetconfId return here.",
+      "range": {
+        "startLine": 853,
+        "startChar": 0,
+        "endLine": 856,
+        "endChar": 9
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "552c283e_d9b12082",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please move these to the top of the class for easiness of reading and understanding.",
+      "range": {
+        "startLine": 859,
+        "startChar": 0,
+        "endLine": 863,
+        "endChar": 70
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a68d623_3689d3ec",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please avoid catching general exceptions. Be more specific in the type of exception you want to catch.\nAlso AVOID printing to standard out. a log.warn(\"Message\", e); or log.error is what you are looking for.",
+      "range": {
+        "startLine": 47,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 13
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43c0f238_63df8d16",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 13
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b6db0a6_6446a46c",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69cffb83_9020e289",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 13
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0470a1de_4daafb4e",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "what is this needed ? javadoc and a comment inside would be useful.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 5
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a803e6aa_7c203a8b",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "javadoc, valid for all public methods and classes.",
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a141a3ea_55ebb0e2",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "javadoc",
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "832edf00_c79a3a2e",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "put at the start of the class for consistency.",
+      "range": {
+        "startLine": 439,
+        "startChar": 0,
+        "endLine": 439,
+        "endChar": 56
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db7c32e5_7954f206",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same, put at start",
+      "range": {
+        "startLine": 440,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 7
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0d91800_debdad17",
+        "filename": "src/main/java/org/opencord/aaa/DefaultSecYDriver.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "update",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb33090f_27b14d72",
+        "filename": "src/main/java/org/opencord/aaa/DefaultSecYDriver.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please bring in his own class and implement",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 1
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afc15663_c3ed272f",
+        "filename": "src/main/java/org/opencord/aaa/Ieee802AE.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "please make the message better and move to debug level",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 69
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a558120_6e34b51f",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 62
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f2154b7f_f3c0f7cc",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "the equals method uncommented, especially since this is a key.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 15
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a3e581a_9252a560",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 217,
+        "startChar": 0,
+        "endLine": 217,
+        "endChar": 63
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3211cc4_05ef20c9",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "uncomment or remove",
+      "range": {
+        "startLine": 666,
+        "startChar": 0,
+        "endLine": 675,
+        "endChar": 98
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ccc3f2b_3b7a4532",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "uncomment or remove",
+      "range": {
+        "startLine": 745,
+        "startChar": 0,
+        "endLine": 749,
+        "endChar": 16
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7763424_bdd151c3",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1218,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "use or remove",
+      "range": {
+        "startLine": 1215,
+        "startChar": 0,
+        "endLine": 1218,
+        "endChar": 12
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d648342c_9947f928",
+        "filename": "src/main/java/org/opencord/aaa/OfdpaSecY.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "remove or uncomment",
+      "range": {
+        "startLine": 142,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 7
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6fea144_8cfec8db",
+        "filename": "src/main/java/org/opencord/aaa/OfdpaSecY.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 7
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702d5670_d94400b7",
+        "filename": "src/main/java/org/opencord/aaa/OfdpaSecY.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 233,
+        "startChar": 0,
+        "endLine": 257,
+        "endChar": 7
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6337278_4a771eea",
+        "filename": "src/main/java/org/opencord/aaa/OfdpaSecY.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "move to trace or debug level and remove the -----",
+      "range": {
+        "startLine": 460,
+        "startChar": 12,
+        "endLine": 460,
+        "endChar": 73
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6155a081_0a9933b4",
+        "filename": "src/main/java/org/opencord/aaa/PortBasedRadiusCommunicator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 46
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1bf90a8_1229590b",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-13T13:16:20Z",
+      "side": 1,
+      "message": "same. Also, what this change ? what behaviour propted  it ?",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 50
+      },
+      "revId": "a49419b92836c89a3bf4948ff1b1df9edddc2291",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

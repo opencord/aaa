@@ -15,6 +15,13 @@
  */
 package org.opencord.aaa;
 
+import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -54,13 +61,6 @@ import org.onosproject.net.packet.PacketService;
 import org.opencord.sadis.SubscriberAndDeviceInformationService;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
-
-import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.util.Map;
-
-import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * AAA application for ONOS.
@@ -269,9 +269,13 @@ public class AaaManager
      */
     public void handleRadiusPacket(RADIUS radiusPacket)
             throws StateMachineException, DeserializationException {
+        if (log.isTraceEnabled()) {
+            log.trace("Received RADIUS packet {}", radiusPacket);
+        }
         StateMachine stateMachine = StateMachine.lookupStateMachineById(radiusPacket.getIdentifier());
         if (stateMachine == null) {
-            log.error("Invalid session identifier {}, exiting...", radiusPacket.getIdentifier());
+            log.error("Invalid packet identifier {}, could not find corresponding "
+                    + "state machine ... exiting", radiusPacket.getIdentifier());
             return;
         }
 
@@ -354,6 +358,11 @@ public class AaaManager
         TrafficTreatment treatment = DefaultTrafficTreatment.builder().setOutput(connectPoint.port()).build();
         OutboundPacket packet = new DefaultOutboundPacket(connectPoint.deviceId(),
                                                           treatment, ByteBuffer.wrap(ethernetPkt.serialize()));
+        if (log.isTraceEnabled()) {
+            EAPOL eap = ((EAPOL) ethernetPkt.getPayload());
+            log.trace("Sending eapol payload {} enclosed in {} to supplicant at {}",
+                      eap, ethernetPkt, connectPoint);
+        }
         packetService.emit(packet);
     }
 
@@ -433,12 +442,22 @@ public class AaaManager
             DeviceId deviceId = inPacket.receivedFrom().deviceId();
             PortNumber portNumber = inPacket.receivedFrom().port();
             String sessionId = deviceId.toString() + portNumber.toString();
-            StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
-            if (stateMachine == null) {
-                stateMachine = new StateMachine(sessionId);
+            EAPOL eapol = (EAPOL) ethPkt.getPayload();
+            if (log.isTraceEnabled()) {
+                log.trace("Received EAPOL packet {} in enclosing packet {} from "
+                        + "dev/port: {}/{}", eapol, ethPkt, deviceId,
+                          portNumber);
             }
 
-            EAPOL eapol = (EAPOL) ethPkt.getPayload();
+            StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
+            if (stateMachine == null) {
+                log.debug("Creating new state machine for sessionId: {} for "
+                                + "dev/port: {}/{}", sessionId, deviceId, portNumber);
+                stateMachine = new StateMachine(sessionId);
+            } else {
+                log.debug("Using existing state-machine for sessionId: {}", sessionId);
+            }
+
 
             switch (eapol.getEapolType()) {
                 case EAPOL.EAPOL_START:

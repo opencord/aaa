@@ -15,7 +15,18 @@
  */
 package org.opencord.aaa;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import static org.onosproject.net.packet.PacketPriority.CONTROL;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
@@ -28,17 +39,7 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketService;
 import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.onosproject.net.packet.PacketPriority.CONTROL;
-import static org.slf4j.LoggerFactory.getLogger;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Handles Socket based communication with the RADIUS server.
@@ -141,10 +142,11 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                 }
                 DatagramPacket packet =
                         new DatagramPacket(data, data.length, address, radiusServerPort);
-
+                if (log.isTraceEnabled()) {
+                    log.trace("Sending packet {} to Radius Server {}:{} using socket",
+                              radiusPacket, address, radiusServerPort);
+                }
                 socket.send(packet);
-                log.debug("Packet sent to Radius Server {}:{} using socket",
-                        address, radiusServerPort);
             } catch (UnknownHostException uhe) {
                 log.warn("Unable to resolve host {}", radiusHost);
             }
@@ -157,9 +159,11 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
     public void handlePacketFromServer(PacketContext context) {
         InboundPacket pkt = context.inPacket();
         Ethernet ethPkt = pkt.parsed();
-
-        log.debug("Skipping Ethernet packet type {}",
-                EthType.EtherType.lookup(ethPkt.getEtherType()));
+        if (log.isTraceEnabled() && ethPkt.getEtherType() != Ethernet.TYPE_LLDP
+                && ethPkt.getEtherType() != Ethernet.TYPE_BSN) {
+            log.trace("Skipping Ethernet packet type {}",
+                      EthType.EtherType.lookup(ethPkt.getEtherType()));
+        }
     }
 
     class RadiusListener implements Runnable {

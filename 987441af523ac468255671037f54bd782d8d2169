@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79883582_6c9f8fa4",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2018-09-20T04:36:36Z",
+      "side": 1,
+      "message": "Just a thought, would it be better to have the traces after the job is done, like in this case after actually transmitting the packet and same thing while sending it via the socket?",
+      "range": {
+        "startLine": 361,
+        "startChar": 16,
+        "endLine": 361,
+        "endChar": 30
+      },
+      "revId": "987441af523ac468255671037f54bd782d8d2169",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

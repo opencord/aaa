@@ -22,6 +22,30 @@
       "revId": "987441af523ac468255671037f54bd782d8d2169",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "794556a3_e6261670",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2018-09-20T21:26:31Z",
+      "side": 1,
+      "message": "I generally prefer it before to maintain ordering in the log, because ONOS is multithreaded and if your thread gets kicked out before the log, the response may come in the meantime before this log. Though probably not a huge concern here",
+      "parentUuid": "79883582_6c9f8fa4",
+      "range": {
+        "startLine": 361,
+        "startChar": 16,
+        "endLine": 361,
+        "endChar": 30
+      },
+      "revId": "987441af523ac468255671037f54bd782d8d2169",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

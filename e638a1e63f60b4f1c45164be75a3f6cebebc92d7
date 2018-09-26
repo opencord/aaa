@@ -1,0 +1,343 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9563f986_387a1521",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "please revert to previous value and change it through cfg.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 68
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cec81a2_57a6d5d4",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "please revert to previous value and change it through cfg.",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 71
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68a50023_afa5a011",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "this agains return always a set of empty connect points. Is the implementation still WIP ?",
+      "range": {
+        "startLine": 265,
+        "startChar": 4,
+        "endLine": 274,
+        "endChar": 5
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3f98be0_2225fb30",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "useless info, remove",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 0
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "401cc703_90c0d4d1",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "better formatting. also subject is missing. Entity capable... maybe ?",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 4
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1d1dabb_4645adce",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "missing javadoc for the enum and for each enum type",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 5
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec6befad_bbfed8ed",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "put as first line in the class, for consistency with other ONOS apps",
+      "range": {
+        "startLine": 69,
+        "startChar": 3,
+        "endLine": 69,
+        "endChar": 56
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35504849_98ae0970",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "I think some implementation is missing here. not doing anything and returning null is not a good practice.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 24
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aaddaa03_4b9c92c0",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "two asterisks for the start of the javadoc, valid for all",
+      "range": {
+        "startLine": 691,
+        "startChar": 5,
+        "endLine": 691,
+        "endChar": 6
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cac5ebf6_6b9f5fa7",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "this usually goes on the last line, valid for all.",
+      "range": {
+        "startLine": 694,
+        "startChar": 7,
+        "endLine": 694,
+        "endChar": 9
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45664502_6992d4a2",
+        "filename": "src/main/java/org/opencord/aaa/DefaultSecYDriver.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "please make javadoc explicative of what the class is doing.",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58f6a366_2230fffc",
+        "filename": "src/main/java/org/opencord/aaa/DefaultSecYDriver.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "still missing implementation",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 5
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d25bf64e_81eeff1d",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "please implement the equals method.",
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c721ceb_cc3b4d0b",
+        "filename": "src/main/java/org/opencord/aaa/MkaParticipant.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "you are not adding any parameter here. is that correct behaviour ?",
+      "range": {
+        "startLine": 649,
+        "startChar": 12,
+        "endLine": 650,
+        "endChar": 50
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41d98732_0fd0398a",
+        "filename": "src/main/java/org/opencord/aaa/StateMachine.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2018-09-26T14:09:07Z",
+      "side": 1,
+      "message": "why use new ConcurrentHashMap\u003c\u003e(); instead of the old Maps.newConcurrentMap(); ?",
+      "range": {
+        "startLine": 119,
+        "startChar": 8,
+        "endLine": 120,
+        "endChar": 50
+      },
+      "revId": "e638a1e63f60b4f1c45164be75a3f6cebebc92d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

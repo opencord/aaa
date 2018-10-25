@@ -17,9 +17,8 @@
 package org.opencord.aaa;
 
 import org.onosproject.net.device.DeviceService;
-import org.opencord.sadis.SubscriberAndDeviceInformationService;
-
-//import java.util.Map;
+import org.opencord.sadis.BaseInformationService;
+import org.opencord.sadis.SubscriberAndDeviceInformation;
 
 /**
  * Info required to do customization to packets.
@@ -28,9 +27,10 @@ public class CustomizationInfo {
 
     private DeviceService devService;
 
-    private SubscriberAndDeviceInformationService subscriberService;
+    private BaseInformationService<SubscriberAndDeviceInformation> subscriberService;
 
-    public CustomizationInfo(SubscriberAndDeviceInformationService subsService, DeviceService devService) {
+    public CustomizationInfo(BaseInformationService<SubscriberAndDeviceInformation> subsService,
+                             DeviceService devService) {
         this.subscriberService = subsService;
         this.devService = devService;
     }
@@ -39,7 +39,7 @@ public class CustomizationInfo {
         return devService;
     }
 
-    public SubscriberAndDeviceInformationService subscriberService() {
+    public BaseInformationService<SubscriberAndDeviceInformation> subscriberService() {
         return subscriberService;
     }
 }

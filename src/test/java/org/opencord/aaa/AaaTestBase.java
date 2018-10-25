@@ -38,8 +38,10 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketServiceAdapter;
 
+import org.opencord.sadis.BandwidthProfileInformation;
+import org.opencord.sadis.BaseInformationService;
+import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
-import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -158,7 +160,20 @@ public class AaaTestBase {
         }
     }
 
-    final class MockSubService implements SubscriberAndDeviceInformationService {
+    final class MockSadisService implements SadisService {
+
+        @Override
+        public BaseInformationService<SubscriberAndDeviceInformation> getSubscriberInfoService() {
+            return new MockSubService();
+        }
+
+        @Override
+        public BaseInformationService<BandwidthProfileInformation> getBandwidthProfileService() {
+            return null;
+        }
+    }
+
+    final class MockSubService implements BaseInformationService<SubscriberAndDeviceInformation> {
         private final VlanId clientCtag = VlanId.vlanId((short) 999);
         private final VlanId clientStag = VlanId.vlanId((short) 111);
         private final String clientNasPortId = "PON 1/1";

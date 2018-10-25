@@ -58,7 +58,9 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
-import org.opencord.sadis.SubscriberAndDeviceInformationService;
+import org.opencord.sadis.BaseInformationService;
+import org.opencord.sadis.SadisService;
+import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 
@@ -88,10 +90,12 @@ public class AaaManager
     protected DeviceService deviceService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    protected SubscriberAndDeviceInformationService subsService;
+    protected SadisService sadisService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipService mastershipService;
+
+    protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
 
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
@@ -192,6 +196,7 @@ public class AaaManager
         eventDispatcher.addSink(AuthenticationEvent.class, listenerRegistry);
         netCfgService.addListener(cfgListener);
         netCfgService.registerConfigFactory(factory);
+        subsService = sadisService.getSubscriberInfoService();
         customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
         log.info("Starting with config {} {}", this, newCfg);

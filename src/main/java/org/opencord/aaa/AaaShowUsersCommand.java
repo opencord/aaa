@@ -20,8 +20,8 @@ import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.device.DeviceService;
 
+import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
-import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
 /**
  * Shows the users in the aaa.
@@ -40,8 +40,8 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
         };
 
         DeviceService devService = AbstractShellCommand.get(DeviceService.class);
-        SubscriberAndDeviceInformationService subsService =
-                AbstractShellCommand.get(SubscriberAndDeviceInformationService.class);
+        SadisService sadisService =
+                AbstractShellCommand.get(SadisService.class);
 
         for (StateMachine stateMachine : StateMachine.sessionIdMap().values()) {
             String deviceId = stateMachine.supplicantConnectpoint().deviceId().toString();
@@ -60,7 +60,7 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
                     annotations().value(AnnotationKeys.PORT_NAME);
 
             String subsId = "UNKNOWN";
-            SubscriberAndDeviceInformation subscriber = subsService.get(nasPortId);
+            SubscriberAndDeviceInformation subscriber = sadisService.getSubscriberInfoService().get(nasPortId);
             if (subscriber != null) {
                 subsId = subscriber.nasPortId();
             }

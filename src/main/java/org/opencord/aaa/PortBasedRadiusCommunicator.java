@@ -44,8 +44,8 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketService;
 
+import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
-import org.opencord.sadis.SubscriberAndDeviceInformationService;
 
 import org.slf4j.Logger;
 
@@ -78,7 +78,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
 
     MastershipService mastershipService;
 
-    SubscriberAndDeviceInformationService subsService;
+    BaseInformationService<SubscriberAndDeviceInformation> subsService;
 
     // to store local mapping of IP Address and Serial No of Device
     private Map<Ip4Address, String> ipToSnMap;
@@ -115,7 +115,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
 
     PortBasedRadiusCommunicator(ApplicationId appId, PacketService pktService,
                                 MastershipService masService, DeviceService devService,
-                                SubscriberAndDeviceInformationService subsService,
+                                BaseInformationService<SubscriberAndDeviceInformation> subsService,
                                 PacketCustomizer pktCustomizer, AaaManager aaaManager) {
         this.appId = appId;
         this.packetService = pktService;

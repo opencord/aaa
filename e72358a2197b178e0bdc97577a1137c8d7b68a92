@@ -16,6 +16,24 @@
       "revId": "e72358a2197b178e0bdc97577a1137c8d7b68a92",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e013f6c5_380d17cd",
+        "filename": "src/main/java/org/opencord/aaa/AttPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000436
+      },
+      "writtenOn": "2018-11-14T14:47:59Z",
+      "side": 1,
+      "message": "We can remove the att specific naming.   Really what we are trying to accomplish is encapsulating all seba pod radius access as one from one IP.  We could rename the class SebaPrivatePodCustomizer ?",
+      "parentUuid": "641b8824_36e87fe2",
+      "revId": "e72358a2197b178e0bdc97577a1137c8d7b68a92",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

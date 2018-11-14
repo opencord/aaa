@@ -15,23 +15,20 @@
  */
 package org.opencord.aaa;
 
-import org.onlab.packet.Ethernet;
-import org.onlab.packet.MacAddress;
-import org.onlab.packet.IPv4;
-import org.onlab.packet.RADIUS;
-import org.onlab.packet.RADIUSAttribute;
-
-
-import org.onosproject.net.AnnotationKeys;
-import org.onosproject.net.Port;
-import org.onosproject.net.packet.InboundPacket;
-
-import org.opencord.sadis.SubscriberAndDeviceInformation;
-import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.nio.ByteBuffer;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import org.onlab.packet.Ethernet;
+import org.onlab.packet.IPv4;
+import org.onlab.packet.MacAddress;
+import org.onlab.packet.RADIUS;
+import org.onlab.packet.RADIUSAttribute;
+import org.onosproject.net.AnnotationKeys;
+import org.onosproject.net.Port;
+import org.onosproject.net.packet.InboundPacket;
+import org.opencord.sadis.SubscriberAndDeviceInformation;
+import org.slf4j.Logger;
 
 
 /**
@@ -44,6 +41,15 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
 
     public SamplePacketCustomizer(CustomizationInfo customInfo) {
         super(customInfo);
+    }
+
+    /**
+     * Determines if NAS IP Attribute should be updated or not.
+     *
+     * @return true if updating NAS IP is desired
+     */
+    protected boolean updateNasIp() {
+        return true;
     }
 
     /**
@@ -92,8 +98,10 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
 
         log.info("Setting nasId={} nasPortId{}", nodeName, nasPortId);
 
-        inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
-                deviceInfo.ipAddress().toOctets());
+        if (updateNasIp()) {
+            inPkt.updateAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP,
+                                  deviceInfo.ipAddress().toOctets());
+        }
 
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_CALLING_STATION_ID,
                 srcMac.toString().getBytes());
@@ -125,6 +133,7 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
      *                  RADIUS message is being created
      * @return Changed Ethernet packet
      */
+    @Override
     public Ethernet customizeEthernetIPHeaders(Ethernet inPkt,
                                                InboundPacket eapPacket) {
 

@@ -243,6 +243,10 @@ public class AaaManager
                 pktCustomizer = new SamplePacketCustomizer(customInfo);
                 log.info("Created SamplePacketCustomizer");
                 break;
+            case "att":
+                pktCustomizer = new AttPacketCustomizer(customInfo);
+                log.info("Created AttPacketCustomizer");
+                break;
             default:
                 pktCustomizer = new PacketCustomizer(customInfo);
                 log.info("Created default PacketCustomizer");

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "641b8824_36e87fe2",
+        "filename": "src/main/java/org/opencord/aaa/AttPacketCustomizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2018-11-14T13:08:30Z",
+      "side": 1,
+      "message": "Hi Saurav, I remember earlier we had done some operator specific customization and named the files with operator names. David had a very strong objection to it, as per him we should not have operator specific files. That\u0027s why if you look into the SamplePacketCustomizer what it does is basically ATT requirements but I kept the name to Sample (which works for ATT) but not called out explicitly.\n\nCould you please talk to David and sort out which convention we should follow? I don\u0027t have a strong opinion on either of the two choices.",
+      "revId": "e72358a2197b178e0bdc97577a1137c8d7b68a92",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

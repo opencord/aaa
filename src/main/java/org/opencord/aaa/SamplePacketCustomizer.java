@@ -104,7 +104,7 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
         }
 
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_CALLING_STATION_ID,
-                srcMac.toString().getBytes());
+                srcMac.toBytes());
 
         // Check value - 16 was used in PoC2, as per PoC3 TS value should be 15
         inPkt.setAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_PORT_TYPE,

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32cd6d80_f651eaa3",
+        "filename": "src/main/java/org/opencord/aaa/AaaShowUsersCommand.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000480
+      },
+      "writtenOn": "2018-11-29T18:38:41Z",
+      "side": 1,
+      "message": "I\u0027ve seen exceptions in the CLI when there have been no aaa-\nusers yet. Can we check this for null pointer gracefully?\n\n\n\nonos\u003e aaa-users\nError executing command: java.lang.NullPointerException\n\n\n\n2018-11-29 18:28:59,527 | ERROR | h for user karaf | ShellUtil                        | 27 - org.apache.karaf.shell.console - 3.0.8 | Exception caught while executing command\njava.lang.NullPointerException\n        at org.opencord.aaa.AaaShowUsersCommand.execute(AaaShowUsersCommand.java:46)\n        at org.onosproject.cli.AbstractShellCommand.doExecute(AbstractShellCommand.java:155)\n        at org.apache.karaf.shell.console.AbstractAction.execute(AbstractAction.java:33)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.karaf.shell.commands.basic.AbstractCommand.execute(AbstractCommand.java:33)[27:org.apache.karaf.shell.console:3.0.8]\n        at Proxy070f6173_ffd1_4c56_8238_ca82a22a6c5b.execute(Unknown Source)[:]\n        at Proxy070f6173_ffd1_4c56_8238_ca82a22a6c5b.execute(Unknown Source)[:]\n        at org.apache.felix.gogo.runtime.CommandProxy.execute(CommandProxy.java:78)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.felix.gogo.runtime.Closure.executeCmd(Closure.java:480)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.felix.gogo.runtime.Closure.executeStatement(Closure.java:406)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.felix.gogo.runtime.Pipe.run(Pipe.java:108)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.felix.gogo.runtime.Closure.execute(Closure.java:182)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.felix.gogo.runtime.Closure.execute(Closure.java:119)[27:org.apache.karaf.shell.console:3.0.8]\n        at org.apache.felix.gogo.runtime.CommandSessionImpl.execute(CommandSessionImpl.java:94)\n        at org.apache.karaf.shell.console.impl.jline.ConsoleImpl.run(ConsoleImpl.java:211)\n        at org.apache.karaf.shell.ssh.ShellFactoryImpl$ShellImpl$1.runConsole(ShellFactoryImpl.java:158)[47:org.apache.karaf.shell.ssh:3.0.8]\n        at org.apache.karaf.shell.ssh.ShellFactoryImpl$ShellImpl$1$1.run(ShellFactoryImpl.java:133)\n        at java.security.AccessController.doPrivileged(Native Method)[:1.8.0_181]\n        at org.apache.karaf.jaas.modules.JaasHelper.doAs(JaasHelper.java:57)[28:org.apache.karaf.jaas.modules:3.0.8]\n        at org.apache.karaf.shell.ssh.ShellFactoryImpl$ShellImpl$1.run(ShellFactoryImpl.java:129)[47:org.apache.karaf.shell.ssh:3.0.8]",
+      "range": {
+        "startLine": 46,
+        "startChar": 13,
+        "endLine": 46,
+        "endChar": 25
+      },
+      "revId": "fab9d9e4f6ae7224eea8d770497fc11f3b8b0a1f",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

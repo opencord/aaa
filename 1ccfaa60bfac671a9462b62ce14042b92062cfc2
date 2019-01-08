@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7c5846b_c7ae1d59",
+        "filename": "src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "this change looks to me not correct - please revert",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 289,
+        "endChar": 29
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ddca7ee_d4da9b3b",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "Please remove if it is not needed",
+      "range": {
+        "startLine": 369,
+        "startChar": 0,
+        "endLine": 369,
+        "endChar": 108
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63a4f81f_67d4d03c",
+        "filename": "src/main/java/org/opencord/aaa/AaaManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "I guess this part has been added to manage at run time devices going up/down. What does it happen when a device goes down ? What should we do ?",
+      "range": {
+        "startLine": 817,
+        "startChar": 0,
+        "endLine": 836,
+        "endChar": 43
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c3f8d5f_63bc06d9",
+        "filename": "src/main/java/org/opencord/aaa/AescMac.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "I do believe it is not correct. Fix in other parts",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 56
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d7ee665_d1441f53",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 56
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9747960f_1fcdf971",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "CP -\u003e ConnectPoint ? If yes, I would use ConnectPoint... everywhere instead of CP...",
+      "range": {
+        "startLine": 30,
+        "startChar": 3,
+        "endLine": 30,
+        "endChar": 5
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe929b38_cd1d907c",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "What is this ?",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 64
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24ea62ca_74cf1acb",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "is still relevant ? Also remove the \"**\" otherwise this becomes a java-doc",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 204,
+        "endChar": 15
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c9c8279_f73b459b",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "Remove \"**\". This is just a comment /* is enough",
+      "range": {
+        "startLine": 252,
+        "startChar": 12,
+        "endLine": 254,
+        "endChar": 15
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "071b8cbd_69d4409f",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 290,
+        "startChar": 0,
+        "endLine": 292,
+        "endChar": 15
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03a4fed0_5a7aa97f",
+        "filename": "src/main/java/org/opencord/aaa/CpStateMachine.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "same here. Removes all \"**\" when they are not needed. Also if we can just use one line instead of /* is better",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 327,
+        "endChar": 15
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e49da40_98776eae",
+        "filename": "src/main/java/org/opencord/aaa/Ieee802AE.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "java-doc",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 6
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90a0d234_a95e581a",
+        "filename": "src/main/java/org/opencord/aaa/MacSecAlgorithmAgility.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "interface methods should be properly documented",
+      "range": {
+        "startLine": 22,
+        "startChar": 7,
+        "endLine": 22,
+        "endChar": 16
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3dd50dd1_11647273",
+        "filename": "src/main/java/org/opencord/aaa/MacSecCapabilities.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "Java-doc and in genera documentation are mandatory",
+      "range": {
+        "startLine": 22,
+        "startChar": 7,
+        "endLine": 22,
+        "endChar": 11
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89367263_c3ccd671",
+        "filename": "src/main/java/org/opencord/aaa/MacSecSecY.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "What is this ?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 3
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e114068_b8afae9b",
+        "filename": "src/main/java/org/opencord/aaa/MacSecSecY.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2019-01-08T14:33:32Z",
+      "side": 1,
+      "message": "Why an abstract class and not an interface with default implementation ?",
+      "range": {
+        "startLine": 25,
+        "startChar": 16,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "1ccfaa60bfac671a9462b62ce14042b92062cfc2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

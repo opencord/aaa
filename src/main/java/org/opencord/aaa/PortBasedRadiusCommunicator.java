@@ -108,11 +108,15 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
     PacketCustomizer pktCustomizer;
     AaaManager aaaManager;
 
+    byte outPacketIdentifier;
+    
     ConnectPoint radiusServerConnectPoint = null;
 
     InnerMastershipListener changeListener = new InnerMastershipListener();
     InnerDeviceListener deviceListener = new InnerDeviceListener();
 
+    AaaStatisticsManager aaaStatisticsManager = AaaStatisticsManager.getInstance(); // new AaaStatsManager();
+    
     PortBasedRadiusCommunicator(ApplicationId appId, PacketService pktService,
                                 MastershipService masService, DeviceService devService,
                                 SubscriberAndDeviceInformationService subsService,
@@ -262,7 +266,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
             return;
         }
         ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
-
+        outPacketIdentifier = radiusPacket.getIdentifier();
         // send the message out
         sendFromRadiusServerPort(pktCustomizer.
                 customizeEthernetIPHeaders(ethReply, inPkt));
@@ -280,6 +284,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                     .setOutput(radiusServerConnectPoint.port()).build();
             OutboundPacket o = new DefaultOutboundPacket(
                     radiusServerConnectPoint.deviceId(), t, ByteBuffer.wrap(packet.serialize()));
+            AaaStatisticsManager.outgoingPacketMap.put(outPacketIdentifier, System.currentTimeMillis());
             packetService.emit(o);
         } else {
             log.error("Unable to send RADIUS packet, connectPoint is null");
@@ -374,7 +379,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         }
 
         IPv4 ipv4Packet = (IPv4) ethPkt.getPayload();
-
+        aaaManager.checkForPacketFromUnknownServer(Integer.toString(ipv4Packet.getSourceAddress()));
         if (ipv4Packet.getProtocol() == IPv4.PROTOCOL_UDP) {
             UDP udpPacket = (UDP) ipv4Packet.getPayload();
 
@@ -388,6 +393,8 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                                             8,
                                             udpPacket.getLength() - 8);
                     try {
+                    	log.info("Calling aaaStatisticsManager.handleRoundtripTime() from portBasedRadiusCommunicator.handleIPv4PacketFromServer()");
+                    	aaaStatisticsManager.handleRoundtripTime(System.currentTimeMillis(), radiusMsg.getIdentifier());
                         aaaManager.handleRadiusPacket(radiusMsg);
                     }  catch (StateMachineException sme) {
                         log.error("Illegal state machine operation", sme);

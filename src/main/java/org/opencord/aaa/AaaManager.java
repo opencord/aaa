@@ -20,6 +20,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -129,6 +131,8 @@ public class AaaManager
     // "socket" or "packet_out"
     private String radiusConnectionType;
 
+	AaaStatisticsManager aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
+   
     // Object for the specific type of communication with the RADIUS
     // server, socket based or packet_out based
     RadiusCommunicator impl = null;
@@ -152,6 +156,7 @@ public class AaaManager
 
     private StateMachineDelegate delegate = new InternalStateMachineDelegate();
 
+    List<Byte> identifiersOfPacketsSentList = new ArrayList<Byte>();
     /**
      * Builds an EAPOL packet based on the given parameters.
      *
@@ -253,6 +258,22 @@ public class AaaManager
                 break;
         }
     }
+    
+    private void checkForInvalidValidator(RADIUS radiusPacket) {//TODO: check for this logic existence
+		boolean isValid = radiusPacket.checkMessageAuthenticator(radiusSecret);
+		if(!isValid) {
+			log.info("Calling aaaStatisticsManager.increaseInvalidValidatorCounter() from AaaManager.checkForInvalidValidator()");
+			aaaStatisticsManager.increaseInvalidValidatorCounter();
+		}
+		
+	}
+    
+    public void checkForPacketFromUnknownServer(String hostAddress) {
+		if(!hostAddress.equals(newCfg.radiusIp().getHostAddress())) {
+			log.info("Calling aaaStatisticsManager.incrementNumberOfPacketFromUnknownServer() from AaaManager.checkForPacketFromUnknownServer()");
+			aaaStatisticsManager.incrementNumberOfPacketFromUnknownServer();
+		}
+	}
 
     /**
      * Send RADIUS packet to the RADIUS server.
@@ -261,7 +282,15 @@ public class AaaManager
      * @param inPkt        Incoming EAPOL packet
      */
     protected void sendRadiusPacket(RADIUS radiusPacket, InboundPacket inPkt) {
-        impl.sendRadiusPacket(radiusPacket, inPkt);
+    	//if(radiusPacket.getCode() == RADIUS.RADIUS_CODE_ACCESS_REQUEST)//TODO- confirm this check. is it possible to send challenge response to radius
+    	//adding identifier of sent packet to the list
+    	identifiersOfPacketsSentList.add(radiusPacket.getIdentifier());//TODO : confirm if list is req or not. 
+//    	since state is pending and cant be changed unless a req execution completes
+    	log.info("Calling aaaStatisticsManager.increaseOrDecreasePendingCounter() from AaaManager.sendRadiusPacket()");
+    	aaaStatisticsManager.increaseOrDecreasePendingCounter(true);
+    	log.info("Calling aaaStatisticsManager.increaseAccessRequestPacketsCounter() from AaaManager.sendRadiusPacket()");
+    	aaaStatisticsManager.increaseAccessRequestPacketsCounter();//this will increase only if context.pktType is EAPOL
+    	impl.sendRadiusPacket(radiusPacket, inPkt);
     }
 
     /**
@@ -285,8 +314,20 @@ public class AaaManager
 
         EAP eapPayload;
         Ethernet eth;
-
-        switch (radiusPacket.getCode()) {
+        // 8.	Number of malformed access response packets received from the server
+//        aaaStatsManager.checkForMalformedPacket(radiusPacket);
+        // 9: Number of access response packets received from the server with an invalid validator
+        checkForInvalidValidator(radiusPacket);//TODO CHECK LOGIC IN THIS CLASS
+        
+        //checking if identifier is found in list then decrementing the pending req counter 
+        if(identifiersOfPacketsSentList.contains(radiusPacket.getIdentifier())) {
+        	log.info("Calling aaaStatisticsManager.increaseOrDecreasePendingCounter() from AaaManager.handleRadiusPacket()");
+        	aaaStatisticsManager.increaseOrDecreasePendingCounter(false);
+        	//removing identifier from list
+        	identifiersOfPacketsSentList.remove(new Byte(radiusPacket.getIdentifier()));
+        }
+        
+        switch (radiusPacket.getCode()) {//TODO check if identifier comparision is needed?
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
                 RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);
@@ -303,6 +344,8 @@ public class AaaManager
                         eapPayload, stateMachine.priorityCode());
                 log.debug("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                log.info("Calling aaaStatisticsManager.increaseChallengePacketsCounter() from AaaManager.handleRadiusPacket()");
+                aaaStatisticsManager.increaseChallengePacketsCounter();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
@@ -320,7 +363,8 @@ public class AaaManager
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
 
                 stateMachine.authorizeAccess();
-
+                log.info("Calling aaaStatisticsManager.increaseAcceptPacketsCounter() from AaaManager.handleRadiusPacket()");
+                aaaStatisticsManager.increaseAcceptPacketsCounter();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
@@ -345,10 +389,16 @@ public class AaaManager
                 log.warn("Send EAP failure message to supplicant {}", stateMachine.supplicantAddress().toString());
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                 stateMachine.denyAccess();
-
+                log.info("Calling aaaStatisticsManager.increaseRejectPacketsCounter() from AaaManager.handleRadiusPacket()");
+                aaaStatisticsManager.increaseRejectPacketsCounter();
                 break;
             default:
                 log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());
+                log.info("Calling aaaStatisticsManager.increaseUnknownPacketsCounter() from AaaManager.handleRadiusPacket()");
+                aaaStatisticsManager.increaseUnknownPacketsCounter();
+        }
+        log.info("Calling aaaStatisticsManager.countNumberOfDroppedPackets() from AaaManager.handleRadiusPacket()");
+        aaaStatisticsManager.countNumberOfDroppedPackets();//TODO - call this while publishing it to kafka
         }
     }
 

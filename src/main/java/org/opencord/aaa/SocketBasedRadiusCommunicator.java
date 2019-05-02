@@ -69,6 +69,9 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
     // Executor for RADIUS communication thread
     private ExecutorService executor;
 
+    AaaStatisticsManager aaaStatisticsManager = AaaStatisticsManager.getInstance();
+    
+    
     AaaManager aaaManager;
 
     SocketBasedRadiusCommunicator(ApplicationId appId, PacketService pktService,
@@ -146,6 +149,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     log.trace("Sending packet {} to Radius Server {}:{} using socket",
                               radiusPacket, address, radiusServerPort);
                 }
+                AaaStatisticsManager.outgoingPacketMap.put(radiusPacket.getIdentifier(), System.currentTimeMillis());
                 socket.send(packet);
             } catch (UnknownHostException uhe) {
                 log.warn("Unable to resolve host {}", radiusHost);
@@ -182,15 +186,23 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             new DatagramPacket(packetBuffer, packetBuffer.length);
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
+                    aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
                     log.debug("Packet #{} received", packetNumber++);
                     try {
+                    	//TODO : make changes to below deserialize call for testing purpose to get malformed response/DeserializationException
                         inboundRadiusPacket =
                                 RADIUS.deserializer()
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
+                        //TODO - capture timestamp
+//                        aaaStatisticsManager.handleRoundtripTimeForSocket(outTimeInMilis, outPacketIdentifier, System.currentTimeMillis(), inboundRadiusPacket.getIdentifier());
+                        log.info("Calling aaaStatisticsManager.handleRoundtripTime() from socketBasedRadiusCommunicator-radiusListener");
+                        aaaStatisticsManager.handleRoundtripTime(System.currentTimeMillis(), inboundRadiusPacket.getIdentifier());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
+                    	//increment malformed counter here
+                    	aaaStatisticsManager.increaseMalformedPacketCounter();
                         log.error("Cannot deserialize packet", dex);
                     } catch (StateMachineException sme) {
                         log.error("Illegal state machine operation", sme);

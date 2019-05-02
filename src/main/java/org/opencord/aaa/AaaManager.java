@@ -215,6 +215,8 @@ public class AaaManager
         impl.requestIntercepts();
 
         deviceService.addListener(deviceListener);
+        
+        aaaStatisticsManager.getInstance();
 
         log.info("Started");
     }
@@ -399,7 +401,6 @@ public class AaaManager
         }
         log.info("Calling aaaStatisticsManager.countNumberOfDroppedPackets() from AaaManager.handleRadiusPacket()");
         aaaStatisticsManager.countNumberOfDroppedPackets();//TODO - call this while publishing it to kafka
-        }
     }
 
     /**

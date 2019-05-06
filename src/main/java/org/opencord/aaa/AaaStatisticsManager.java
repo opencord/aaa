@@ -47,8 +47,7 @@ public class AaaStatisticsManager
 	public static AaaStatisticsManager getInstance() {
 		if(instance == null) 
 			return new AaaStatisticsManager();
-		else
-			return instance;
+		return instance;
 	}
 	
 	/*

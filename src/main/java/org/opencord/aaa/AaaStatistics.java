@@ -15,8 +15,7 @@ public class AaaStatistics {
 	public static AaaStatistics getInstance() {
 		if(aaaStatisticsInstance == null) 
 			return new AaaStatistics();
-		else
-			return aaaStatisticsInstance;
+		return aaaStatisticsInstance;
 	}
 	
 	//protected static final AtomicLong DEFAULT_COUNTER = 0;

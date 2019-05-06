@@ -216,7 +216,7 @@ public class AaaManager
 
         deviceService.addListener(deviceListener);
         
-        aaaStatisticsManager.getInstance();
+        aaaStatisticsManager = AaaStatisticsManager.getInstance();
 
         log.info("Started");
     }
@@ -262,7 +262,8 @@ public class AaaManager
     }
     
     private void checkForInvalidValidator(RADIUS radiusPacket) {//TODO: check for this logic existence
-		boolean isValid = radiusPacket.checkMessageAuthenticator(radiusSecret);
+    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
+		boolean isValid = radiusPacket.checkMessageAuthenticator(AaaManager.this.radiusSecret);
 		if(!isValid) {
 			log.info("Calling aaaStatisticsManager.increaseInvalidValidatorCounter() from AaaManager.checkForInvalidValidator()");
 			aaaStatisticsManager.increaseInvalidValidatorCounter();
@@ -331,7 +332,7 @@ public class AaaManager
         
         switch (radiusPacket.getCode()) {//TODO check if identifier comparision is needed?
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
-                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
+                log.info("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
                 RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);
                 byte[] challengeState = null;
                 if (radiusAttrState != null) {
@@ -344,13 +345,13 @@ public class AaaManager
                         stateMachine.vlanId(),
                         EAPOL.EAPOL_PACKET,
                         eapPayload, stateMachine.priorityCode());
-                log.debug("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
+                log.info("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                 log.info("Calling aaaStatisticsManager.increaseChallengePacketsCounter() from AaaManager.handleRadiusPacket()");
                 aaaStatisticsManager.increaseChallengePacketsCounter();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
-                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
+                log.info("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
                 //send an EAPOL - Success to the supplicant.
                 byte[] eapMessageSuccess =
                         radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
@@ -369,7 +370,7 @@ public class AaaManager
                 aaaStatisticsManager.increaseAcceptPacketsCounter();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
-                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
+                log.info("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
                 //send an EAPOL - Failure to the supplicant.
                 byte[] eapMessageFailure;
                 eapPayload = new EAP();
@@ -506,17 +507,17 @@ public class AaaManager
 
             StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
             if (stateMachine == null) {
-                log.debug("Creating new state machine for sessionId: {} for "
+                log.info("Creating new state machine for sessionId: {} for "
                                 + "dev/port: {}/{}", sessionId, deviceId, portNumber);
                 stateMachine = new StateMachine(sessionId);
             } else {
-                log.debug("Using existing state-machine for sessionId: {}", sessionId);
+                log.info("Using existing state-machine for sessionId: {}", sessionId);
             }
 
 
             switch (eapol.getEapolType()) {
                 case EAPOL.EAPOL_START:
-                    log.debug("EAP packet: EAPOL_START");
+                    log.info("EAP packet: EAPOL_START");
                     stateMachine.setSupplicantConnectpoint(inPacket.receivedFrom());
                     stateMachine.start();
 
@@ -532,12 +533,12 @@ public class AaaManager
                     stateMachine.setSupplicantAddress(srcMac);
                     stateMachine.setVlanId(ethPkt.getVlanID());
 
-                    log.debug("Getting EAP identity from supplicant {}", stateMachine.supplicantAddress().toString());
+                    log.info("Getting EAP identity from supplicant {}", stateMachine.supplicantAddress().toString());
                     sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
 
                     break;
                 case EAPOL.EAPOL_LOGOFF:
-                    log.debug("EAP packet: EAPOL_LOGOFF");
+                    log.info("EAP packet: EAPOL_LOGOFF");
                     if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
                         stateMachine.logoff();
                     }
@@ -552,7 +553,7 @@ public class AaaManager
                     switch (dataType) {
 
                         case EAP.ATTR_IDENTITY:
-                            log.debug("EAP packet: EAPOL_PACKET ATTR_IDENTITY");
+                            log.info("EAP packet: EAPOL_PACKET ATTR_IDENTITY");
                             // request id access to RADIUS
                             stateMachine.setUsername(eapPacket.getData());
 
@@ -566,7 +567,7 @@ public class AaaManager
                             stateMachine.requestAccess();
                             break;
                         case EAP.ATTR_MD5:
-                            log.debug("EAP packet: EAPOL_PACKET ATTR_MD5");
+                            log.info("EAP packet: EAPOL_PACKET ATTR_MD5");
                             // verify if the EAP identifier corresponds to the
                             // challenge identifier from the client state
                             // machine.
@@ -587,7 +588,7 @@ public class AaaManager
                             }
                             break;
                         case EAP.ATTR_TLS:
-                            log.debug("EAP packet: EAPOL_PACKET ATTR_TLS");
+                            log.info("EAP packet: EAPOL_PACKET ATTR_TLS");
                             // request id access to RADIUS
                             radiusPayload = getRadiusPayload(stateMachine, stateMachine.identifier(), eapPacket);
                             radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
@@ -612,7 +613,7 @@ public class AaaManager
                     }
                     break;
                 default:
-                    log.debug("Skipping EAPOL message {}", eapol.getEapolType());
+                    log.info("Skipping EAPOL message {}", eapol.getEapolType());
             }
         }
     }

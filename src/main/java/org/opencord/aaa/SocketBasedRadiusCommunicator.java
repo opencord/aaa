@@ -187,7 +187,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
                     aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
-                    log.debug("Packet #{} received", packetNumber++);
+                    log.info("Packet #{} received", packetNumber++);
                     try {
                     	//TODO : make changes to below deserialize call for testing purpose to get malformed response/DeserializationException
                         inboundRadiusPacket =

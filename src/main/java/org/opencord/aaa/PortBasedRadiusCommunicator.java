@@ -309,7 +309,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                 handleIPv4PacketFromServer(context);
                 break;
             default:
-                log.debug("Skipping Ethernet packet type {}",
+                log.info("Skipping Ethernet packet type {}",
                         EthType.EtherType.lookup(ethPkt.getEtherType()));
         }
     }
@@ -351,7 +351,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         arpReply.setSenderProtocolAddress(arpPacket.getTargetProtocolAddress());
         arpReply.setSenderHardwareAddress(senderMac.toBytes());
 
-        log.debug("AAA Manager: Query for ARP of IP : {}", arpPacket.getTargetProtocolAddress());
+        log.info("AAA Manager: Query for ARP of IP : {}", arpPacket.getTargetProtocolAddress());
 
         // Ethernet Frame.
         Ethernet ethReply = new Ethernet();

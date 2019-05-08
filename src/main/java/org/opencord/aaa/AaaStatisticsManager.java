@@ -182,12 +182,12 @@ public class AaaStatisticsManager
 			aaaStatisticsInstance.packetRoundtripTimeInMilis=new AtomicLong(avg);
 		}
 		else {
-			int dividend=packetTimeList.size()-1;
+//			int dividend=packetTimeList.size()-1;
 			for(int i=packetTimeList.size()-1;i>=packetTimeList.size()-5;i--) {
 				sum = sum + packetTimeList.get(i);
-				dividend--;
+//				dividend--;
 			}
-			avg = sum/dividend;
+			avg = sum/5;
 			aaaStatisticsInstance.packetRoundtripTimeInMilis=new AtomicLong(avg);
 		}
 		log.info("aaaStatisticsInstance.packetRoundtripTimeInMilis::"+aaaStatisticsInstance.packetRoundtripTimeInMilis);

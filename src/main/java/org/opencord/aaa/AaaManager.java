@@ -64,6 +64,14 @@ import org.opencord.sadis.SubscriberAndDeviceInformationService;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 
+//Added import for Publisher
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+
 /**
  * AAA application for ONOS.
  */
@@ -139,6 +147,17 @@ public class AaaManager
 
     // latest configuration
     AaaConfig newCfg;
+    
+
+    //Adding instance of publisher
+    AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher = new AuthenticationStatisticsEventPublisher();
+    ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
+    //making runnable task for authentication publisher
+//    Runnable task = () ->{
+//    	authenticationStatisticsPublisher.run();
+//	 };
+	   ScheduledFuture<?> scheduledFuture;
+
 
     // Configuration properties factory
     private final ConfigFactory factory =
@@ -191,6 +210,7 @@ public class AaaManager
         return eth;
     }
 
+
     @Activate
     public void activate() {
         appId = coreService.registerApplication(APP_NAME);
@@ -215,9 +235,10 @@ public class AaaManager
         impl.requestIntercepts();
 
         deviceService.addListener(deviceListener);
-        
-        aaaStatisticsManager = AaaStatisticsManager.getInstance();
-
+        aaaStatisticsManager = AaaStatisticsManager.getInstance();     
+        // init Delay = 5, repeat the task every 1 second
+      //scheduling publisher 
+       scheduledFuture = ses.scheduleAtFixedRate(authenticationStatisticsPublisher, AaaConfig.getInitialdelay(), AaaConfig.getRepeatdelay(), TimeUnit.SECONDS);
         log.info("Started");
     }
 
@@ -232,6 +253,10 @@ public class AaaManager
         impl.deactivate();
         deviceService.removeListener(deviceListener);
         eventDispatcher.removeSink(AuthenticationEvent.class);
+        
+        //canceling schedule of publisher
+       scheduledFuture.cancel(true);
+        ses.shutdown();
         log.info("Stopped");
     }
 
@@ -262,7 +287,7 @@ public class AaaManager
     }
     
     private void checkForInvalidValidator(RADIUS radiusPacket) {//TODO: check for this logic existence
-    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
+//    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
 		boolean isValid = radiusPacket.checkMessageAuthenticator(AaaManager.this.radiusSecret);
 		if(!isValid) {
 			log.info("Calling aaaStatisticsManager.increaseInvalidValidatorCounter() from AaaManager.checkForInvalidValidator()");

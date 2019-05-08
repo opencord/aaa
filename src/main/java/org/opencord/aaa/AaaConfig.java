@@ -85,8 +85,21 @@ public class AaaConfig extends Config<ApplicationId> {
     // Packet Customizer Default value
     protected static final String DEFAULT_PACKET_CUSTOMIZER = "default";
 
+    //Event publisher schedule value initial delay
+    private static final int initialDelay = 0;
 
-    /**
+	//Event publisher schedule value repeat delay
+    private static final int repeatDelay = 20;
+
+    public static int getInitialdelay() {
+		return initialDelay;
+	}
+
+	public static int getRepeatdelay() {
+		return repeatDelay;
+	}
+
+	/**
      * Gets the value of a string property, protecting for an empty
      * JSON object.
      *

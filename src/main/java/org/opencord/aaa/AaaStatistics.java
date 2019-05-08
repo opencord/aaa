@@ -31,6 +31,18 @@ public class AaaStatistics {
 	AtomicLong numberOfPacketFromUnknownServer = new AtomicLong();
 	AtomicLong packetRoundtripTimeInMilis = new AtomicLong();
 	
+	public AtomicLong getNumberOfPacketFromUnknownServer() {
+		return numberOfPacketFromUnknownServer;
+	}
+	public AtomicLong getPacketRoundtripTimeInMilis() {
+		return packetRoundtripTimeInMilis;
+	}
+	public void setNumberOfPacketFromUnknownServer(AtomicLong numberOfPacketFromUnknownServer) {
+		this.numberOfPacketFromUnknownServer = numberOfPacketFromUnknownServer;
+	}
+	public void setPacketRoundtripTimeInMilis(AtomicLong packetRoundtripTimeInMilis) {
+		this.packetRoundtripTimeInMilis = packetRoundtripTimeInMilis;
+	}
 	public AtomicLong getMalformed_packet_counter() {
 		return malformed_packet_counter;
 	}

@@ -16,7 +16,12 @@ public class AaaStatisticsManager
 	extends AbstractListenerManager<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener>
 		implements AuthenticationStatisticsService {
 	
-	private AaaStatisticsManager() {}
+	private AuthenticationStatisticsDelegate statsDelegate;
+	private AaaStatisticsManager() {
+		statsDelegate = new InternalAuthenticationDelegateForStatistics();
+		AuthenticationStatisticsEventPublisher.setDelegate(statsDelegate);
+	}
+
 	
 	private final Logger log = getLogger(getClass());
 	
@@ -38,17 +43,16 @@ public class AaaStatisticsManager
 	//TODO - decide where to use delegate and call delegate.notify for statisticsEvent
 	
 	
-	private StateMachineDelegateForStatistics delegate = new InternalStateMachineDelegate();
-	
 	private static AaaStatisticsManager instance;
 	AaaManager aaaManager;
 //	AaaConfig aaaConfig;
 	
 	public static AaaStatisticsManager getInstance() {
 		if(instance == null) 
-			return new AaaStatisticsManager();
+			instance = new AaaStatisticsManager();
 		return instance;
 	}
+
 	
 	/*
 	 * protected void init(AaaManager aaaManager) { this.aaaManager = aaaManager; //
@@ -195,7 +199,7 @@ public class AaaStatisticsManager
 	/**
      * Delegate allowing the StateMachine to notify us of events.
      */
-    private class InternalStateMachineDelegate implements StateMachineDelegateForStatistics {
+    private class InternalAuthenticationDelegateForStatistics implements AuthenticationStatisticsDelegate {
 
         @Override
         public void notify(AuthenticationStatisticsEvent authenticationStatisticsEvent) {

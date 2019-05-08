@@ -31,6 +31,7 @@ import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.RADIUS;
+import org.onlab.packet.RADIUSAttribute;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.net.flow.DefaultTrafficSelector;
 import org.onosproject.net.flow.TrafficSelector;
@@ -199,6 +200,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
 //                        aaaStatisticsManager.handleRoundtripTimeForSocket(outTimeInMilis, outPacketIdentifier, System.currentTimeMillis(), inboundRadiusPacket.getIdentifier());
                         log.info("Calling aaaStatisticsManager.handleRoundtripTime() from socketBasedRadiusCommunicator-radiusListener");
                         aaaStatisticsManager.handleRoundtripTime(System.currentTimeMillis(), inboundRadiusPacket.getIdentifier());
+                        log.info("inboundRadiusPacket.getAuthenticator()------request authenticator---"+inboundRadiusPacket.getAuthenticator());
+                        log.info("RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH-------"+inboundRadiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH).getValue());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
                     	//increment malformed counter here

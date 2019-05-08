@@ -86,18 +86,20 @@ public class AaaConfig extends Config<ApplicationId> {
     protected static final String DEFAULT_PACKET_CUSTOMIZER = "default";
 
     //Event publisher schedule value initial delay
-    private static final int initialDelay = 0;
+    private static final int INITIAL_DELAY = 0;
+
+	public static int getInitialDelay() {
+		return INITIAL_DELAY;
+	}
+
+	public static int getRepeatDelay() {
+		return REPEAT_DELAY;
+	}
 
 	//Event publisher schedule value repeat delay
-    private static final int repeatDelay = 20;
+    private static final int REPEAT_DELAY = 20;
 
-    public static int getInitialdelay() {
-		return initialDelay;
-	}
-
-	public static int getRepeatdelay() {
-		return repeatDelay;
-	}
+  
 
 	/**
      * Gets the value of a string property, protecting for an empty

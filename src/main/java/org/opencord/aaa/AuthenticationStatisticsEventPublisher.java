@@ -15,7 +15,14 @@
  */
 package org.opencord.aaa;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.slf4j.Logger;
+
 public class AuthenticationStatisticsEventPublisher implements Runnable  {
+	
+	// for verbose output
+    private final Logger log = getLogger(getClass());
 	
 	public static AuthenticationStatisticsEventPublisher instance;
 	
@@ -27,29 +34,28 @@ public class AuthenticationStatisticsEventPublisher implements Runnable  {
 	}
 	private static AuthenticationStatisticsDelegate delegate;
 	AuthenticationStatisticsEvent authenticationStatisticsEvent;
-//	ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
-//	private ScheduledFuture<?> scheduledFuture;
-	
+
 	static void setDelegate(AuthenticationStatisticsDelegate delegate) {
 		AuthenticationStatisticsEventPublisher.delegate = delegate;
 	}
-//	public ScheduledFuture<?> getScheduledFuture() {
-//		return scheduledFuture;
-//	}
-	/*
-	 * public void run() { Runnable task = () -> { delegate.notify(new
-	 * AuthenticationStatisticsEvent(
-	 * AuthenticationStatisticsEvent.Type.STATS_UPDATE,
-	 * AaaStatistics.getInstance())); }; scheduledFuture =
-	 * ses.scheduleAtFixedRate(task, 5, 1, TimeUnit.SECONDS); }
-	 */
+
 	public void run() {
+		AaaStatistics instance = AaaStatistics.getInstance();
+		log.info("Inside AuthenticationPublisher---Calling notify----stats getting published now------");
+		log.info("Event value published---Accept_packets_counter::::"+instance.getAccept_packets_counter());
+		log.info("Event value published---Reject_packets_counter::::"+instance.getReject_packets_counter());
+		log.info("Event value published---Challenge_packets_counter::::"+instance.getChallenege_packets_counter());
+		log.info("Event value published---ACCESS_PACKET_COUNTER::::"+instance.getAccess_packets_counter());
+		log.info("Event value published---INVALID_VALIDATOR_COUNTER::::"+instance.getInvalid_validator_counter());
+		log.info("Event value published---UNKNOWN_TYPE_COUNTER::::"+instance.getUnknown_packet_counter());
+		log.info("Event value published---PENDING_REQUEST_COUNTER::::"+instance.getPending_request_counter());
+		log.info("Event value published---NUMBER_OF_DROPPED_PACKETS::::"+instance.getNumberOfDroppedPackets());
+		log.info("Event value published---MALFORMED_PACKET_COUNTERS::::"+instance.getMalformed_packet_counter());
+		log.info("Event value published---NUMBER_OF_PACKET_FROM_UNKNOWN_SERVER::::"+instance.getNumberOfPacketFromUnknownServer());
+		log.info("Event value published---PACKET_ROUND_TRIP_TIME_IN_MILLS::::"+instance.getPacketRoundtripTimeInMilis());
 			   delegate.notify(new AuthenticationStatisticsEvent(
-	    			AuthenticationStatisticsEvent.Type.STATS_UPDATE, AaaStatistics.getInstance()));
+	    			AuthenticationStatisticsEvent.Type.STATS_UPDATE, instance));
+			   
 		}
 }
 
-//TODO : create delegate object of InternalAuthenticationDelegateForStatistics
-//2. create setter
-//3. call setter from aaaStatisticsMgr or aaaMgr.activate()??TODO decide
-//4. Inside task, call delegate.notify() instead of post.

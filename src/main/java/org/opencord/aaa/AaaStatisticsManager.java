@@ -203,7 +203,7 @@ public class AaaStatisticsManager
 
         @Override
         public void notify(AuthenticationStatisticsEvent authenticationStatisticsEvent) {
-            log.info("Auth event {} for {}",
+            log.info("Authentication Statistics event {} for {}",
             		authenticationStatisticsEvent.type(), authenticationStatisticsEvent.subject());
             post(authenticationStatisticsEvent);
         }

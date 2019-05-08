@@ -150,12 +150,8 @@ public class AaaManager
     
 
     //Adding instance of publisher
-    AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher = new AuthenticationStatisticsEventPublisher();
+    AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;// = new AuthenticationStatisticsEventPublisher();
     ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
-    //making runnable task for authentication publisher
-//    Runnable task = () ->{
-//    	authenticationStatisticsPublisher.run();
-//	 };
 	   ScheduledFuture<?> scheduledFuture;
 
 
@@ -236,9 +232,9 @@ public class AaaManager
 
         deviceService.addListener(deviceListener);
         aaaStatisticsManager = AaaStatisticsManager.getInstance();     
-        // init Delay = 5, repeat the task every 1 second
       //scheduling publisher 
-       scheduledFuture = ses.scheduleAtFixedRate(authenticationStatisticsPublisher, AaaConfig.getInitialdelay(), AaaConfig.getRepeatdelay(), TimeUnit.SECONDS);
+       authenticationStatisticsPublisher = AuthenticationStatisticsEventPublisher.getInstance();
+       scheduledFuture = ses.scheduleAtFixedRate(authenticationStatisticsPublisher, AaaConfig.getInitialDelay(), AaaConfig.getRepeatDelay(), TimeUnit.SECONDS);
         log.info("Started");
     }
 
@@ -287,7 +283,7 @@ public class AaaManager
     }
     
     private void checkForInvalidValidator(RADIUS radiusPacket) {//TODO: check for this logic existence
-//    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
+    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
 		boolean isValid = radiusPacket.checkMessageAuthenticator(AaaManager.this.radiusSecret);
 		if(!isValid) {
 			log.info("Calling aaaStatisticsManager.increaseInvalidValidatorCounter() from AaaManager.checkForInvalidValidator()");

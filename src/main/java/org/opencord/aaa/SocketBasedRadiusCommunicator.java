@@ -190,18 +190,15 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
                     log.info("Packet #{} received", packetNumber++);
                     try {
-                    	//TODO : make changes to below deserialize call for testing purpose to get malformed response/DeserializationException
                         inboundRadiusPacket =
                                 RADIUS.deserializer()
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
-                        //TODO - capture timestamp
-//                        aaaStatisticsManager.handleRoundtripTimeForSocket(outTimeInMilis, outPacketIdentifier, System.currentTimeMillis(), inboundRadiusPacket.getIdentifier());
                         log.info("Calling aaaStatisticsManager.handleRoundtripTime() from socketBasedRadiusCommunicator-radiusListener");
                         aaaStatisticsManager.handleRoundtripTime(System.currentTimeMillis(), inboundRadiusPacket.getIdentifier());
-                        log.info("inboundRadiusPacket.getAuthenticator()------request authenticator---"+inboundRadiusPacket.getAuthenticator());
-                        log.info("RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH-------"+inboundRadiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH).getValue());
+//                        log.info("inboundRadiusPacket.getAuthenticator()------request authenticator---"+inboundRadiusPacket.getAuthenticator());
+//                        log.info("RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH-------"+inboundRadiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH).getValue());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
                     	//increment malformed counter here

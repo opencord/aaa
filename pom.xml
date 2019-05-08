@@ -28,11 +28,7 @@
 
     <groupId>org.opencord</groupId>
     <artifactId>aaa</artifactId>
-<<<<<<< HEAD
-    <version>1.8.3/version>
-=======
-    <version>1.8.2-test</version>
->>>>>>> 018b07c18b971ab92e9c8b6b33f398e1d8c5bbc3
+    <version>1.8.3</version>
     <packaging>bundle</packaging>
 
     <description>ONOS authentication application</description>

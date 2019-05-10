@@ -29,6 +29,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
@@ -103,8 +104,11 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipService mastershipService;
     
-//    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-	protected AaaStatisticsManager aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY,
+		bind = "bindAaaStatisticsManager",
+		unbind = "unbindAaaStatisticsManager",
+		policy = ReferencePolicy.DYNAMIC)
+    protected AaaStatisticsManager aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
 
 
     private final DeviceListener deviceListener = new InternalDeviceListener();
@@ -234,8 +238,8 @@ public class AaaManager
         impl.requestIntercepts();
 
         deviceService.addListener(deviceListener);
-        aaaStatisticsManager = new AaaStatisticsManager();
-        aaaStatisticsManager.activate(this.eventDispatcher);
+        //aaaStatisticsManager = new AaaStatisticsManager();
+        //aaaStatisticsManager.activate(this.eventDispatcher);
       //scheduling publisher 
        authenticationStatisticsPublisher = AuthenticationStatisticsEventPublisher.getInstance();
        scheduledFuture = ses.scheduleAtFixedRate(authenticationStatisticsPublisher, AaaConfig.getInitialDelay(), AaaConfig.getRepeatDelay(), TimeUnit.SECONDS);
@@ -751,6 +755,23 @@ public class AaaManager
                 default:
                     return;
             }
+        }
+    }
+    protected void bindAaaStatisticsManager(AaaStatisticsManager aaaStatisticsManager) {
+        if (this.aaaStatisticsManager == null) {
+            log.info("Binding AuthenticationService");
+            this.aaaStatisticsManager = aaaStatisticsManager;
+        } else {
+            log.warn("Trying to bind AuthenticationService but it is already bound");
+        }
+    }
+
+    protected void unbindAaaStatisticsManager(AaaStatisticsManager aaaStatisticsManager) {
+        if (this.aaaStatisticsManager == aaaStatisticsManager) {
+            log.info("Unbinding AuthenticationService");
+            this.aaaStatisticsManager = null;
+        } else {
+            log.warn("Trying to unbind AuthenticationService but it is already unbound");
         }
     }
 }

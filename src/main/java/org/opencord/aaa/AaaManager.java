@@ -111,7 +111,7 @@ public class AaaManager
 	 * aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
 	 */
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected AuthenticationStatisticsService aaaStatisticsManager;
     
     private final DeviceListener deviceListener = new InternalDeviceListener();

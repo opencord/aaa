@@ -102,6 +102,10 @@ public class AaaManager
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipService mastershipService;
+    
+//    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+	protected AaaStatisticsManager aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
+
 
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
@@ -139,8 +143,6 @@ public class AaaManager
     // "socket" or "packet_out"
     private String radiusConnectionType;
 
-	AaaStatisticsManager aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
-   
     // Object for the specific type of communication with the RADIUS
     // server, socket based or packet_out based
     RadiusCommunicator impl = null;
@@ -209,6 +211,7 @@ public class AaaManager
 
     @Activate
     public void activate() {
+    	log.info("Inside AaaManager.activate()");
         appId = coreService.registerApplication(APP_NAME);
         eventDispatcher.addSink(AuthenticationEvent.class, listenerRegistry);
         netCfgService.addListener(cfgListener);
@@ -231,7 +234,8 @@ public class AaaManager
         impl.requestIntercepts();
 
         deviceService.addListener(deviceListener);
-        aaaStatisticsManager = AaaStatisticsManager.getInstance();     
+        aaaStatisticsManager = new AaaStatisticsManager();
+        aaaStatisticsManager.activate(this.eventDispatcher);
       //scheduling publisher 
        authenticationStatisticsPublisher = AuthenticationStatisticsEventPublisher.getInstance();
        scheduledFuture = ses.scheduleAtFixedRate(authenticationStatisticsPublisher, AaaConfig.getInitialDelay(), AaaConfig.getRepeatDelay(), TimeUnit.SECONDS);
@@ -241,6 +245,7 @@ public class AaaManager
 
     @Deactivate
     public void deactivate() {
+    	log.info("Inside AaaManager.deactivate()");
         impl.withdrawIntercepts();
         packetService.removeProcessor(processor);
         netCfgService.removeListener(cfgListener);
@@ -249,19 +254,19 @@ public class AaaManager
         impl.deactivate();
         deviceService.removeListener(deviceListener);
         eventDispatcher.removeSink(AuthenticationEvent.class);
-        
         //canceling schedule of publisher
-       scheduledFuture.cancel(true);
+        scheduledFuture.cancel(true);
         ses.shutdown();
+        aaaStatisticsManager.deactivate();
         log.info("Stopped");
     }
 
     private void configureRadiusCommunication() {
         if (radiusConnectionType.toLowerCase().equals("socket")) {
-            impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
+            impl = new SocketBasedRadiusCommunicator(appId, packetService, this, aaaStatisticsManager);
         } else {
             impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
-                    deviceService, subsService, pktCustomizer, this);
+                    deviceService, subsService, pktCustomizer, this, aaaStatisticsManager);
         }
     }
 

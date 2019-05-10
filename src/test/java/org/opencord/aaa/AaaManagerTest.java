@@ -164,6 +164,7 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.packetService = new MockPacketService();
         aaaManager.deviceService = new TestDeviceService();
         aaaManager.subsService = new MockSubService();
+        aaaManager.aaaStatisticsManager = new AaaStatisticsManager();
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
         aaaManager.activate();
     }

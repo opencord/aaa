@@ -49,8 +49,8 @@ public class AaaStatistics {
 	public void setMalformed_packet_counter(AtomicLong malformed_packet_counter) {
 		this.malformed_packet_counter = malformed_packet_counter;
 	}
-	public AtomicLong getNumberOfDroppedPackets() {
-		return numberOfDroppedPackets;
+	public long getNumberOfDroppedPackets() {
+		return numberOfDroppedPackets.get();
 	}
 	public void setNumberOfDroppedPackets(AtomicLong numberOfDroppedPackets) {
 		this.numberOfDroppedPackets = numberOfDroppedPackets;
@@ -73,8 +73,8 @@ public class AaaStatistics {
 	public void setReject_packets_counter(AtomicLong reject_packets_counter) {
 		this.reject_packets_counter = reject_packets_counter;
 	}
-	public AtomicLong getChallenege_packets_counter() {
-		return challenege_packets_counter;
+	public long getChallenege_packets_counter() {
+		return challenege_packets_counter.get();
 	}
 	public void setChallenege_packets_counter(AtomicLong challenege_packets_counter) {
 		this.challenege_packets_counter = challenege_packets_counter;

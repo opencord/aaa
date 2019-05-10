@@ -70,13 +70,13 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
     // Executor for RADIUS communication thread
     private ExecutorService executor;
 
-    AaaStatisticsManager aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
+    AuthenticationStatisticsService aaaStatisticsManager;// = AaaStatisticsManager.getInstance();
     
     
     AaaManager aaaManager;
 
     SocketBasedRadiusCommunicator(ApplicationId appId, PacketService pktService,
-                                  AaaManager aaaManager, AaaStatisticsManager aaaStatisticsManager) {
+                                  AaaManager aaaManager, AuthenticationStatisticsService aaaStatisticsManager) {
         this.appId = appId;
         this.packetService = pktService;
         this.aaaManager = aaaManager;

@@ -115,12 +115,12 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
     InnerMastershipListener changeListener = new InnerMastershipListener();
     InnerDeviceListener deviceListener = new InnerDeviceListener();
 
-    AaaStatisticsManager aaaStatisticsManager; //= AaaStatisticsManager.getInstance(); // new AaaStatsManager();
+    AuthenticationStatisticsService aaaStatisticsManager; //= AaaStatisticsManager.getInstance(); // new AaaStatsManager();
     
     PortBasedRadiusCommunicator(ApplicationId appId, PacketService pktService,
                                 MastershipService masService, DeviceService devService,
                                 SubscriberAndDeviceInformationService subsService,
-                                PacketCustomizer pktCustomizer, AaaManager aaaManager, AaaStatisticsManager aaaStatisticsManager) {
+                                PacketCustomizer pktCustomizer, AaaManager aaaManager, AuthenticationStatisticsService aaaStatisticsManager) {
         this.appId = appId;
         this.packetService = pktService;
         this.mastershipService = masService;

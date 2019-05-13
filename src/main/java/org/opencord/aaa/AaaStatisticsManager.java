@@ -17,8 +17,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 
 
-//@Component(immediate = true)
 @Service
+@Component(immediate = true)
 public class AaaStatisticsManager
 		extends AbstractListenerManager<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener>
 		implements AuthenticationStatisticsService {
@@ -36,9 +36,9 @@ public class AaaStatisticsManager
 	static Map<Byte, Long> outgoingPacketMap = new HashMap<Byte, Long>();
 	AaaStatistics aaaStatisticsInstance;// = AaaStaistics.getInstance();
 
-	public void activate(EventDeliveryService eventDeliveryService) {
+	@Activate
+	public void activate() {
 		log.info("Inside AaaStatisticsManager.activate()");
-		eventDispatcher = eventDeliveryService;
 		statsDelegate = new InternalAuthenticationDelegateForStatistics();
 		eventDispatcher.addSink(AuthenticationStatisticsEvent.class, listenerRegistry);
 		AuthenticationStatisticsEventPublisher.setDelegate(statsDelegate);
@@ -46,6 +46,7 @@ public class AaaStatisticsManager
 		log.info("Exiting AaaStatisticsManager.activate()----");
 	}
 
+	@Deactivate
 	public void deactivate() {
 		log.info("Inside AaaStatisticsManager.deactivate()");
 		eventDispatcher.removeSink(AuthenticationStatisticsEvent.class);

@@ -4,6 +4,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -31,7 +32,7 @@ public class AaaStatisticsManager
 	 */
 
 	private final Logger log = getLogger(getClass());
-	ArrayList<Long> packetTimeList = new ArrayList<Long>();
+	LinkedList<Long> packetRoundTripTimeList = new LinkedList<Long>();
 	static Map<Byte, Long> outgoingPacketMap = new HashMap<Byte, Long>();
 	AaaStatistics aaaStatisticsInstance;// = AaaStaistics.getInstance();
 
@@ -162,7 +163,16 @@ public class AaaStatisticsManager
 	public void handleRoundtripTime(long inTimeInMilis, byte inPacketIdentifier) {
 		log.info("Inside handleRoundtripTime()");
 		if (outgoingPacketMap.containsKey(inPacketIdentifier)) {// add roundtrip for this packet in list
-			packetTimeList.add(inTimeInMilis - outgoingPacketMap.get(inPacketIdentifier));
+			if(packetRoundTripTimeList.size() < AaaConfig.getPacketsNumberToCountAvgRoundtripTime()) {
+			   packetRoundTripTimeList.add(inTimeInMilis - outgoingPacketMap.get(inPacketIdentifier));
+			}else {
+				packetRoundTripTimeList.removeFirst();
+				packetRoundTripTimeList.add(inTimeInMilis - outgoingPacketMap.get(inPacketIdentifier));
+			}
+				
+			//TODO: change packetTimeList name to packetroundtripTimeList. Make packetValues configurable
+			//TODO change logic, if list size less than 5 then add, else remove oldest item from list and add.
+		//TODO: use linkedList instead of arrayList, if size()>5 removeFirstItem(); add(inTimeInMilis - outgoingPacketMap.get(inPacketIdentifier));
 		} // ignore if identifier is different
 		calculatePacketRoundtripTime();
 	}
@@ -185,21 +195,22 @@ public class AaaStatisticsManager
 		// calculate the average round trip time for last 5 packets
 		long sum = 0;
 		long avg = 0;
-		if (packetTimeList.size() <= 5) {
-			for (int i = 0; i < packetTimeList.size(); i++) {
-				sum = sum + packetTimeList.get(i);
-			}
-			avg = sum / packetTimeList.size();
-			aaaStatisticsInstance.packetRoundtripTimeInMilis = new AtomicLong(avg);
-		} else {
-//			int dividend=packetTimeList.size()-1;
-			for (int i = packetTimeList.size() - 1; i >= packetTimeList.size() - 5; i--) {
-				sum = sum + packetTimeList.get(i);
-//				dividend--;
-			}
-			avg = sum / 5;
-			aaaStatisticsInstance.packetRoundtripTimeInMilis = new AtomicLong(avg);
+		/*
+		 * if (packetRoundTripTimeList.size() <= 5) { for (int i = 0; i <
+		 * packetRoundTripTimeList.size(); i++) { sum = sum +
+		 * packetRoundTripTimeList.get(i); } avg = sum / packetRoundTripTimeList.size();
+		 * aaaStatisticsInstance.packetRoundtripTimeInMilis = new AtomicLong(avg); }
+		 * else { // int dividend=packetTimeList.size()-1; for (int i =
+		 * packetRoundTripTimeList.size() - 1; i >= packetRoundTripTimeList.size() - 5;
+		 * i--) { sum = sum + packetRoundTripTimeList.get(i); // dividend--; } avg = sum
+		 * / 5; aaaStatisticsInstance.packetRoundtripTimeInMilis = new AtomicLong(avg);
+		 * }
+		 */
+		for (int i = 0; i < packetRoundTripTimeList.size(); i++) {
+			sum = sum + packetRoundTripTimeList.get(i);
 		}
+		avg = sum / packetRoundTripTimeList.size();
+		aaaStatisticsInstance.packetRoundtripTimeInMilis = new AtomicLong(avg);
 		log.info("aaaStatisticsInstance.packetRoundtripTimeInMilis::"
 				+ aaaStatisticsInstance.packetRoundtripTimeInMilis);
 	}

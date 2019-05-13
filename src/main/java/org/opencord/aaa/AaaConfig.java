@@ -88,6 +88,12 @@ public class AaaConfig extends Config<ApplicationId> {
     //Event publisher schedule value initial delay
     private static final int INITIAL_DELAY = 0;
 
+    private static final int PACKETS_NUMBER_TO_COUNT_AVG_ROUNDTRIP_TIME = 5;
+    
+	public static int getPacketsNumberToCountAvgRoundtripTime() {
+		return PACKETS_NUMBER_TO_COUNT_AVG_ROUNDTRIP_TIME;
+	}
+
 	public static int getInitialDelay() {
 		return INITIAL_DELAY;
 	}

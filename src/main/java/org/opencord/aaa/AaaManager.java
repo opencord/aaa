@@ -173,7 +173,7 @@ public class AaaManager
 
     private StateMachineDelegate delegate = new InternalStateMachineDelegate();
 
-    List<Byte> identifiersOfPacketsSentList = new ArrayList<Byte>();
+    List<Byte> outPacketList = new ArrayList<Byte>();
     /**
      * Builds an EAPOL packet based on the given parameters.
      *
@@ -221,7 +221,10 @@ public class AaaManager
         log.info("Starting with config {} {}", this, newCfg);
 
         configureRadiusCommunication();
-
+		/*
+		 * AaaConfig incfg = netCfgService.getConfig(appId, AaaConfig.class);
+		 * incfg.radiusIp();
+		 */
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
 
@@ -287,14 +290,15 @@ public class AaaManager
         }
     }
     
-    private void checkForInvalidValidator(RADIUS radiusPacket) {//TODO: check for this logic existence
-    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
-		boolean isValid = radiusPacket.checkMessageAuthenticator(AaaManager.this.radiusSecret);
-		if(!isValid) {
+    private boolean isValidValidator(RADIUS radiusPacket) {//TODO: change method name, return boolean. increment/decrement outside this method
+//    	radiusPacket.addMessageAuthenticator(AaaManager.this.radiusSecret);
+    	log.info("radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH)---"+radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH).getValue());
+//		boolean isValid = radiusPacket.checkMessageAuthenticator(AaaManager.this.radiusSecret);
+		/*if(!isValid) {//TODO handle outside. Decide? if false then to proceed further or throw error? 
 			log.info("Calling aaaStatisticsManager.increaseInvalidValidatorCounter() from AaaManager.checkForInvalidValidator()");
 			aaaStatisticsManager.increaseInvalidValidatorCounter();
-		}
-		
+		}*/
+		return radiusPacket.checkMessageAuthenticator(AaaManager.this.radiusSecret);
 	}
     
     public void checkForPacketFromUnknownServer(String hostAddress) {
@@ -313,7 +317,7 @@ public class AaaManager
     protected void sendRadiusPacket(RADIUS radiusPacket, InboundPacket inPkt) {
     	//if(radiusPacket.getCode() == RADIUS.RADIUS_CODE_ACCESS_REQUEST)//TODO- confirm this check. is it possible to send challenge response to radius
     	//adding identifier of sent packet to the list
-    	identifiersOfPacketsSentList.add(radiusPacket.getIdentifier());//TODO : confirm if list is req or not. 
+    	outPacketList.add(radiusPacket.getIdentifier());//TODO : rename to outPacketList
 //    	since state is pending and cant be changed unless a req execution completes
     	log.info("Calling aaaStatisticsManager.increaseOrDecreasePendingCounter() from AaaManager.sendRadiusPacket()");
     	aaaStatisticsManager.increaseOrDecreasePendingCounter(true);
@@ -346,17 +350,21 @@ public class AaaManager
         // 8.	Number of malformed access response packets received from the server
 //        aaaStatsManager.checkForMalformedPacket(radiusPacket);
         // 9: Number of access response packets received from the server with an invalid validator
-        checkForInvalidValidator(radiusPacket);//TODO CHECK LOGIC IN THIS CLASS
-        
+        boolean isValid = isValidValidator(radiusPacket);//TODO CHECK LOGIC IN THIS CLASS
+        if(!isValid) {//TODO handle outside. Decide? if false then to proceed further or throw error? 
+			log.info("Calling aaaStatisticsManager.increaseInvalidValidatorCounter() from AaaManager.checkForInvalidValidator()");
+			aaaStatisticsManager.increaseInvalidValidatorCounter();
+		}
         //checking if identifier is found in list then decrementing the pending req counter 
-        if(identifiersOfPacketsSentList.contains(radiusPacket.getIdentifier())) {
+        if(outPacketList.contains(radiusPacket.getIdentifier())) {
         	log.info("Calling aaaStatisticsManager.increaseOrDecreasePendingCounter() from AaaManager.handleRadiusPacket()");
         	aaaStatisticsManager.increaseOrDecreasePendingCounter(false);
         	//removing identifier from list
-        	identifiersOfPacketsSentList.remove(new Byte(radiusPacket.getIdentifier()));
+        	outPacketList.remove(new Byte(radiusPacket.getIdentifier()));
         }
         
-        switch (radiusPacket.getCode()) {//TODO check if identifier comparision is needed?
+        switch (radiusPacket.getCode()) {
+        //TODO identifier of inpacket are not compared with identifier of outpackets in code. Logics not changed as part of metrics implementation ?
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
                 log.info("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
                 RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);

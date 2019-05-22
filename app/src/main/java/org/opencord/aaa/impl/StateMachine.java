@@ -63,7 +63,6 @@ class StateMachine {
 
     private final Logger log = getLogger(getClass());
 
-
     private State[] states = {
             new Idle(), new Started(), new Pending(), new Authorized(), new Unauthorized()
     };

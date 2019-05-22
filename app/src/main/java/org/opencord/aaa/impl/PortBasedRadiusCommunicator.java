@@ -109,7 +109,6 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
 
     PacketCustomizer pktCustomizer;
     AaaManager aaaManager;
-
     ConnectPoint radiusServerConnectPoint = null;
 
     InnerMastershipListener changeListener = new InnerMastershipListener();
@@ -264,7 +263,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
             return;
         }
         ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
-
+        aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
         // send the message out
         sendFromRadiusServerPort(pktCustomizer.
                 customizeEthernetIPHeaders(ethReply, inPkt));
@@ -390,6 +389,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                                             8,
                                             udpPacket.getLength() - 8);
                     try {
+                        aaaManager.aaaStatisticsManager.handleRoundtripTime(radiusMsg.getIdentifier());
                         aaaManager.handleRadiusPacket(radiusMsg);
                     }  catch (StateMachineException sme) {
                         log.error("Illegal state machine operation", sme);

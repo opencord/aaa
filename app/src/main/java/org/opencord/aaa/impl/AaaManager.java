@@ -19,8 +19,10 @@ import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FAC
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.HashSet;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.felix.scr.annotations.Component;
@@ -62,6 +64,8 @@ import org.opencord.aaa.AaaConfig;
 import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.AuthenticationEventListener;
 import org.opencord.aaa.AuthenticationService;
+import org.opencord.aaa.AuthenticationStatisticsEvent;
+import org.opencord.aaa.AuthenticationStatisticsService;
 import org.opencord.aaa.RadiusCommunicator;
 import org.opencord.aaa.StateMachineDelegate;
 import org.opencord.sadis.BaseInformationService;
@@ -70,6 +74,10 @@ import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 /**
  * AAA application for ONOS.
  */
@@ -101,10 +109,14 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipService mastershipService;
 
-    protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected AuthenticationStatisticsService aaaStatisticsManager;
 
+    protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
+    protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
+    private static final int DEFAULT_REPEAT_DELAY = 20;
     // NAS IP address
     protected InetAddress nasIpAddress;
 
@@ -146,6 +158,11 @@ public class AaaManager
     // latest configuration
     AaaConfig newCfg;
 
+    ScheduledFuture<?> scheduledFuture;
+
+    ScheduledExecutorService executor;
+    String configuredAaaServerAddress;
+    HashSet<Byte> outPacketSet = new HashSet<Byte>();
     // Configuration properties factory
     private final ConfigFactory factory =
             new ConfigFactory<ApplicationId, AaaConfig>(APP_SUBJECT_FACTORY,
@@ -206,25 +223,23 @@ public class AaaManager
         customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
         log.info("Starting with config {} {}", this, newCfg);
-
         configureRadiusCommunication();
-
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
-
-
         StateMachine.initializeMaps();
         StateMachine.setDelegate(delegate);
-
         impl.initializeLocalState(newCfg);
-
         impl.requestIntercepts();
-
         deviceService.addListener(deviceListener);
+        getConfiguredAaaServerAddress();
+        authenticationStatisticsPublisher =
+                new AuthenticationStatisticsEventPublisher();
+        executor = Executors.newScheduledThreadPool(1);
+        scheduledFuture = executor.scheduleAtFixedRate(authenticationStatisticsPublisher,
+                0, DEFAULT_REPEAT_DELAY, TimeUnit.SECONDS);
 
         log.info("Started");
     }
-
 
     @Deactivate
     public void deactivate() {
@@ -236,6 +251,8 @@ public class AaaManager
         impl.deactivate();
         deviceService.removeListener(deviceListener);
         eventDispatcher.removeSink(AuthenticationEvent.class);
+        scheduledFuture.cancel(true);
+        executor.shutdown();
         log.info("Stopped");
     }
 
@@ -265,6 +282,36 @@ public class AaaManager
         }
     }
 
+    private void getConfiguredAaaServerAddress() {
+        try {
+            InetAddress address;
+            if (newCfg.radiusHostName() != null) {
+                address = InetAddress.getByName(newCfg.radiusHostName());
+            } else {
+                 address = newCfg.radiusIp();
+            }
+
+            configuredAaaServerAddress = address.getHostAddress();
+        } catch (UnknownHostException uhe) {
+            log.warn("Unable to resolve host {}", newCfg.radiusHostName());
+        }
+    }
+
+    private void checkReceivedPacketForValidValidator(RADIUS radiusPacket) {
+        log.debug("radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH)---" +
+                radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH).getValue());
+        log.debug("-------------radiusSecret--------------" + radiusSecret);
+        log.debug("---------radiusPacket.getAuthenticator()------" + radiusPacket.getAuthenticator());
+        if (!radiusPacket.checkMessageAuthenticator(radiusSecret)) {
+            aaaStatisticsManager.getAaaStats().increaseInvalidValidatorsRx();
+        }
+    }
+    public void checkForPacketFromUnknownServer(String hostAddress) {
+            if (!hostAddress.equals(configuredAaaServerAddress)) {
+                 aaaStatisticsManager.getAaaStats().incrementUnknownServerRx();
+            }
+    }
+
     /**
      * Send RADIUS packet to the RADIUS server.
      *
@@ -272,6 +319,9 @@ public class AaaManager
      * @param inPkt        Incoming EAPOL packet
      */
     protected void sendRadiusPacket(RADIUS radiusPacket, InboundPacket inPkt) {
+        outPacketSet.add(radiusPacket.getIdentifier());
+        aaaStatisticsManager.getAaaStats().increaseOrDecreasePendingRequests(true);
+        aaaStatisticsManager.getAaaStats().increaseAccessRequestsTx();
         impl.sendRadiusPacket(radiusPacket, inPkt);
     }
 
@@ -293,10 +343,14 @@ public class AaaManager
                     + "state machine ... exiting", radiusPacket.getIdentifier());
             return;
         }
-
+        //stateMachine.setAaaStatistics(aaaStatisticsManager.getAaaStats());
         EAP eapPayload;
         Ethernet eth;
-
+        checkReceivedPacketForValidValidator(radiusPacket);
+        if (outPacketSet.contains(radiusPacket.getIdentifier())) {
+            aaaStatisticsManager.getAaaStats().increaseOrDecreasePendingRequests(false);
+            outPacketSet.remove(new Byte(radiusPacket.getIdentifier()));
+        }
         switch (radiusPacket.getCode()) {
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
@@ -314,6 +368,7 @@ public class AaaManager
                         eapPayload, stateMachine.priorityCode());
                 log.debug("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                aaaStatisticsManager.getAaaStats().increaseChallengeResponsesRx();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
@@ -331,7 +386,7 @@ public class AaaManager
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
 
                 stateMachine.authorizeAccess();
-
+                aaaStatisticsManager.getAaaStats().increaseAcceptResponsesRx();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
@@ -356,11 +411,13 @@ public class AaaManager
                 log.warn("Send EAP failure message to supplicant {}", stateMachine.supplicantAddress().toString());
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                 stateMachine.denyAccess();
-
+                aaaStatisticsManager.getAaaStats().increaseRejectResponsesRx();
                 break;
             default:
                 log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());
+                aaaStatisticsManager.getAaaStats().increaseUnknownTypeRx();
         }
+        aaaStatisticsManager.getAaaStats().countDroppedResponsesRx();
     }
 
     /**
@@ -473,7 +530,6 @@ public class AaaManager
                 log.debug("Using existing state-machine for sessionId: {}", sessionId);
             }
 
-
             switch (eapol.getEapolType()) {
                 case EAPOL.EAPOL_START:
                     log.debug("EAP packet: EAPOL_START");
@@ -523,6 +579,9 @@ public class AaaManager
                             sendRadiusPacket(radiusPayload, inPacket);
 
                             // change the state to "PENDING"
+                            if (stateMachine.state() == StateMachine.STATE_PENDING) {
+                                aaaStatisticsManager.getAaaStats().increaseRequestReTx();
+                            }
                             stateMachine.requestAccess();
                             break;
                         case EAP.ATTR_MD5:
@@ -686,4 +745,26 @@ public class AaaManager
             }
         }
     }
+    private class AuthenticationStatisticsEventPublisher implements Runnable {
+        private final Logger log = getLogger(getClass());
+        public void run() {
+            log.info("Notifying AuthenticationStatisticsEvent");
+            aaaStatisticsManager.calculatePacketRoundtripTime();
+            log.debug("AcceptResponsesRx---" + aaaStatisticsManager.getAaaStats().getAcceptResponsesRx());
+            log.debug("AccessRequestsTx---" + aaaStatisticsManager.getAaaStats().getAccessRequestsTx());
+            log.debug("ChallengeResponsesRx---" + aaaStatisticsManager.getAaaStats().getChallengeResponsesRx());
+            log.debug("DroppedResponsesRx---" + aaaStatisticsManager.getAaaStats().getDroppedResponsesRx());
+            log.debug("InvalidValidatorsRx---" + aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx());
+            log.debug("MalformedResponsesRx---" + aaaStatisticsManager.getAaaStats().getMalformedResponsesRx());
+            log.debug("PendingRequests---" + aaaStatisticsManager.getAaaStats().getPendingRequests());
+            log.debug("RejectResponsesRx---" + aaaStatisticsManager.getAaaStats().getRejectResponsesRx());
+            log.debug("RequestReTx---" + aaaStatisticsManager.getAaaStats().getRequestReTx());
+            log.debug("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
+            log.debug("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
+            log.debug("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
+            aaaStatisticsManager.getStatsDelegate().
+                notify(new AuthenticationStatisticsEvent(AuthenticationStatisticsEvent.Type.STATS_UPDATE,
+                    aaaStatisticsManager.getAaaStats()));
+        }
+        }
 }

@@ -148,6 +148,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     log.trace("Sending packet {} to Radius Server {}:{} using socket",
                               radiusPacket, address, radiusServerPort);
                 }
+                aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
                 socket.send(packet);
             } catch (UnknownHostException uhe) {
                 log.warn("Unable to resolve host {}", radiusHost);
@@ -184,6 +185,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             new DatagramPacket(packetBuffer, packetBuffer.length);
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
+                    aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
                     log.debug("Packet #{} received", packetNumber++);
                     try {
                         inboundRadiusPacket =
@@ -191,6 +193,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
+                        aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
                         log.error("Cannot deserialize packet", dex);

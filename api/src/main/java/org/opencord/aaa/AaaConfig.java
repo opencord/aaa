@@ -85,7 +85,6 @@ public class AaaConfig extends Config<ApplicationId> {
     // Packet Customizer Default value
     protected static final String DEFAULT_PACKET_CUSTOMIZER = "default";
 
-
     /**
      * Gets the value of a string property, protecting for an empty
      * JSON object.

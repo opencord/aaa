@@ -36,7 +36,6 @@ import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.onosproject.net.packet.InboundPacket;
 import org.opencord.aaa.AaaConfig;
-
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -54,13 +53,13 @@ public class AaaManagerTest extends AaaTestBase {
     static final String BAD_IP_ADDRESS = "198.51.100.0";
 
     private AaaManager aaaManager;
+    private AaaStatisticsManager aaaStatisticsManager;
 
     class AaaManagerWithoutRadiusServer extends AaaManager {
         protected void sendRadiusPacket(RADIUS radiusPacket, InboundPacket inPkt) {
             savePacket(radiusPacket);
         }
     }
-
     /**
      * Mocks the AAAConfig class to force usage of an unroutable address for the
      * RADIUS server.
@@ -92,7 +91,6 @@ public class AaaManagerTest extends AaaTestBase {
 
     public static class TestEventDispatcher extends DefaultEventSinkRegistry
             implements EventDeliveryService {
-
         @Override
         @SuppressWarnings("unchecked")
         public synchronized void post(Event event) {
@@ -136,7 +134,8 @@ public class AaaManagerTest extends AaaTestBase {
         radius.setPayload(eap);
         radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE,
                             eap.serialize());
-
+        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH,
+                aaaManager.radiusSecret.getBytes());
         return radius;
     }
 
@@ -165,6 +164,10 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.packetService = new MockPacketService();
         aaaManager.deviceService = new TestDeviceService();
         aaaManager.sadisService = new MockSadisService();
+        aaaStatisticsManager = new AaaStatisticsManager();
+        TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());
+        aaaStatisticsManager.activate();
+        aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
         aaaManager.activate();
     }

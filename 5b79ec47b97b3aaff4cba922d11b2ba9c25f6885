@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed8751ec_237c8792",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2019-05-24T18:39:16Z",
+      "side": 1,
+      "message": "are this logs needed? if so, can they be formatted in a different way?",
+      "range": {
+        "startLine": 301,
+        "startChar": 8,
+        "endLine": 304,
+        "endChar": 102
+      },
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a782fb4_93f35437",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaStatisticsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2019-05-24T18:39:16Z",
+      "side": 1,
+      "message": "Activate aaaStatsManager",
+      "range": {
+        "startLine": 63,
+        "startChar": 18,
+        "endLine": 63,
+        "endChar": 45
+      },
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

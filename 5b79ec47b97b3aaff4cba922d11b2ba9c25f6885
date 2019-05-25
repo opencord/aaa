@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "d3353d2d_47d84a18",
+        "filename": "api/src/main/java/org/opencord/aaa/AuthenticationStatisticsDelegate.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2019-05-25T01:20:42Z",
+      "side": 1,
+      "message": "Typo?",
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc7fa4d0_cb4cfb19",
+        "filename": "api/src/main/java/org/opencord/aaa/AuthenticationStatisticsService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2019-05-25T01:20:42Z",
+      "side": 1,
+      "message": "Please add javadocs for each method in the service",
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed8751ec_237c8792",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 1
@@ -25,6 +59,57 @@
     },
     {
       "key": {
+        "uuid": "b2816f47_b27be93f",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2019-05-25T01:20:42Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be a stat for this case? These are packets from the radius server but no valid session was found, so the packets get dropped",
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b83622f0_1295b9fd",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2019-05-25T01:20:42Z",
+      "side": 1,
+      "message": "If you don\u0027t need it, maybe remove it",
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3642d081_6936d2cf",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2019-05-25T01:20:42Z",
+      "side": 1,
+      "message": "Is this right? All radius responses after they come out of the switch-case statement will end up here and get counted as a droppedResponseRx?",
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a782fb4_93f35437",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaStatisticsManager.java",
         "patchSetId": 1
@@ -42,6 +127,23 @@
         "endLine": 63,
         "endChar": 45
       },
+      "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95907317_0e79bfe7",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaStatisticsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000068
+      },
+      "writtenOn": "2019-05-25T01:20:42Z",
+      "side": 1,
+      "message": "Can this be debug log as potentially it can be a lot of logs",
       "revId": "5b79ec47b97b3aaff4cba922d11b2ba9c25f6885",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

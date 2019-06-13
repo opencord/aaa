@@ -43,16 +43,9 @@ import org.opencord.sadis.BandwidthProfileInformation;
 import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.ComponentInstance;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -107,67 +100,6 @@ public class AaaTestBase {
                 fail(e.getMessage());
             }
         }
-    }
-    class MockComponentContext implements ComponentContext {
-
-                @Override
-                public Dictionary<String, Object> getProperties() {
-                        Dictionary<String, Object> cfgDict = new Hashtable<String, Object>();
-                        cfgDict.put("statisticsGenerationEvent", 20);
-                        return cfgDict;
-                }
-
-                @Override
-                public Object locateService(String name) {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
-
-                @Override
-                public Object locateService(String name, ServiceReference reference) {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
-
-                @Override
-                public Object[] locateServices(String name) {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
-
-                @Override
-                public BundleContext getBundleContext() {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
-
-                @Override
-                public Bundle getUsingBundle() {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
-
-                @Override
-                public ComponentInstance getComponentInstance() {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
-
-                @Override
-                public void enableComponent(String name) {
-                        // TODO Auto-generated method stub
-                }
-
-                @Override
-                public void disableComponent(String name) {
-                       // TODO Auto-generated method stub
-                }
-
-                @Override
-                public ServiceReference getServiceReference() {
-                       // TODO Auto-generated method stub
-                       return null;
-                }
     }
 
     /**

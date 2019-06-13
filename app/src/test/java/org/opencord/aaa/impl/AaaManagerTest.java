@@ -165,13 +165,12 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.packetService = new MockPacketService();
         aaaManager.deviceService = new TestDeviceService();
         aaaManager.sadisService = new MockSadisService();
-        aaaManager.cfgService = new MockCfgService();
         aaaStatisticsManager = new AaaStatisticsManager();
         TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());
         aaaStatisticsManager.activate();
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
-        aaaManager.activate(new AaaTestBase.MockComponentContext());
+        aaaManager.activate();
     }
 
     /**
@@ -179,7 +178,7 @@ public class AaaManagerTest extends AaaTestBase {
      */
     @After
     public void tearDown() {
-        aaaManager.deactivate(new AaaTestBase.MockComponentContext());
+        aaaManager.deactivate();
     }
 
     /**

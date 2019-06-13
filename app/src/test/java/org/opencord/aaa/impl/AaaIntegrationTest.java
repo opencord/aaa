@@ -25,7 +25,6 @@ import org.onosproject.core.CoreServiceAdapter;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.opencord.aaa.AaaConfig;
-import org.opencord.aaa.impl.AaaTestBase.MockCfgService;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -61,8 +60,7 @@ public class AaaIntegrationTest extends AaaTestBase {
         aaa.netCfgService = new TestNetworkConfigRegistry();
         aaa.coreService = new CoreServiceAdapter();
         aaa.packetService = new MockPacketService();
-        aaa.cfgService = new MockCfgService();
-        aaa.activate(new AaaTestBase.MockComponentContext());
+        aaa.activate();
     }
 
     /**

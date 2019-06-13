@@ -22,7 +22,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.Dictionary;
 import java.util.HashSet;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -40,8 +39,6 @@ import org.onlab.packet.Ethernet;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
-import org.onlab.util.Tools;
-import org.onosproject.cfg.ComponentConfigService;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.event.AbstractListenerManager;
@@ -75,11 +72,8 @@ import org.opencord.aaa.StateMachineDelegate;
 import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
-import com.google.common.base.Strings;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -119,9 +113,6 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected AuthenticationStatisticsService aaaStatisticsManager;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    protected ComponentConfigService cfgService;
-
     protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
     private final DeviceListener deviceListener = new InternalDeviceListener();
@@ -129,6 +120,7 @@ public class AaaManager
     private static final int DEFAULT_REPEAT_DELAY = 20;
     @Property(name = "statisticsGenerationEvent", intValue = DEFAULT_REPEAT_DELAY,
               label = "statisticsGenerationEvent")
+    // TODO add this as a parameter in the config (so that is fetched via netcfg)
     private int statisticsGenerationEvent = DEFAULT_REPEAT_DELAY;
 
     // NAS IP address
@@ -228,13 +220,11 @@ public class AaaManager
     }
 
     @Activate
-    public void activate(ComponentContext context) {
+    public void activate() {
         appId = coreService.registerApplication(APP_NAME);
         eventDispatcher.addSink(AuthenticationEvent.class, listenerRegistry);
         netCfgService.addListener(cfgListener);
         netCfgService.registerConfigFactory(factory);
-        cfgService.registerProperties(getClass());
-        modified(context);
         subsService = sadisService.getSubscriberInfoService();
         customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
@@ -258,11 +248,10 @@ public class AaaManager
     }
 
     @Deactivate
-    public void deactivate(ComponentContext context) {
+    public void deactivate() {
         impl.withdrawIntercepts();
         packetService.removeProcessor(processor);
         netCfgService.removeListener(cfgListener);
-        cfgService.unregisterProperties(getClass(), false);
         StateMachine.unsetDelegate(delegate);
         StateMachine.destroyMaps();
         impl.deactivate();
@@ -271,13 +260,6 @@ public class AaaManager
         scheduledFuture.cancel(true);
         executor.shutdown();
         log.info("Stopped");
-    }
-
-    @Modified
-    public void modified(ComponentContext context) {
-        Dictionary<?, ?> properties = context.getProperties();
-       String s = Tools.get(properties, "statisticsGenerationEvent");
-    statisticsGenerationEvent = Strings.isNullOrEmpty(s) ? DEFAULT_REPEAT_DELAY : Integer.parseInt(s.trim());
     }
 
     private void configureRadiusCommunication() {
@@ -769,20 +751,20 @@ public class AaaManager
     private class AuthenticationStatisticsEventPublisher implements Runnable {
         private final Logger log = getLogger(getClass());
         public void run() {
-            log.info("Notifying AuthenticationStatisticsEvent");
+            log.debug("Notifying AuthenticationStatisticsEvent");
             aaaStatisticsManager.calculatePacketRoundtripTime();
-            log.debug("AcceptResponsesRx---" + aaaStatisticsManager.getAaaStats().getAcceptResponsesRx());
-            log.debug("AccessRequestsTx---" + aaaStatisticsManager.getAaaStats().getAccessRequestsTx());
-            log.debug("ChallengeResponsesRx---" + aaaStatisticsManager.getAaaStats().getChallengeResponsesRx());
-            log.debug("DroppedResponsesRx---" + aaaStatisticsManager.getAaaStats().getDroppedResponsesRx());
-            log.debug("InvalidValidatorsRx---" + aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx());
-            log.debug("MalformedResponsesRx---" + aaaStatisticsManager.getAaaStats().getMalformedResponsesRx());
-            log.debug("PendingRequests---" + aaaStatisticsManager.getAaaStats().getPendingRequests());
-            log.debug("RejectResponsesRx---" + aaaStatisticsManager.getAaaStats().getRejectResponsesRx());
-            log.debug("RequestReTx---" + aaaStatisticsManager.getAaaStats().getRequestReTx());
-            log.debug("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
-            log.debug("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
-            log.debug("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
+            log.trace("AcceptResponsesRx---" + aaaStatisticsManager.getAaaStats().getAcceptResponsesRx());
+            log.trace("AccessRequestsTx---" + aaaStatisticsManager.getAaaStats().getAccessRequestsTx());
+            log.trace("ChallengeResponsesRx---" + aaaStatisticsManager.getAaaStats().getChallengeResponsesRx());
+            log.trace("DroppedResponsesRx---" + aaaStatisticsManager.getAaaStats().getDroppedResponsesRx());
+            log.trace("InvalidValidatorsRx---" + aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx());
+            log.trace("MalformedResponsesRx---" + aaaStatisticsManager.getAaaStats().getMalformedResponsesRx());
+            log.trace("PendingRequests---" + aaaStatisticsManager.getAaaStats().getPendingRequests());
+            log.trace("RejectResponsesRx---" + aaaStatisticsManager.getAaaStats().getRejectResponsesRx());
+            log.trace("RequestReTx---" + aaaStatisticsManager.getAaaStats().getRequestReTx());
+            log.trace("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
+            log.trace("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
+            log.trace("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
             aaaStatisticsManager.getStatsDelegate().
                 notify(new AuthenticationStatisticsEvent(AuthenticationStatisticsEvent.Type.STATS_UPDATE,
                     aaaStatisticsManager.getAaaStats()));

@@ -23,38 +23,42 @@ import org.onosproject.event.ListenerService;
  */
 
 public interface AuthenticationStatisticsService extends
-        ListenerService<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener> {
+ListenerService<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener> {
 
     /**
      * Returns AaaStatistics object.
      *
      * @return AaaStatistics
-    */
+     */
     public AaaStatistics getAaaStats();
-
     /**
      * Returns AuthenticationStatisticsDelegate object.
      *
      * @return AuthenticationStatisticsDelegate
-    */
+     */
     public AuthenticationStatisticsDelegate getStatsDelegate();
 
     /**
      * Handle the roundTrip time of Radius Packet.
      *
      * @param identifier identifier of incoming radius packet
-    */
+     */
     public void handleRoundtripTime(byte identifier);
 
     /**
      * Calculate average roundTrip time of multiple Packets.
-    */
+     */
     public void calculatePacketRoundtripTime();
 
     /**
      * Put the identifier value to map.
      *
      * @param identifier identifier of incoming radius packet
-    */
+     */
     public void putOutgoingIdentifierToMap(byte identifier);
+
+   /**
+    * Reset all the values of aaa counters to 0.
+    */
+    public void resetAllCounters();
 }

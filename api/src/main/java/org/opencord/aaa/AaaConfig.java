@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-present Open Networking Foundation
+  Copyright 2015-present Open Networking Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@
  */
 package org.opencord.aaa;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import com.google.common.collect.ImmutableSet;
-
 import org.onosproject.core.ApplicationId;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.basics.BasicElementConfig;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Network config for the AAA app.
@@ -40,13 +38,14 @@ public class AaaConfig extends Config<ApplicationId> {
     private static final String RADIUS_HOST = "radiusHost";
     private static final String RADIUS_IP = "radiusIp";
     private static final String RADIUS_SERVER_PORT = "radiusServerPort";
+    public static final String CLEANUP_TIMER_TIMEOUT_IN_MINS = "cleanupTimerTimeoutInMins";
     private static final String RADIUS_MAC = "radiusMac";
     private static final String NAS_IP = "nasIp";
     private static final String NAS_MAC = "nasMac";
     private static final String RADIUS_SECRET = "radiusSecret";
     private static final String RADIUS_VLAN_ID = "vlanId";
     private static final String RADIUS_VLAN_PRIORITY_BIT = "radiusPBit";
-    private static final String RADIUS_CONNECTION_TYPE =  "radiusConnectionType";
+    private static final String RADIUS_CONNECTION_TYPE = "radiusConnectionType";
     private static final String RADIUS_SERVER_CONNECTPOINTS = "radiusServerConnectPoints";
     // Which packet customizer to use
     // "packetCustomizer" : "sample" -- Means use SamplePAcketCustomizer
@@ -73,6 +72,9 @@ public class AaaConfig extends Config<ApplicationId> {
     // Radius Server UDP Port Number
     protected static final String DEFAULT_RADIUS_SERVER_PORT = "1812";
 
+    // Time configured for triggering timeouts in AAA app
+    protected static final String DEFAULT_CLEANUP_TIMER_TIMEOUT_IN_MINS = "10";
+
     // Radius Server Vlan ID
     protected static final String DEFAULT_RADIUS_VLAN_ID = "4093";
 
@@ -86,10 +88,9 @@ public class AaaConfig extends Config<ApplicationId> {
     protected static final String DEFAULT_PACKET_CUSTOMIZER = "default";
 
     /**
-     * Gets the value of a string property, protecting for an empty
-     * JSON object.
+     * Gets the value of a string property, protecting for an empty JSON object.
      *
-     * @param name name of the property
+     * @param name         name of the property
      * @param defaultValue default value if none has been specified
      * @return String value if one os found, default value otherwise
      */
@@ -213,8 +214,7 @@ public class AaaConfig extends Config<ApplicationId> {
      * @return radius server UDP port.
      */
     public short radiusServerUdpPort() {
-        return Short.parseShort(getStringProperty(RADIUS_SERVER_PORT,
-                                                  DEFAULT_RADIUS_SERVER_PORT));
+        return Short.parseShort(getStringProperty(RADIUS_SERVER_PORT, DEFAULT_RADIUS_SERVER_PORT));
     }
 
     /**
@@ -261,6 +261,16 @@ public class AaaConfig extends Config<ApplicationId> {
      */
     public String radiusPktCustomizer() {
         return getStringProperty(PACKET_CUSTOMIZER, DEFAULT_PACKET_CUSTOMIZER);
+    }
+
+    /**
+     * Returns the time configured for checking timeout .
+     *
+     * @return timerTimeout
+     */
+    public int cleanupTimerTimeoutInMins() {
+        return Integer
+                .parseInt(getStringProperty(CLEANUP_TIMER_TIMEOUT_IN_MINS, DEFAULT_CLEANUP_TIMER_TIMEOUT_IN_MINS));
     }
 
     /**

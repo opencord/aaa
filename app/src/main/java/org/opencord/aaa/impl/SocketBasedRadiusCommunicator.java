@@ -148,10 +148,11 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     log.trace("Sending packet {} to Radius Server {}:{} using socket",
                               radiusPacket, address, radiusServerPort);
                 }
-                aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
                 socket.send(packet);
+                aaaManager.radiusOperationalStatusService.setStatusServerReqSent(true);
             } catch (UnknownHostException uhe) {
                 log.warn("Unable to resolve host {}", radiusHost);
+                aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             }
         } catch (IOException e) {
             log.info("Cannot send packet to RADIUS server", e);

@@ -138,20 +138,24 @@ public class AaaStatisticsTest extends AaaTestBase {
      */
    private RADIUS constructRadiusCodeAccessChallengePacket(byte challengeCode, byte challengeType) {
 
-     String challenge = "12345678901234567";
-     EAP eap = new EAP(challengeType, (byte) 1, challengeType, challenge.getBytes(Charsets.US_ASCII));
-     eap.setIdentifier((byte) 1);
+       String challenge = "12345678901234567";
 
-     RADIUS radius = new RADIUS();
-     radius.setCode(challengeCode);
+       EAP eap = new EAP(challengeType, (byte) 4, challengeType,
+                         challenge.getBytes(Charsets.US_ASCII));
+       eap.setIdentifier((byte) 4);
 
-     radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE, challenge.getBytes(Charsets.US_ASCII));
+       RADIUS radius = new RADIUS();
+       radius.setCode(challengeCode);
+       radius.setIdentifier((byte) 4);
+       radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
+                           challenge.getBytes(Charsets.US_ASCII));
 
-     radius.setPayload(eap);
-     radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE, eap.serialize());
-     radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH, aaaManager.radiusSecret.getBytes());
-     return radius;
-
+       radius.setPayload(eap);
+       radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE,
+                           eap.serialize());
+       radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH,
+               aaaManager.radiusSecret.getBytes());
+       return radius;
    }
 
     public static void injectEventDispatcher(Object manager, EventDeliveryService svc) {
@@ -174,6 +178,7 @@ public class AaaStatisticsTest extends AaaTestBase {
     @Before
     public void setUp() {
         aaaManager = new AaaManagerWithoutRadiusServer();
+        aaaManager.radiusOperationalStatusService = new RadiusOperationalStatusManager();
         aaaManager.netCfgService = new TestNetworkConfigRegistry();
         aaaManager.coreService = new CoreServiceAdapter();
         aaaManager.packetService = new MockPacketService();
@@ -278,7 +283,7 @@ private BasePacket fetchPacket(int index) {
         RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
         checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 3));
+        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
         assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
         // State machine should be in pending state

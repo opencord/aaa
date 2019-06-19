@@ -260,13 +260,20 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
 
         if (deviceInfo == null) {
             log.warn("No Device found with SN {}", serialNo);
+            aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             return;
         }
         ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
-        aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
+        if (radiusPacket.getIdentifier() == RadiusOperationalStatusManager.AAA_REQUEST_ID_STATUS_REQUEST ||
+                radiusPacket.getIdentifier() == RadiusOperationalStatusManager.AAA_REQUEST_ID_FAKE_ACCESS_REQUEST) {
+            aaaManager.radiusOperationalStatusService.setOutTimeInMillis(radiusPacket.getIdentifier());
+        } else {
+            aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
+        }
         // send the message out
         sendFromRadiusServerPort(pktCustomizer.
                 customizeEthernetIPHeaders(ethReply, inPkt));
+        aaaManager.radiusOperationalStatusService.setStatusServerReqSent(true);
     }
 
     /**

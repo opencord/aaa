@@ -15,17 +15,17 @@
  */
 package org.opencord.aaa.impl;
 
+import com.google.common.collect.Maps;
 import org.onlab.packet.ARP;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
-import org.onlab.packet.Ip4Address;
 import org.onlab.packet.IPv4;
+import org.onlab.packet.Ip4Address;
 import org.onlab.packet.MacAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.TpPort;
 import org.onlab.packet.UDP;
-
 import org.onosproject.core.ApplicationId;
 import org.onosproject.mastership.MastershipEvent;
 import org.onosproject.mastership.MastershipListener;
@@ -43,23 +43,19 @@ import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketService;
-
 import org.opencord.aaa.AaaConfig;
 import org.opencord.aaa.RadiusCommunicator;
 import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
-
 import org.slf4j.Logger;
-
-import com.google.common.collect.Maps;
-
-import static org.onosproject.net.packet.PacketPriority.CONTROL;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
+
+import static org.onosproject.net.packet.PacketPriority.CONTROL;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Handles communication with the RADIUS server through ports
@@ -260,13 +256,20 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
 
         if (deviceInfo == null) {
             log.warn("No Device found with SN {}", serialNo);
+            aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             return;
         }
         ipToSnMap.put(deviceInfo.ipAddress(), serialNo);
-        aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
+        if (radiusPacket.getIdentifier() == RadiusOperationalStatusManager.AAA_REQUEST_ID_STATUS_REQUEST ||
+                radiusPacket.getIdentifier() == RadiusOperationalStatusManager.AAA_REQUEST_ID_FAKE_ACCESS_REQUEST) {
+            aaaManager.radiusOperationalStatusService.setOutTimeInMillis(radiusPacket.getIdentifier());
+        } else {
+            aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
+        }
         // send the message out
         sendFromRadiusServerPort(pktCustomizer.
                 customizeEthernetIPHeaders(ethReply, inPkt));
+        aaaManager.radiusOperationalStatusService.setStatusServerReqSent(true);
     }
 
     /**

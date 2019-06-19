@@ -17,19 +17,18 @@
 
 package org.opencord.aaa.impl;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Maps;
 import org.onlab.packet.MacAddress;
 import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.StateMachineDelegate;
 import org.slf4j.Logger;
 
-import com.google.common.collect.Maps;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * AAA Finite State Machine.
@@ -56,7 +55,7 @@ public class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
-    private static int identifier = -1;
+    private static int identifier = 1;
     private byte challengeIdentifier;
     private byte[] challengeState;
     private byte[] username;
@@ -129,7 +128,7 @@ public class StateMachine {
     public static void initializeMaps() {
         sessionIdMap = Maps.newConcurrentMap();
         identifierMap = Maps.newConcurrentMap();
-        identifier = -1;
+        identifier = 1;
     }
 
     public static void destroyMaps() {
@@ -207,7 +206,7 @@ public class StateMachine {
             if (e.getValue() != null && e.getValue().supplicantAddress != null
                     && e.getValue().supplicantAddress.equals(mac)) {
                 sessionIdMap.remove(e.getValue().sessionId);
-                if (e.getValue().identifier != -1) {
+                if (e.getValue().identifier != 1) {
                     deleteStateMachineMapping(e.getValue());
                 }
                 break;
@@ -419,9 +418,11 @@ public class StateMachine {
      * @return The state machine identifier.
      */
     public synchronized byte identifier() {
-        identifier = (identifier + 1) % 255;
-        identifierMap.put(identifier, this);
-        return (byte) identifier;
+        //identifier 0 is for statusServerrequest
+        //identifier 1 is for fake accessRequest
+        identifier = (identifier + 1) % 253;
+        identifierMap.put((identifier + 2), this);
+        return (byte) (identifier + 2);
     }
 
     /**

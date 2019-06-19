@@ -15,23 +15,8 @@
  */
 package org.opencord.aaa.impl;
 
-import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
@@ -71,31 +56,56 @@ import org.opencord.aaa.AuthenticationService;
 import org.opencord.aaa.AuthenticationStatisticsEvent;
 import org.opencord.aaa.AuthenticationStatisticsService;
 import org.opencord.aaa.RadiusCommunicator;
+import org.opencord.aaa.RadiusOperationalStatusEvent;
+import org.opencord.aaa.RadiusOperationalStatusService;
+import org.opencord.aaa.RadiusOperationalStatusService.RadiusOperationalStatusEvaluationMode;
 import org.opencord.aaa.StateMachineDelegate;
 import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
-import com.google.common.base.Strings;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_EVENT;
-import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_EVENT_DEFAULT;
+import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_EVENT_GENERATION;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_TIMEOUT;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_PERIOD;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_PERIOD_DEFAULT;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE_DEFAULT;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 /**
  * AAA application for ONOS.
  */
 @Component(immediate = true, property = {
-        STATISTICS_GENERATION_EVENT + ":Integer=" + STATISTICS_GENERATION_EVENT_DEFAULT,
+        STATISTICS_GENERATION_PERIOD + ":Integer=" + STATISTICS_GENERATION_PERIOD_DEFAULT,
+        OPERATIONAL_STATUS_SERVER_EVENT_GENERATION + ":Integer=" + OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT,
+        OPERATIONAL_STATUS_SERVER_TIMEOUT + ":Integer=" + OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT,
+        STATUS_SERVER_MODE + ":String=" + STATUS_SERVER_MODE_DEFAULT,
 })
 public class AaaManager
         extends AbstractListenerManager<AuthenticationEvent, AuthenticationEventListener>
@@ -129,12 +139,18 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected ComponentConfigService cfgService;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected RadiusOperationalStatusService radiusOperationalStatusService;
+
     protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
-    /** Statistics generation interval. */
-    private int statisticsGenerationEvent = STATISTICS_GENERATION_EVENT_DEFAULT;
+    // Properties
+    private int statisticsGenerationPeriodInSeconds = STATISTICS_GENERATION_PERIOD_DEFAULT;
+    private int operationalStatusEventGenerationPeriodInSeconds = OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT;
+    private int operationalStatusServerTimeoutInSeconds = OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT;
+    protected String operationalStatusEvaluationMode = STATUS_SERVER_MODE_DEFAULT;
 
     // NAS IP address
     protected InetAddress nasIpAddress;
@@ -181,7 +197,7 @@ public class AaaManager
     AaaConfig newCfg;
 
     ScheduledFuture<?> scheduledFuture;
-
+    ScheduledFuture<?> scheduledStatusServerChecker;
     ScheduledExecutorService executor;
     String configuredAaaServerAddress;
     HashSet<Byte> outPacketSet = new HashSet<Byte>();
@@ -261,11 +277,15 @@ public class AaaManager
         impl.requestIntercepts();
         deviceService.addListener(deviceListener);
         getConfiguredAaaServerAddress();
+        radiusOperationalStatusService.initialize(nasIpAddress.getAddress(), radiusSecret, impl);
         authenticationStatisticsPublisher =
                 new AuthenticationStatisticsEventPublisher();
-        executor = Executors.newScheduledThreadPool(1);
+        executor = Executors.newScheduledThreadPool(3);
+
         scheduledFuture = executor.scheduleAtFixedRate(authenticationStatisticsPublisher,
-                0, statisticsGenerationEvent, TimeUnit.SECONDS);
+            0, statisticsGenerationPeriodInSeconds, TimeUnit.SECONDS);
+        scheduledStatusServerChecker = executor.scheduleAtFixedRate(new ServerStatusChecker(), 0,
+            operationalStatusEventGenerationPeriodInSeconds, TimeUnit.SECONDS);
 
         log.info("Started");
     }
@@ -282,16 +302,40 @@ public class AaaManager
         deviceService.removeListener(deviceListener);
         eventDispatcher.removeSink(AuthenticationEvent.class);
         scheduledFuture.cancel(true);
+        scheduledStatusServerChecker.cancel(true);
         executor.shutdown();
         log.info("Stopped");
     }
-
     @Modified
     public void modified(ComponentContext context) {
-        Dictionary<?, ?> properties = context.getProperties();
-        String s = Tools.get(properties, STATISTICS_GENERATION_EVENT);
-        statisticsGenerationEvent = Strings.isNullOrEmpty(s)
-                ? STATISTICS_GENERATION_EVENT_DEFAULT : Integer.parseInt(s.trim());
+        Dictionary<String, Object> properties = context.getProperties();
+
+        String s = Tools.get(properties, "statisticsGenerationPeriodInSeconds");
+        statisticsGenerationPeriodInSeconds = Strings.isNullOrEmpty(s) ? STATISTICS_GENERATION_PERIOD_DEFAULT
+                : Integer.parseInt(s.trim());
+
+        s = Tools.get(properties, "operationalStatusEventGenerationPeriodInSeconds");
+        operationalStatusEventGenerationPeriodInSeconds = Strings.isNullOrEmpty(s)
+                ? OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT
+                    : Integer.parseInt(s.trim());
+
+        s = Tools.get(properties, "operationalStatusServerTimeoutInSeconds");
+        operationalStatusServerTimeoutInSeconds = Strings.isNullOrEmpty(s) ? OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT
+                : Integer.parseInt(s.trim());
+
+        s = Tools.get(properties, "operationalStatusEvaluationMode");
+        String newEvaluationModeString = Strings.isNullOrEmpty(s) ? STATUS_SERVER_MODE_DEFAULT : s.trim();
+
+        radiusOperationalStatusService
+            .setOperationalStatusServerTimeoutInMillis(operationalStatusServerTimeoutInSeconds * 1000);
+        RadiusOperationalStatusEvaluationMode newEvaluationMode =
+                RadiusOperationalStatusEvaluationMode.getValue(newEvaluationModeString);
+        if (newEvaluationMode != null) {
+            radiusOperationalStatusService.setRadiusOperationalStatusEvaluationMode(newEvaluationMode);
+            operationalStatusEvaluationMode = newEvaluationModeString;
+        } else {
+            properties.put("operationalStatusEvaluationMode", operationalStatusEvaluationMode);
+        }
     }
 
     protected void configureRadiusCommunication() {
@@ -381,6 +425,7 @@ public class AaaManager
         outPacketSet.add(radiusPacket.getIdentifier());
         aaaStatisticsManager.getAaaStats().increaseOrDecreasePendingRequests(true);
         aaaStatisticsManager.getAaaStats().increaseAccessRequestsTx();
+        aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
         impl.sendRadiusPacket(radiusPacket, inPkt);
     }
 
@@ -410,6 +455,10 @@ public class AaaManager
             throws StateMachineException, DeserializationException {
         if (log.isTraceEnabled()) {
             log.trace("Received RADIUS packet {}", radiusPacket);
+        }
+        if (radiusOperationalStatusService.isRadiusResponseForOperationalStatus(radiusPacket.getIdentifier())) {
+            radiusOperationalStatusService.handleRadiusPacketForOperationalStatus(radiusPacket);
+            return;
         }
         StateMachine stateMachine = StateMachine.lookupStateMachineById(radiusPacket.getIdentifier());
         if (stateMachine == null) {
@@ -916,5 +965,20 @@ public class AaaManager
                 notify(new AuthenticationStatisticsEvent(AuthenticationStatisticsEvent.Type.STATS_UPDATE,
                     aaaStatisticsManager.getAaaStats()));
         }
+    }
+
+    private class ServerStatusChecker implements Runnable {
+        @Override
+        public void run() {
+            log.info("Notifying RadiusOperationalStatusEvent");
+            radiusOperationalStatusService.checkServerOperationalStatus();
+            log.info("--POSTING--" + radiusOperationalStatusService.getRadiusServerOperationalStatus());
+            radiusOperationalStatusService.getRadiusOprStDelegate()
+                .notify(new RadiusOperationalStatusEvent(
+                        RadiusOperationalStatusEvent.Type.RADIUS_OPERATIONAL_STATUS,
+                        radiusOperationalStatusService.
+                        getRadiusServerOperationalStatus()));
         }
+
+    }
 }

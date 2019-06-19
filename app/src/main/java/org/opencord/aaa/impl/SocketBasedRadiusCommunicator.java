@@ -15,18 +15,7 @@
  */
 package org.opencord.aaa.impl;
 
-import static org.onosproject.net.packet.PacketPriority.CONTROL;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
@@ -41,7 +30,17 @@ import org.opencord.aaa.AaaConfig;
 import org.opencord.aaa.RadiusCommunicator;
 import org.slf4j.Logger;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.onosproject.net.packet.PacketPriority.CONTROL;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Handles Socket based communication with the RADIUS server.
@@ -148,10 +147,11 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     log.trace("Sending packet {} to Radius Server {}:{} using socket",
                               radiusPacket, address, radiusServerPort);
                 }
-                aaaManager.aaaStatisticsManager.putOutgoingIdentifierToMap(radiusPacket.getIdentifier());
                 socket.send(packet);
+                aaaManager.radiusOperationalStatusService.setStatusServerReqSent(true);
             } catch (UnknownHostException uhe) {
                 log.warn("Unable to resolve host {}", radiusHost);
+                aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             }
         } catch (IOException e) {
             log.info("Cannot send packet to RADIUS server", e);

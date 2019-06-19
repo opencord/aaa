@@ -24,6 +24,16 @@ public final class OsgiPropertyConstants {
     private OsgiPropertyConstants() {
     }
 
-    public static final String STATISTICS_GENERATION_EVENT = "statisticsGenerationEvent";
-    public static final int STATISTICS_GENERATION_EVENT_DEFAULT = 20;
+    public static final String STATISTICS_GENERATION_PERIOD = "statisticsGenerationPeriodInSeconds";
+    public static final int STATISTICS_GENERATION_PERIOD_DEFAULT = 20;
+
+    public static final String OPERATIONAL_STATUS_SERVER_EVENT_GENERATION =
+            "operationalStatusEventGenerationPeriodInSeconds";
+    public static final int OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT = 30;
+
+    public static final String OPERATIONAL_STATUS_SERVER_TIMEOUT = "operationalStatusServerTimeoutInSeconds";
+    public static final int OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT = 10;
+
+    public static final String STATUS_SERVER_MODE = "operationalStatusEvaluationMode";
+    public static final String STATUS_SERVER_MODE_DEFAULT = "AUTO";
 }

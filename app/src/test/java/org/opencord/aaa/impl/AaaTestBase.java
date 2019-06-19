@@ -411,7 +411,7 @@ public class AaaTestBase {
         eth.setEtherType(EthType.EtherType.EAPOL.ethType().toShort());
         eth.setVlanID((short) 2);
 
-        EAP eap = new EAP(EAPOL.EAPOL_START, (byte) 2, EAPOL.EAPOL_START, null);
+        EAP eap = new EAP(EAPOL.EAPOL_START, (byte) 3, EAPOL.EAPOL_START, null);
 
         // eapol header
         EAPOL eapol = new EAPOL();

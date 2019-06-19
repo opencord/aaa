@@ -56,7 +56,7 @@ class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
-    private static int identifier = -1;
+    private static int identifier = 1;
     private byte challengeIdentifier;
     private byte[] challengeState;
     private byte[] username;
@@ -129,7 +129,7 @@ class StateMachine {
     public static void initializeMaps() {
         sessionIdMap = Maps.newConcurrentMap();
         identifierMap = Maps.newConcurrentMap();
-        identifier = -1;
+        identifier = 1;
     }
 
     public static void destroyMaps() {
@@ -207,7 +207,7 @@ class StateMachine {
             if (e.getValue() != null && e.getValue().supplicantAddress != null
                     && e.getValue().supplicantAddress.equals(mac)) {
                 sessionIdMap.remove(e.getValue().sessionId);
-                if (e.getValue().identifier != -1) {
+                if (e.getValue().identifier != 1) {
                     deleteStateMachineMapping(e.getValue());
                 }
                 break;
@@ -419,9 +419,11 @@ class StateMachine {
      * @return The state machine identifier.
      */
     public synchronized byte identifier() {
-        identifier = (identifier + 1) % 255;
-        identifierMap.put(identifier, this);
-        return (byte) identifier;
+        //identifier 0 is for statusServerrequest
+        //identifier 1 is for fake accessRequest
+        identifier = (identifier + 1) % 253;
+        identifierMap.put((identifier + 2), this);
+        return (byte) (identifier + 2);
     }
 
     /**

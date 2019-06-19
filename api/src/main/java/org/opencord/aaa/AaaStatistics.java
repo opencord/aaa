@@ -30,6 +30,8 @@ public class AaaStatistics {
     private AtomicLong accessRequestsTx = new AtomicLong();
     // Number of access request packets pending a response from the server
     private AtomicLong pendingRequests = new AtomicLong();
+    // Number of packets send to the server which timed out.
+    private AtomicLong timedOutPackets = new AtomicLong();
     // Number of packets of an unknown RADIUS type received from the accounting
     // server
     private AtomicLong unknownTypeRx = new AtomicLong();
@@ -195,4 +197,13 @@ public class AaaStatistics {
         unknownServerRx.set(0);
         unknownTypeRx.set(0);
     }
+
+    public long getTimedOutPackets() {
+        return timedOutPackets.get();
+    }
+
+    public void increaseTimedOutPackets() {
+        timedOutPackets.incrementAndGet();
+    }
+
 }

@@ -159,6 +159,9 @@ public class AaaManager
     // our unique identifier
     private ApplicationId appId;
 
+    // TimeOut time for cleaning up stateMachines stuck due to pending AAA/EAPOL message.
+    protected int cleanupTimerTimeOutInMins;
+
     // Setup specific customization/attributes on the RADIUS packets
     PacketCustomizer pktCustomizer;
 
@@ -248,6 +251,8 @@ public class AaaManager
         packetService.addProcessor(processor, PacketProcessor.director(2));
         StateMachine.initializeMaps();
         StateMachine.setDelegate(delegate);
+        cleanupTimerTimeOutInMins = newCfg.sessionCleanupTimer();
+        StateMachine.setcleanupTimerTimeOutInMins(cleanupTimerTimeOutInMins);
         impl.initializeLocalState(newCfg);
         impl.requestIntercepts();
         deviceService.addListener(deviceListener);
@@ -375,7 +380,22 @@ public class AaaManager
         impl.sendRadiusPacket(radiusPacket, inPkt);
     }
 
-    /**
+   /**
+     * For scheduling the timer required for cleaning up StateMachine
+     * when no response
+     * from RADIUS SERVER.
+     *
+     * @param sessionId    SessionId of the current session
+     * @param stateMachine StateMachine for the id
+     */
+    public void scheduleStateMachineCleanupTimer(String sessionId, StateMachine stateMachine) {
+        StateMachine.CleanupTimerTask cleanupTask = stateMachine.new CleanupTimerTask(sessionId, this);
+        ScheduledFuture<?> cleanupTimer = executor.schedule(cleanupTask, cleanupTimerTimeOutInMins, TimeUnit.MINUTES);
+        stateMachine.setCleanupTimer(cleanupTimer);
+
+    }
+
+   /**
      * Handles RADIUS packets.
      *
      * @param radiusPacket RADIUS packet coming from the RADIUS server.
@@ -592,6 +612,9 @@ public class AaaManager
                 case EAPOL.EAPOL_START:
                     log.debug("EAP packet: EAPOL_START");
                     stateMachine.setSupplicantConnectpoint(inPacket.receivedFrom());
+                    if (stateMachine.getCleanupTimer() == null) {
+                        scheduleStateMachineCleanupTimer(sessionId, stateMachine);
+                    }
                     stateMachine.start();
                     aaaStatisticsManager.getAaaStats().incrementEapolStartReqTrans();
                     //send an EAP Request/Identify to the supplicant
@@ -627,6 +650,10 @@ public class AaaManager
 
                         case EAP.ATTR_IDENTITY:
                             log.debug("EAP packet: EAPOL_PACKET ATTR_IDENTITY");
+                            //Setting the time of this response from RG, only when its not a re-transmission.
+                            if (stateMachine.getLastPacketReceivedTime() == 0) {
+                               stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
+                            }
                             // request id access to RADIUS
                             stateMachine.setUsername(eapPacket.getData());
 
@@ -635,6 +662,7 @@ public class AaaManager
                             radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
 
                             sendRadiusPacket(radiusPayload, inPacket);
+                            stateMachine.setWaitingForRadiusResponse(true);
                             aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
                             // change the state to "PENDING"
                             if (stateMachine.state() == StateMachine.STATE_PENDING) {
@@ -643,6 +671,7 @@ public class AaaManager
                             stateMachine.requestAccess();
                             break;
                         case EAP.ATTR_MD5:
+                            stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
                             log.debug("EAP packet: EAPOL_PACKET ATTR_MD5");
                             // verify if the EAP identifier corresponds to the
                             // challenge identifier from the client state
@@ -661,6 +690,7 @@ public class AaaManager
                                 }
                                 radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
                                 sendRadiusPacket(radiusPayload, inPacket);
+                                stateMachine.setWaitingForRadiusResponse(true);
                                 aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
                             }
                             break;
@@ -678,6 +708,7 @@ public class AaaManager
 
                             radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
                             sendRadiusPacket(radiusPayload, inPacket);
+                            stateMachine.setWaitingForRadiusResponse(true);
                             aaaStatisticsManager.getAaaStats().incrementEapolTlsRespChall();
 
                             if (stateMachine.state() != StateMachine.STATE_PENDING) {
@@ -824,6 +855,7 @@ public class AaaManager
             log.debug("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
             log.debug("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
             log.debug("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
+            log.debug("TimedOutPackets----" + aaaStatisticsManager.getAaaStats().getTimedOutPackets());
             log.debug("EapolLogoffRx---" + aaaStatisticsManager.getAaaStats().getEapolLogoffRx());
             log.debug("EapolAuthSuccessTrans---" + aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans());
             log.debug("EapolAuthFailureTrans---" +

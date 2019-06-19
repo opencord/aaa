@@ -122,13 +122,13 @@ public class AaaManagerTest extends AaaTestBase {
 
         String challenge = "12345678901234567";
 
-        EAP eap = new EAP(challengeType, (byte) 1, challengeType,
+        EAP eap = new EAP(challengeType, (byte) 3, challengeType,
                           challenge.getBytes(Charsets.US_ASCII));
-        eap.setIdentifier((byte) 1);
+        eap.setIdentifier((byte) 3);
 
         RADIUS radius = new RADIUS();
         radius.setCode(challengeCode);
-
+        radius.setIdentifier((byte) 3);
         radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
                             challenge.getBytes(Charsets.US_ASCII));
 
@@ -167,6 +167,7 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.sadisService = new MockSadisService();
         aaaManager.cfgService = new MockCfgService();
         aaaStatisticsManager = new AaaStatisticsManager();
+        aaaManager.radiusOperationalStatusService = new RadiusOperationalStatusManager();
         TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());
         aaaStatisticsManager.activate();
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
@@ -228,7 +229,7 @@ public class AaaManagerTest extends AaaTestBase {
 
         //  (2) Supplicant identify
 
-        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 1, null);
+        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 3, null);
         sendPacket(identifyPacket);
 
         RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
@@ -273,7 +274,7 @@ public class AaaManagerTest extends AaaTestBase {
         RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
         checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 3));
+        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 5));
         assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
         //  State machine should be in pending state

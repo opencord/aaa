@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c40fa6f1_1bfc7de3",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2019-06-20T08:08:21Z",
+      "side": 1,
+      "message": "Why is this one public?",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7d399b1_6ee40f58",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2019-06-20T08:08:21Z",
+      "side": 1,
+      "message": "Instead of calling this cleanupTimer*** (across all the other places as well)... would it be better to call it sessionCleanupTimer***? Makes it clearer as to what is being cleaned up by this timer, would help if we have some other periodic cleanup in the future.",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d3a64f4_ca73a47c",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2019-06-20T08:08:21Z",
+      "side": 1,
+      "message": "Am a little confused here... I thought the idea is to figure out if the Radius Server is not responding.\n\nWith the current logic, say if the Radius Server responds but a response does not come back from the supplicant we would clean up the state machine but blame it on the Radius server and we will try to debug why the server is not responding, whereas the problem is on the other side.\n\nInstead of considering the time at which the last Radius packet was received, should we consider the time at which the LAST RADIUS MESSAGE WAS SENT and if this times out that means that the Radius server is not responding?\n\nWhat do you think?",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "93108e20_a7bf4b46",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2019-06-20T08:08:21Z",
+      "side": 1,
+      "message": "Is there a specific reason why the formatting of the entire file has been changed? Just for my understanding.\n\n@Saurav: Do we have a standard/documented style that needs to be followed for the code?",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8719402f_910ef229",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2019-06-20T08:08:21Z",
+      "side": 1,
+      "message": "Why would we need timeout in the Idle State? We don\u0027t send any message towards the Radius Server in this state.",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

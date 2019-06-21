@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b29b0319_d026e109",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-06-21T06:36:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c40fa6f1_1bfc7de3",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7d399b1_6ee40f58",
         "filename": "api/src/main/java/org/opencord/aaa/AaaConfig.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2019-06-20T08:08:21Z",
       "side": 1,
       "message": "Instead of calling this cleanupTimer*** (across all the other places as well)... would it be better to call it sessionCleanupTimer***? Makes it clearer as to what is being cleaned up by this timer, would help if we have some other periodic cleanup in the future.",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34ca45bd_37a65abd",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-06-21T06:36:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7d399b1_6ee40f58",
       "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2b8a78d8_a0016f3e",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-06-21T06:36:44Z",
+      "side": 1,
+      "message": "The aim of this implementation is to cleanUp a AAA Session which is observing a long period of inactivity; i.e. either a response from RADIUS Server or RG is pending.\nAdditionally, as per user story requirement, we have implemented logic to count instances when a PENDING response from RADIUS Server timedout. The flag waitingForRadiusResponse is used to mark whether the next response is pending from RADIUS Server or RG. While cleaning the session due to timeOut, we increment the stats counter only when this waitingForRadiusResponse is set for the session. Hope it clarifies.\nAs we understand by looking at AAA StateMachine \ntransitions, receipt of EAPOL message triggers the outgoing AAA packet towards RADIUS Server and vice versa.\nHence, the timestamp of last RADIUS packet sent would almost be same as last EAPOL message received.",
+      "parentUuid": "5d3a64f4_ca73a47c",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "93108e20_a7bf4b46",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 1
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "41858bfc_d69deeb5",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-06-21T06:36:44Z",
+      "side": 1,
+      "message": "Ya it\u0027s a mistake which we realized much later, will take care of it in future.\nIs there any formatting template available for onos codebase which we can use to avoid such issues?",
+      "parentUuid": "93108e20_a7bf4b46",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8719402f_910ef229",
         "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
         "patchSetId": 1
@@ -81,6 +153,24 @@
       "writtenOn": "2019-06-20T08:08:21Z",
       "side": 1,
       "message": "Why would we need timeout in the Idle State? We don\u0027t send any message towards the Radius Server in this state.",
+      "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "257d1800_c384e7fb",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-06-21T06:36:44Z",
+      "side": 1,
+      "message": "We are timing out and cleaning up session in IDLE State also to save upon some RAM. AAA app would be serving thousands of RGs in a typical SEBA-POD. Cleaning up the IDLE ones would ensure optimal usage of resources.",
+      "parentUuid": "8719402f_910ef229",
       "revId": "f362bc8638783fc0e6087019188ada510ea1b5e6",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

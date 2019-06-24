@@ -76,8 +76,8 @@ import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Activate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Activate;
 import org.slf4j.Logger;
 import com.google.common.base.Strings;
 

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cd6fe9d_95d9c9bf",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaShowCountersCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2019-06-25T17:34:47Z",
+      "side": 1,
+      "message": "is it possible to print a table? or at least multiple lines",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 58
+      },
+      "revId": "3d14ef7113977f32cb99c0b4a4048ba728bdafd7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

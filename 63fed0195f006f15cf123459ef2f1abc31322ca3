@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01d6227d_41633921",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-06-27T16:48:43Z",
+      "side": 1,
+      "message": "don\u0027t you want to do this check differently? Not sure the mod funtion will ever actually do anything because you are checking if it is 255 after the +1, so this really should never get larger than 255.\n\nWhat are you attempting to accomplish? Return a number from 2 to 254? Might you instead keep the \"internal identifier\" counter private and use the formula identifier \u003d (itentifier +1) % 253. then return identifier +2, i think that will always give you 2 to 253.",
+      "revId": "63fed0195f006f15cf123459ef2f1abc31322ca3",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

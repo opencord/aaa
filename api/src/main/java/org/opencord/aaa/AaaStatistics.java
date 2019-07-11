@@ -45,6 +45,66 @@ public class AaaStatistics {
     private AtomicLong requestReTx = new AtomicLong();
     //Number of sessions expired
     private AtomicLong numberOfSessionsExpired = new AtomicLong();
+    //Number of EAPOL logoff messages received resulting in disconnected state
+    private AtomicLong eapolLogoffRx = new AtomicLong();
+    //Number of authenticated transitions due to successful authentication
+    private AtomicLong eapolAuthSuccessTrans = new AtomicLong();
+    //Number of transitions to held due to authentication failure
+    private AtomicLong eapolAuthFailureTrans = new AtomicLong();
+    //Number of transitions to connecting due to start request
+    private AtomicLong eapolStartReqTrans = new AtomicLong();
+    //MD5 Response Challenge
+    private AtomicLong eapolMd5RspChall = new AtomicLong();
+    //Tls Response Challenge
+    private AtomicLong eapolTlsRespChall = new AtomicLong();
+    //Number of transitions to response (received response other that NAK)
+    private AtomicLong eapolTransRespNotNak = new AtomicLong();
+    //Number of EAP request packets sent due to the authenticator choosing the EAP method
+    private AtomicLong eapPktTxauthChooseEap = new AtomicLong();
+    //Attr Identity
+    private AtomicLong eapolAttrIdentity = new AtomicLong();
+    //Number of authenticating transitions due to EAP response or identity message
+    private AtomicLong eapolResIdentityMsgTrans = new AtomicLong();
+
+    public Long getEapolResIdentityMsgTrans() {
+        return eapolResIdentityMsgTrans.get();
+    }
+
+    public Long getEapolattrIdentity() {
+        return eapolAttrIdentity.get();
+    }
+
+    public Long getEapPktTxauthChooseEap() {
+        return eapPktTxauthChooseEap.get();
+    }
+
+    public Long getEapolTransRespNotNak() {
+        return eapolTransRespNotNak.get();
+    }
+
+    public Long getEapolMd5RspChall() {
+        return eapolMd5RspChall.get();
+    }
+
+    public Long getEapolTlsRespChall() {
+        return eapolTlsRespChall.get();
+    }
+
+    public Long getEapolLogoffRx() {
+        return eapolLogoffRx.get();
+    }
+
+    public Long getEapolAuthSuccessTrans() {
+        return eapolAuthSuccessTrans.get();
+    }
+
+    public Long getEapolAuthFailureTrans() {
+        return eapolAuthFailureTrans.get();
+    }
+
+    public Long getEapolStartReqTrans() {
+        return eapolStartReqTrans.get();
+    }
 
     public Long getRequestReTx() {
         return requestReTx.get();
@@ -146,11 +206,56 @@ public class AaaStatistics {
         numberOfSessionsExpired.incrementAndGet();
     }
 
+    public void incrementEapolLogoffRx() {
+        eapolLogoffRx.incrementAndGet();
+    }
+
+    public void incrementEapolAuthSuccessTrans() {
+        eapolAuthSuccessTrans.incrementAndGet();
+    }
+
+    public void incrementEapolauthFailureTrans() {
+        eapolAuthFailureTrans.incrementAndGet();
+    }
+
+    public void incrementEapolStartReqTrans() {
+        eapolStartReqTrans.incrementAndGet();
+    }
+
+    public void incrementEapolMd5RspChall() {
+        eapolMd5RspChall.incrementAndGet();
+    }
+
+    public void incrementEapolAtrrIdentity() {
+        eapolAttrIdentity.incrementAndGet();
+    }
+
+    public void incrementEapolTlsRespChall() {
+        eapolTlsRespChall.incrementAndGet();
+    }
+
     public void countDroppedResponsesRx() {
         long numberOfDroppedPackets = invalidValidatorsRx.get();
         numberOfDroppedPackets += unknownTypeRx.get();
         numberOfDroppedPackets += malformedResponsesRx.get();
         numberOfDroppedPackets += numberOfSessionsExpired.get();
         this.droppedResponsesRx = new AtomicLong(numberOfDroppedPackets);
+    }
+
+    public void countTransRespNotNak() {
+        long eapolTransactionNotNak = eapolMd5RspChall.get();
+        eapolTransactionNotNak += eapolTlsRespChall.get();
+        this.eapolTransRespNotNak = new AtomicLong(eapolTransactionNotNak);
+    }
+
+    public void countEapolResIdentityMsgTrans() {
+        long authTransaction = eapolMd5RspChall.get();
+        authTransaction += eapolTlsRespChall.get();
+        authTransaction += eapolAttrIdentity.get();
+        this.eapolResIdentityMsgTrans = new AtomicLong(authTransaction);
+    }
+
+    public void incrementEapPktTxauthEap() {
+        eapPktTxauthChooseEap.incrementAndGet();
     }
 }

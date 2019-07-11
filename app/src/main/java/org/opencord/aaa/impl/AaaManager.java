@@ -418,7 +418,7 @@ public class AaaManager
                         EAPOL.EAPOL_PACKET,
                         eapPayload, stateMachine.priorityCode());
                 log.debug("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
-                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), true);
                 aaaStatisticsManager.getAaaStats().increaseChallengeResponsesRx();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
@@ -434,7 +434,8 @@ public class AaaManager
                         EAPOL.EAPOL_PACKET,
                         eapPayload, stateMachine.priorityCode());
                 log.info("Send EAP success message to supplicant {}", stateMachine.supplicantAddress().toString());
-                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
+                aaaStatisticsManager.getAaaStats().incrementEapolAuthSuccessTrans();
 
                 stateMachine.authorizeAccess();
                 aaaStatisticsManager.getAaaStats().increaseAcceptResponsesRx();
@@ -460,7 +461,9 @@ public class AaaManager
                         EAPOL.EAPOL_PACKET,
                         eapPayload, stateMachine.priorityCode());
                 log.warn("Send EAP failure message to supplicant {}", stateMachine.supplicantAddress().toString());
-                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
+                aaaStatisticsManager.getAaaStats().incrementEapolauthFailureTrans();
+
                 stateMachine.denyAccess();
                 aaaStatisticsManager.getAaaStats().increaseRejectResponsesRx();
                 break;
@@ -477,16 +480,20 @@ public class AaaManager
      * @param ethernetPkt  the ethernet packet
      * @param connectPoint the connect point to send out
      */
-    private void sendPacketToSupplicant(Ethernet ethernetPkt, ConnectPoint connectPoint) {
+    private void sendPacketToSupplicant(Ethernet ethernetPkt, ConnectPoint connectPoint, boolean isChallengeResponse) {
         TrafficTreatment treatment = DefaultTrafficTreatment.builder().setOutput(connectPoint.port()).build();
         OutboundPacket packet = new DefaultOutboundPacket(connectPoint.deviceId(),
                                                           treatment, ByteBuffer.wrap(ethernetPkt.serialize()));
+        EAPOL eap = ((EAPOL) ethernetPkt.getPayload());
+        EAP eapPkt = (EAP) eap.getPayload();
         if (log.isTraceEnabled()) {
-            EAPOL eap = ((EAPOL) ethernetPkt.getPayload());
             log.trace("Sending eapol payload {} enclosed in {} to supplicant at {}",
                       eap, ethernetPkt, connectPoint);
         }
         packetService.emit(packet);
+        if (isChallengeResponse) {
+            aaaStatisticsManager.getAaaStats().incrementEapPktTxauthEap();
+        }
     }
 
     @Override
@@ -586,7 +593,7 @@ public class AaaManager
                     log.debug("EAP packet: EAPOL_START");
                     stateMachine.setSupplicantConnectpoint(inPacket.receivedFrom());
                     stateMachine.start();
-
+                    aaaStatisticsManager.getAaaStats().incrementEapolStartReqTrans();
                     //send an EAP Request/Identify to the supplicant
                     EAP eapPayload = new EAP(EAP.REQUEST, stateMachine.identifier(), EAP.ATTR_IDENTITY, null);
                     if (ethPkt.getVlanID() != Ethernet.VLAN_UNTAGGED) {
@@ -598,15 +605,15 @@ public class AaaManager
 
                     stateMachine.setSupplicantAddress(srcMac);
                     stateMachine.setVlanId(ethPkt.getVlanID());
-
                     log.debug("Getting EAP identity from supplicant {}", stateMachine.supplicantAddress().toString());
-                    sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                    sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
 
                     break;
                 case EAPOL.EAPOL_LOGOFF:
                     log.debug("EAP packet: EAPOL_LOGOFF");
                     if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
                         stateMachine.logoff();
+                        aaaStatisticsManager.getAaaStats().incrementEapolLogoffRx();
                     }
 
                     break;
@@ -628,7 +635,7 @@ public class AaaManager
                             radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
 
                             sendRadiusPacket(radiusPayload, inPacket);
-
+                            aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
                             // change the state to "PENDING"
                             if (stateMachine.state() == StateMachine.STATE_PENDING) {
                                 aaaStatisticsManager.getAaaStats().increaseRequestReTx();
@@ -654,6 +661,7 @@ public class AaaManager
                                 }
                                 radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
                                 sendRadiusPacket(radiusPayload, inPacket);
+                                aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
                             }
                             break;
                         case EAP.ATTR_TLS:
@@ -670,6 +678,7 @@ public class AaaManager
 
                             radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
                             sendRadiusPacket(radiusPayload, inPacket);
+                            aaaStatisticsManager.getAaaStats().incrementEapolTlsRespChall();
 
                             if (stateMachine.state() != StateMachine.STATE_PENDING) {
                                 stateMachine.requestAccess();
@@ -684,6 +693,8 @@ public class AaaManager
                 default:
                     log.debug("Skipping EAPOL message {}", eapol.getEapolType());
             }
+            aaaStatisticsManager.getAaaStats().countTransRespNotNak();
+            aaaStatisticsManager.getAaaStats().countEapolResIdentityMsgTrans();
         }
     }
 
@@ -813,6 +824,18 @@ public class AaaManager
             log.debug("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
             log.debug("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
             log.debug("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
+            log.debug("EapolLogoffRx---" + aaaStatisticsManager.getAaaStats().getEapolLogoffRx());
+            log.debug("EapolAuthSuccessTrans---" + aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans());
+            log.debug("EapolAuthFailureTrans---" +
+            aaaStatisticsManager.getAaaStats().getEapolAuthFailureTrans());
+            log.debug("EapolStartReqTrans---" +
+            aaaStatisticsManager.getAaaStats().getEapolStartReqTrans());
+            log.debug("EapolTransRespNotNak---" +
+            aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak());
+            log.debug("EapPktTxauthChooseEap---" +
+            aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap());
+            log.debug("EapolResIdentityMsgTrans---" +
+            aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans());
             aaaStatisticsManager.getStatsDelegate().
                 notify(new AuthenticationStatisticsEvent(AuthenticationStatisticsEvent.Type.STATS_UPDATE,
                     aaaStatisticsManager.getAaaStats()));

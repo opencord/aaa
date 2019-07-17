@@ -32,7 +32,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * AAA Finite State Machine.
  */
 
-class StateMachine {
+public class StateMachine {
     //INDEX to identify the state in the transition table
     static final int STATE_IDLE = 0;
     static final int STATE_STARTED = 1;
@@ -347,7 +347,7 @@ class StateMachine {
      *
      * @return The username.
      */
-    protected byte[] username() {
+    public byte[] username() {
         return this.username;
     }
 

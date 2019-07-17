@@ -16,31 +16,35 @@
 
 package org.opencord.aaa.impl;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import org.onosproject.event.AbstractListenerManager;
+import org.onosproject.event.EventDeliveryService;
+import org.opencord.aaa.AaaStatistics;
+import org.opencord.aaa.AuthenticationStatisticsDelegate;
+import org.opencord.aaa.AuthenticationStatisticsEvent;
+import org.opencord.aaa.AuthenticationStatisticsEventListener;
+import org.opencord.aaa.AuthenticationStatisticsService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
-import org.onosproject.event.AbstractListenerManager;
-import org.opencord.aaa.AaaStatistics;
-import org.opencord.aaa.AuthenticationStatisticsDelegate;
-import org.opencord.aaa.AuthenticationStatisticsEvent;
-import org.opencord.aaa.AuthenticationStatisticsEventListener;
-import org.opencord.aaa.AuthenticationStatisticsService;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 
 
-@Service
 @Component(immediate = true)
 public class AaaStatisticsManager
         extends AbstractListenerManager<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener>
         implements AuthenticationStatisticsService {
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected EventDeliveryService eventDispatcher;
 
     private AuthenticationStatisticsDelegate statsDelegate;
 

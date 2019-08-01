@@ -328,7 +328,10 @@ public class AaaManager
     }
     public void checkForPacketFromUnknownServer(String hostAddress) {
             if (!hostAddress.equals(configuredAaaServerAddress)) {
-                 aaaStatisticsManager.getAaaStats().incrementUnknownServerRx();
+                 getConfiguredAaaServerAddress();
+                 if (!hostAddress.equals(configuredAaaServerAddress)) {
+                     aaaStatisticsManager.getAaaStats().incrementUnknownServerRx();
+                 }
             }
     }
 

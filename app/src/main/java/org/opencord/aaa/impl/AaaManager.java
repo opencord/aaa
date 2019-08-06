@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.felix.scr.annotations.Component;
@@ -85,6 +86,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 /**
  * AAA application for ONOS.
  */
@@ -321,10 +325,32 @@ public class AaaManager
         }
     }
 
-    private void checkReceivedPacketForValidValidator(RADIUS radiusPacket) {
-        if (!radiusPacket.checkMessageAuthenticator(radiusSecret)) {
+    private void checkReceivedPacketForValidValidator(RADIUS radiusPacket, byte[] requestAuthenticator) {
+        if (!checkResponseMessageAuthenticator(radiusSecret, radiusPacket, requestAuthenticator)) {
             aaaStatisticsManager.getAaaStats().increaseInvalidValidatorsRx();
         }
+    }
+
+    private boolean checkResponseMessageAuthenticator(String key, RADIUS radiusPacket, byte[] requestAuthenticator) {
+        byte[] newHash = new byte[16];
+        Arrays.fill(newHash, (byte) 0);
+        byte[] messageAuthenticator = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH).getValue();
+        byte[] authenticator = radiusPacket.getAuthenticator();
+        radiusPacket.updateAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH, newHash);
+        radiusPacket.setAuthenticator(requestAuthenticator);
+        // Calculate the MD5 HMAC based on the message
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "HmacMD5");
+            Mac mac = Mac.getInstance("HmacMD5");
+            mac.init(keySpec);
+            newHash = mac.doFinal(radiusPacket.serialize());
+        } catch (Exception e) {
+            log.error("Failed to generate message authenticator: {}", e.getMessage());
+        }
+        radiusPacket.updateAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH, messageAuthenticator);
+        radiusPacket.setAuthenticator(authenticator);
+        // Compare the calculated Message-Authenticator with the one in the message
+        return Arrays.equals(newHash, messageAuthenticator);
     }
     public void checkForPacketFromUnknownServer(String hostAddress) {
             if (!hostAddress.equals(configuredAaaServerAddress)) {
@@ -370,7 +396,7 @@ public class AaaManager
         }
         EAP eapPayload;
         Ethernet eth;
-        checkReceivedPacketForValidValidator(radiusPacket);
+        checkReceivedPacketForValidValidator(radiusPacket, stateMachine.requestAuthenticator());
         if (outPacketSet.contains(radiusPacket.getIdentifier())) {
             aaaStatisticsManager.getAaaStats().increaseOrDecreasePendingRequests(false);
             outPacketSet.remove(new Byte(radiusPacket.getIdentifier()));

@@ -23,6 +23,9 @@
             <action class="org.opencord.aaa.impl.AaaResetDeviceCommand"/>
         </command>
         <command>
+            <action class="org.opencord.aaa.impl.AaaResetAllDevicesCommand"/>
+        </command>
+        <command>
             <action class="org.opencord.aaa.impl.AaaResetCountersCommand"/>
         </command>
         <command>

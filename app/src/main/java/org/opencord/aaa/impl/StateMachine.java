@@ -22,6 +22,7 @@ import org.onlab.packet.MacAddress;
 import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.StateMachineDelegate;
+import org.opencord.olt.AccessDeviceService;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -47,11 +48,14 @@ class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
+    private static AccessDeviceService accessDeviceService;
+
     private static int identifier = -1;
     private byte challengeIdentifier;
     private byte[] challengeState;
     private byte[] username;
     private byte[] requestAuthenticator;
+    private static boolean autoProvision;
 
     // Supplicant connectivity info
     private ConnectPoint supplicantConnectpoint;
@@ -112,6 +116,10 @@ class StateMachine {
 
     private static StateMachineDelegate delegate;
 
+    public static void setAutoProvision(boolean autoPro) {
+        autoProvision = autoPro;
+    }
+
     public static void initializeMaps() {
         sessionIdMap = Maps.newConcurrentMap();
         identifierMap = Maps.newConcurrentMap();
@@ -121,6 +129,14 @@ class StateMachine {
     public static void destroyMaps() {
         sessionIdMap = null;
         identifierMap = null;
+    }
+
+    public static void setAccessDeviceService(AccessDeviceService service) {
+        accessDeviceService = service;
+    }
+
+    public static AccessDeviceService getAccessDeviceService() {
+        return accessDeviceService;
     }
 
     public static void setDelegate(StateMachineDelegate delegate) {
@@ -418,6 +434,18 @@ class StateMachine {
         delegate.notify(new AuthenticationEvent(
                 AuthenticationEvent.Type.APPROVED, supplicantConnectpoint));
 
+        // Clear mapping
+        if (!autoProvision) {
+            deleteStateMachineMapping(this);
+        }
+    }
+
+    public void provisionSubscriber() {
+        if ((accessDeviceService != null) && (autoProvision)) {
+            log.info("Provisioning subscriber at {}",
+                    supplicantConnectpoint());
+            accessDeviceService.provisionSubscriber(supplicantConnectpoint());
+        }
         // Clear mapping
         deleteStateMachineMapping(this);
     }

@@ -70,6 +70,22 @@ public class AaaStatistics {
     private AtomicLong eapolAttrIdentity = new AtomicLong();
     //Number of authenticating transitions due to EAP response or identity message
     private AtomicLong eapolResIdentityMsgTrans = new AtomicLong();
+    //Current number of EAPOL frames transmitted
+    private AtomicLong eapolFramesTx = new AtomicLong();
+    //Authenticator state when idle
+    private AtomicLong authStateIdle = new AtomicLong();
+    //Number of request ID EAP frames transmitted
+    private AtomicLong requestIdFramesTx = new AtomicLong();
+    //Current number of request EAP frames transmitted
+    private AtomicLong reqEapFramesTx = new AtomicLong();
+    //Number of EAPOL frames received with invalid packet type
+    private AtomicLong invalidPktType = new AtomicLong();
+    //Number of EAPOL frames received with invalid body length
+    private AtomicLong invalidBodyLength = new AtomicLong();
+    //number of valid EAPOL frames received
+    private AtomicLong validEapolFramesRx = new AtomicLong();
+    //Number of request pending response from supplicant
+    private AtomicLong pendingResSupp = new AtomicLong();
 
     public Long getEapolResIdentityMsgTrans() {
         return eapolResIdentityMsgTrans.get();
@@ -112,6 +128,38 @@ public class AaaStatistics {
     }
 
     private LinkedList<Long> packetRoundTripTimeList = new LinkedList<Long>();
+
+    public Long getPendingResSupp() {
+        return pendingResSupp.get();
+    }
+
+    public Long getValidEapolFramesRx() {
+        return validEapolFramesRx.get();
+    }
+
+    public Long getInvalidBodyLength() {
+        return invalidBodyLength.get();
+    }
+
+    public Long getInvalidPktType() {
+        return invalidPktType.get();
+    }
+
+    public Long getRequestIdFramesTx() {
+        return requestIdFramesTx.get();
+    }
+
+    public Long getReqEapFramesTx() {
+        return reqEapFramesTx.get();
+    }
+
+    public Long getAuthStateIdle() {
+        return authStateIdle.get();
+    }
+
+    public Long getEapolFramesTx() {
+        return eapolFramesTx.get();
+    }
 
     public LinkedList<Long> getPacketRoundTripTimeList() {
         return packetRoundTripTimeList;
@@ -205,6 +253,10 @@ public class AaaStatistics {
         requestReTx.incrementAndGet();
     }
 
+    public void incrementInvalidPktType() {
+        invalidPktType.incrementAndGet();
+    }
+
     public void increaseOrDecreasePendingRequests(boolean isIncrement) {
         if (isIncrement) {
             pendingRequests.incrementAndGet();
@@ -261,12 +313,46 @@ public class AaaStatistics {
         eapolTlsRespChall.incrementAndGet();
     }
 
+    public void incrementEapolFramesTx() {
+        eapolFramesTx.incrementAndGet();
+    }
+
+    public void incrementAuthStateIdle() {
+        authStateIdle.incrementAndGet();
+    }
+
+    public void incrementRequestIdFramesTx() {
+        requestIdFramesTx.incrementAndGet();
+    }
+
+    public void incrementInvalidBodyLength() {
+        invalidBodyLength.incrementAndGet();
+    }
+
+    public void incrementValidEapolFramesRx() {
+        validEapolFramesRx.incrementAndGet();
+    }
+
+    public void incrementPendingResSupp() {
+        pendingResSupp.incrementAndGet();
+    }
+
+    public void decrementPendingResSupp() {
+        pendingResSupp.decrementAndGet();
+    }
+
     public void countDroppedResponsesRx() {
         long numberOfDroppedPackets = invalidValidatorsRx.get();
         numberOfDroppedPackets += unknownTypeRx.get();
         numberOfDroppedPackets += malformedResponsesRx.get();
         numberOfDroppedPackets += numberOfSessionsExpired.get();
         this.droppedResponsesRx = new AtomicLong(numberOfDroppedPackets);
+    }
+
+    public void countReqEapFramesTx() {
+        long noReqEapFramesTx = requestIdFramesTx.get();
+        noReqEapFramesTx += challengeResponsesRx.get();
+        this.reqEapFramesTx = new AtomicLong(noReqEapFramesTx);
     }
 
     public void resetAllCounters() {
@@ -291,7 +377,14 @@ public class AaaStatistics {
         eapolTransRespNotNak.set(0);
         eapPktTxauthChooseEap.set(0);
         eapolResIdentityMsgTrans.set(0);
-
+        eapolFramesTx.set(0);
+        authStateIdle.set(0);
+        requestIdFramesTx.set(0);
+        reqEapFramesTx.set(0);
+        invalidPktType.set(0);
+        invalidBodyLength.set(0);
+        validEapolFramesRx.set(0);
+        pendingResSupp.set(0);
     }
     public void countTransRespNotNak() {
         long eapolTransactionNotNak = eapolMd5RspChall.get();

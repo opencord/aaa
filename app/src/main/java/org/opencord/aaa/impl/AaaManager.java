@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.felix.scr.annotations.Component;
@@ -181,6 +182,9 @@ public class AaaManager
     ScheduledExecutorService executor;
     String configuredAaaServerAddress;
     HashSet<Byte> outPacketSet = new HashSet<Byte>();
+    HashSet<Byte> outPacketSupp = new HashSet<Byte>();
+    static final List<Byte> VALID_EAPOL_TYPE = Arrays.asList(EAPOL.EAPOL_START, EAPOL.EAPOL_LOGOFF, EAPOL.EAPOL_PACKET);
+    static final int HEADER_LENGTH = 4;
     // Configuration properties factory
     private final ConfigFactory factory =
             new ConfigFactory<ApplicationId, AaaConfig>(APP_SUBJECT_FACTORY,
@@ -419,6 +423,8 @@ public class AaaManager
                 log.debug("Send EAP challenge response to supplicant {}", stateMachine.supplicantAddress().toString());
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
                 aaaStatisticsManager.getAaaStats().increaseChallengeResponsesRx();
+                outPacketSupp.add(eapPayload.getIdentifier());
+                aaaStatisticsManager.getAaaStats().incrementPendingResSupp();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
@@ -486,6 +492,8 @@ public class AaaManager
                       eap, ethernetPkt, connectPoint);
         }
         packetService.emit(packet);
+        aaaStatisticsManager.getAaaStats().incrementEapolFramesTx();
+        aaaStatisticsManager.getAaaStats().countReqEapFramesTx();
     }
 
     @Override
@@ -571,6 +579,21 @@ public class AaaManager
                           portNumber);
             }
 
+            short pktlen = eapol.getPacketLength();
+            byte[] eapPayLoadBuffer = eapol.serialize();
+            int len = eapPayLoadBuffer.length;
+            String etherTypeHex = Integer.toHexString(ethPkt.getEtherType());
+            if (len != (HEADER_LENGTH + pktlen)) {
+                aaaStatisticsManager.getAaaStats().incrementInvalidBodyLength();
+                return;
+            }
+            if (!VALID_EAPOL_TYPE.contains(eapol.getEapolType())) {
+                aaaStatisticsManager.getAaaStats().incrementInvalidPktType();
+                return;
+            }
+            if (pktlen >= 0 && etherTypeHex.trim().equalsIgnoreCase("ffff888e")) {
+                aaaStatisticsManager.getAaaStats().incrementValidEapolFramesRx();
+            }
             StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
             if (stateMachine == null) {
                 log.debug("Creating new state machine for sessionId: {} for "
@@ -600,6 +623,7 @@ public class AaaManager
 
                     log.debug("Getting EAP identity from supplicant {}", stateMachine.supplicantAddress().toString());
                     sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint());
+                    aaaStatisticsManager.getAaaStats().incrementRequestIdFramesTx();
 
                     break;
                 case EAPOL.EAPOL_LOGOFF:
@@ -607,12 +631,16 @@ public class AaaManager
                     if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
                         stateMachine.logoff();
                     }
+                    if (stateMachine.state() == StateMachine.STATE_IDLE) {
+                        aaaStatisticsManager.getAaaStats().incrementAuthStateIdle();
+                    }
 
                     break;
                 case EAPOL.EAPOL_PACKET:
                     RADIUS radiusPayload;
                     // check if this is a Response/Identify or  a Response/TLS
                     EAP eapPacket = (EAP) eapol.getPayload();
+                    Byte identifier = new Byte(eapPacket.getIdentifier());
 
                     byte dataType = eapPacket.getDataType();
                     switch (dataType) {
@@ -627,6 +655,7 @@ public class AaaManager
                             radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
 
                             sendRadiusPacket(radiusPayload, inPacket);
+                            aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
 
                             // change the state to "PENDING"
                             if (stateMachine.state() == StateMachine.STATE_PENDING) {
@@ -652,6 +681,10 @@ public class AaaManager
                                             stateMachine.challengeState());
                                 }
                                 radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
+                                if (outPacketSupp.contains(eapPacket.getIdentifier())) {
+                                    aaaStatisticsManager.getAaaStats().decrementPendingResSupp();
+                                    outPacketSupp.remove(identifier);
+                                }
                                 sendRadiusPacket(radiusPayload, inPacket);
                             }
                             break;
@@ -668,6 +701,10 @@ public class AaaManager
                             stateMachine.setRequestAuthenticator(radiusPayload.generateAuthCode());
 
                             radiusPayload.addMessageAuthenticator(AaaManager.this.radiusSecret);
+                            if (outPacketSupp.contains(eapPacket.getIdentifier())) {
+                                aaaStatisticsManager.getAaaStats().decrementPendingResSupp();
+                                outPacketSupp.remove(identifier);
+                            }
                             sendRadiusPacket(radiusPayload, inPacket);
 
                             if (stateMachine.state() != StateMachine.STATE_PENDING) {
@@ -812,6 +849,15 @@ public class AaaManager
             log.debug("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
             log.debug("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
             log.debug("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
+            log.debug("EapolFramesTx---" + aaaStatisticsManager.getAaaStats().getEapolFramesTx());
+            log.debug("AuthStateIdle---" + aaaStatisticsManager.getAaaStats().getAuthStateIdle());
+            log.debug("RequestIdFramesTx---" + aaaStatisticsManager.getAaaStats().getRequestIdFramesTx());
+            log.debug("ReqEapFramesTx---" + aaaStatisticsManager.getAaaStats().getReqEapFramesTx());
+            log.debug("InvalidPktType---" + aaaStatisticsManager.getAaaStats().getInvalidPktType());
+            log.debug("InvalidBodyLength---" + aaaStatisticsManager.getAaaStats().getInvalidBodyLength());
+            log.debug("ValidEapolFramesRx---" + aaaStatisticsManager.getAaaStats().getValidEapolFramesRx());
+            log.debug("PendingResSupp---" + aaaStatisticsManager.getAaaStats().getPendingResSupp());
+            log.debug("ResIdEapFramesRx---" + aaaStatisticsManager.getAaaStats().getEapolattrIdentity());
             aaaStatisticsManager.getStatsDelegate().
                 notify(new AuthenticationStatisticsEvent(AuthenticationStatisticsEvent.Type.STATS_UPDATE,
                     aaaStatisticsManager.getAaaStats()));

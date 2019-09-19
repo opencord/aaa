@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68de3f33_c28e8b46",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 1000438
+      },
+      "writtenOn": "2019-09-19T16:09:07Z",
+      "side": 1,
+      "message": "should print out bytes of the packet we can\u0027t seem to decode so it can be researched",
+      "revId": "deab6723a762262f1a87b4bcc2f84200253d2cc6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

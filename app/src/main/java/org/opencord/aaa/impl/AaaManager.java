@@ -27,12 +27,10 @@ import java.util.HashSet;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
@@ -77,8 +75,8 @@ import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 import org.osgi.service.component.ComponentContext;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Activate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 import com.google.common.base.Strings;
 
@@ -87,13 +85,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_EVENT;
+import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_EVENT_DEFAULT;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 /**
  * AAA application for ONOS.
  */
-@Service
-@Component(immediate = true)
+@Component(immediate = true, property = {
+        STATISTICS_GENERATION_EVENT + ":Integer=" + STATISTICS_GENERATION_EVENT_DEFAULT,
+})
 public class AaaManager
         extends AbstractListenerManager<AuthenticationEvent, AuthenticationEventListener>
         implements AuthenticationService {
@@ -102,38 +104,36 @@ public class AaaManager
 
     private final Logger log = getLogger(getClass());
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected CoreService coreService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected PacketService packetService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected NetworkConfigRegistry netCfgService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected DeviceService deviceService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected SadisService sadisService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected MastershipService mastershipService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected AuthenticationStatisticsService aaaStatisticsManager;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected ComponentConfigService cfgService;
 
     protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
-    private static final int DEFAULT_REPEAT_DELAY = 20;
-    @Property(name = "statisticsGenerationEvent", intValue = DEFAULT_REPEAT_DELAY,
-              label = "statisticsGenerationEvent")
-    private int statisticsGenerationEvent = DEFAULT_REPEAT_DELAY;
+    /** Statistics generation interval. */
+    private int statisticsGenerationEvent = STATISTICS_GENERATION_EVENT_DEFAULT;
 
     // NAS IP address
     protected InetAddress nasIpAddress;
@@ -280,8 +280,9 @@ public class AaaManager
     @Modified
     public void modified(ComponentContext context) {
         Dictionary<?, ?> properties = context.getProperties();
-       String s = Tools.get(properties, "statisticsGenerationEvent");
-    statisticsGenerationEvent = Strings.isNullOrEmpty(s) ? DEFAULT_REPEAT_DELAY : Integer.parseInt(s.trim());
+        String s = Tools.get(properties, STATISTICS_GENERATION_EVENT);
+        statisticsGenerationEvent = Strings.isNullOrEmpty(s)
+                ? STATISTICS_GENERATION_EVENT_DEFAULT : Integer.parseInt(s.trim());
     }
 
     private void configureRadiusCommunication() {

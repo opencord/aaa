@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencord.aaa.impl;
+package org.opencord.aaa.cli;
 
-import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.device.DeviceService;
-
+import org.opencord.aaa.impl.StateMachine;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 
 /**
  * Shows the users in the aaa.
  */
+@Service
 @Command(scope = "onos", name = "aaa-users",
         description = "Shows the aaa users")
 public class AaaShowUsersCommand extends AbstractShellCommand {
     @Override
-    protected void execute() {
+    protected void doExecute() {
         String[] state = {
                 "IDLE",
                 "STARTED",

@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencord.aaa.impl;
+package org.opencord.aaa.cli;
 
-import org.apache.karaf.shell.commands.Command;
-import org.apache.karaf.shell.commands.Argument;
-import org.onosproject.cli.AbstractShellCommand;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onlab.packet.MacAddress;
+import org.onosproject.cli.AbstractShellCommand;
+import org.opencord.aaa.impl.StateMachine;
 
 /**
  * Removes a AAA state machine.
  */
+@Service
 @Command(scope = "onos", name = "aaa-reset-device",
          description = "Resets the authentication state machine for a given device")
 public class AaaResetDeviceCommand extends AbstractShellCommand {
@@ -31,7 +34,7 @@ public class AaaResetDeviceCommand extends AbstractShellCommand {
     private String[] macs = null;
 
     @Override
-    protected void execute() {
+    protected void doExecute() {
         for (String mac : macs) {
             StateMachine.deleteByMac(MacAddress.valueOf(mac));
         }

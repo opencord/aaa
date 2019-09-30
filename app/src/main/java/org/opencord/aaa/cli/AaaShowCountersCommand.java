@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencord.aaa.impl;
+package org.opencord.aaa.cli;
 
-import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onosproject.cli.AbstractShellCommand;
 import org.opencord.aaa.AaaStatistics;
 import org.opencord.aaa.AuthenticationStatisticsService;
@@ -23,11 +24,12 @@ import org.opencord.aaa.AuthenticationStatisticsService;
 /**
  * Display current value of all aaa statistics counters.
  */
+@Service
 @Command(scope = "onos", name = "show-aaa-counters",
 description = "Display current value of all aaa statistics counters")
 public class AaaShowCountersCommand extends AbstractShellCommand {
     @Override
-    protected void execute() {
+    protected void doExecute() {
 
         AaaStatistics aaaStats = new AaaStatistics();
 

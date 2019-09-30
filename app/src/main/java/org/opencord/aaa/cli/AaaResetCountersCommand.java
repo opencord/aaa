@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencord.aaa.impl;
+package org.opencord.aaa.cli;
 
-import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onosproject.cli.AbstractShellCommand;
 import org.opencord.aaa.AuthenticationStatisticsService;
 
 /**
  * Reset value of all aaa statistics counters to 0.
  */
+@Service
 @Command(scope = "onos", name = "reset-aaa-counters", description = "Reset value of all aaa statistics counters to 0 ")
 public class AaaResetCountersCommand extends AbstractShellCommand {
 
     @Override
-    protected void execute() {
+    protected void doExecute() {
         AuthenticationStatisticsService aaaStatisticsManager = AbstractShellCommand
                 .get(AuthenticationStatisticsService.class);
         aaaStatisticsManager.resetAllCounters();

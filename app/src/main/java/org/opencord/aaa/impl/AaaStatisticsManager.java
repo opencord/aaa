@@ -22,20 +22,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
 import org.onosproject.event.AbstractListenerManager;
 import org.opencord.aaa.AaaStatistics;
 import org.opencord.aaa.AuthenticationStatisticsDelegate;
 import org.opencord.aaa.AuthenticationStatisticsEvent;
 import org.opencord.aaa.AuthenticationStatisticsEventListener;
 import org.opencord.aaa.AuthenticationStatisticsService;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Deactivate;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 
 
-@Service
+
 @Component(immediate = true)
 public class AaaStatisticsManager
 extends AbstractListenerManager<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener>

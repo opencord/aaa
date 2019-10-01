@@ -50,6 +50,9 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
 import org.opencord.aaa.AaaConfig;
+import org.opencord.aaa.AaaMachineStatisticsEvent;
+import org.opencord.aaa.AaaMachineStatisticsService;
+import org.opencord.aaa.AaaSupplicantMachineStats;
 import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.AuthenticationEventListener;
 import org.opencord.aaa.AuthenticationService;
@@ -135,6 +138,9 @@ public class AaaManager
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected AuthenticationStatisticsService aaaStatisticsManager;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected AaaMachineStatisticsService aaaSupplicantStatsManager;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected ComponentConfigService cfgService;
@@ -468,9 +474,18 @@ public class AaaManager
             aaaStatisticsManager.getAaaStats().countDroppedResponsesRx();
             return;
         }
+
+        //instance of StateMachine using the sessionId for updating machine stats
+        StateMachine machineStats = StateMachine.lookupStateMachineBySessionId(stateMachine.sessionId());
+
         EAP eapPayload;
         Ethernet eth;
         checkReceivedPacketForValidValidator(radiusPacket, stateMachine.requestAuthenticator());
+
+        //increasing packets and octets received from server
+        machineStats.incrementTotalPacketsReceived();
+        machineStats.incrementTotalOctetReceived(radiusPacket.decapsulateMessage().getLength());
+
         if (outPacketSet.contains(radiusPacket.getIdentifier())) {
             aaaStatisticsManager.getAaaStats().increaseOrDecreasePendingRequests(false);
             outPacketSet.remove(new Byte(radiusPacket.getIdentifier()));
@@ -495,6 +510,9 @@ public class AaaManager
                 aaaStatisticsManager.getAaaStats().increaseChallengeResponsesRx();
                 outPacketSupp.add(eapPayload.getIdentifier());
                 aaaStatisticsManager.getAaaStats().incrementPendingResSupp();
+                //increasing packets send to server
+                machineStats.incrementTotalPacketsSent();
+                machineStats.incrementTotalOctetSent(eapPayload.getLength());
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
@@ -514,6 +532,9 @@ public class AaaManager
 
                 stateMachine.authorizeAccess();
                 aaaStatisticsManager.getAaaStats().increaseAcceptResponsesRx();
+                //increasing packets send to server
+                machineStats.incrementTotalPacketsSent();
+                machineStats.incrementTotalOctetSent(eapPayload.getLength());
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
@@ -541,10 +562,20 @@ public class AaaManager
 
                 stateMachine.denyAccess();
                 aaaStatisticsManager.getAaaStats().increaseRejectResponsesRx();
+                //increasing packets send to server
+                machineStats.incrementTotalPacketsSent();
+                machineStats.incrementTotalOctetSent(eapPayload.getLength());
+                //pushing machine stats to kafka
+                AaaSupplicantMachineStats machineObj = aaaSupplicantStatsManager.getSupplicantStats(machineStats);
+                aaaSupplicantStatsManager.getMachineStatsDelegate()
+                        .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, machineObj));
                 break;
             default:
                 log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());
                 aaaStatisticsManager.getAaaStats().increaseUnknownTypeRx();
+                //increasing packets received to server
+                machineStats.incrementTotalPacketsReceived();
+                machineStats.incrementTotalOctetReceived(radiusPacket.decapsulateMessage().getLength());
         }
         aaaStatisticsManager.getAaaStats().countDroppedResponsesRx();
     }
@@ -677,6 +708,7 @@ public class AaaManager
                 stateMachine = new StateMachine(sessionId);
             } else {
                 log.debug("Using existing state-machine for sessionId: {}", sessionId);
+                stateMachine.setEapolTypeVal(eapol.getEapolType());
             }
 
             switch (eapol.getEapolType()) {
@@ -706,6 +738,15 @@ public class AaaManager
                     break;
                 case EAPOL.EAPOL_LOGOFF:
                     log.debug("EAP packet: EAPOL_LOGOFF");
+                    //posting the machine stat data for current supplicant device.
+                    if (stateMachine.getSessionTerminateReason() == null ||
+                            stateMachine.getSessionTerminateReason().equals("")) {
+                        stateMachine.setSessionTerminateReason(
+                                StateMachine.SessionTerminationReasons.SUPPLICANT_LOGOFF.getReason());
+                    }
+                    AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+                    aaaSupplicantStatsManager.getMachineStatsDelegate()
+                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
                     if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
                         stateMachine.logoff();
                         aaaStatisticsManager.getAaaStats().incrementEapolLogoffRx();
@@ -743,6 +784,8 @@ public class AaaManager
                             // change the state to "PENDING"
                             if (stateMachine.state() == StateMachine.STATE_PENDING) {
                                 aaaStatisticsManager.getAaaStats().increaseRequestReTx();
+                                stateMachine.incrementTotalPacketsSent();
+                                stateMachine.incrementTotalOctetSent(eapol.getPacketLength());
                             }
                             stateMachine.requestAccess();
                             break;
@@ -909,6 +952,16 @@ public class AaaManager
                     DeviceId devId = event.subject().id();
                     PortNumber portNumber = event.port().number();
                     String sessionId = devId.toString() + portNumber.toString();
+
+                    StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
+                    if (stateMachine != null) {
+                        stateMachine.setSessionTerminateReason(
+                                StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
+                    }
+                    //pushing captured machine stats to kafka
+                    AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+                    aaaSupplicantStatsManager.getMachineStatsDelegate()
+                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
 
                     Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
                     StateMachine removed = sessionIdMap.remove(sessionId);

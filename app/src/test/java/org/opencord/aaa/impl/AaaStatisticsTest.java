@@ -64,6 +64,7 @@ public class AaaStatisticsTest extends AaaTestBase {
     private final Logger log = getLogger(getClass());
     private AaaManager aaaManager;
     private AaaStatisticsManager aaaStatisticsManager;
+    private AaaSupplicantMachineStatsManager aaaSupplicantStatsManager;
 
     class AaaManagerWithoutRadiusServer extends AaaManager {
        protected void sendRadiusPacket(RADIUS radiusPacket, InboundPacket inPkt) {
@@ -186,9 +187,13 @@ public class AaaStatisticsTest extends AaaTestBase {
         aaaManager.sadisService = new MockSadisService();
         aaaManager.cfgService = new MockCfgService();
         aaaStatisticsManager = new AaaStatisticsManager();
+        aaaSupplicantStatsManager = new AaaSupplicantMachineStatsManager();
         TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());
         aaaStatisticsManager.activate();
+        TestUtils.setField(aaaSupplicantStatsManager, "eventDispatcher", new TestEventDispatcher());
+        aaaSupplicantStatsManager.activate();
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
+        aaaManager.aaaSupplicantStatsManager = this.aaaSupplicantStatsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
         aaaManager.activate(new AaaTestBase.MockComponentContext());
     }

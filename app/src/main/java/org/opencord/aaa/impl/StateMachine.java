@@ -67,6 +67,46 @@ class StateMachine {
     private MacAddress supplicantAddress;
     private short vlanId;
     private byte priorityCode;
+    private long sessionStartTime;
+    private String eapolTypeVal;
+
+    public enum EapolType {
+        EAPOL_PACKET("EAPOL_PACKET"),
+        EAPOL_START("EAPOL_START"),
+        EAPOL_LOGOFF("EAPOL_LOGOFF"),
+        EAPOL_KEY("EAPOL_KEY"),
+        EAPOL_ASF("EAPOL_ASF");
+
+        private final String eaptype;
+
+        private EapolType(String value) {
+            this.eaptype = value;
+        }
+    };
+
+    private String sessionTerminateReason;
+
+    public enum SessionTerminationReasons {
+        SUPPLICANT_LOGOFF("SUPPLICANT_LOGOFF"),
+        TIME_OUT("TIME_OUT"),
+        PORT_REMOVED("PORT_REMOVED");
+
+        private final String reason;
+
+        private SessionTerminationReasons(String value) {
+            this.reason = value;
+        }
+
+        public String getReason() {
+            return this.reason;
+        }
+    };
+
+    // Supplicant packet count
+    private int totalPacketsSent;
+    private int totalPacketsReceived;
+    private int totalOctetSent;
+    private int totalOctetReceived;
 
     // Boolean flag indicating whether response is pending from AAA Server.
     // Used for counting timeout happening for AAA Sessions due to no response.
@@ -314,6 +354,86 @@ class StateMachine {
      */
     public void setPriorityCode(byte priorityCode) {
         this.priorityCode = priorityCode;
+    }
+
+    /**
+     * Gets the session start time.
+     *
+     * @return session start time
+     */
+    public long sessionStartTime() {
+        return sessionStartTime;
+    }
+
+    /**
+     * Sets the session start time.
+     *
+     * @param sessionStartTime new session start time
+     */
+    public void setSessionStartTime(long sessionStartTime) {
+        this.sessionStartTime = sessionStartTime;
+    }
+
+    /**
+     * returns eapol Type.
+     *
+     * @return eapolTypeVal.
+     */
+    public String eapolType() {
+        return this.eapolTypeVal;
+    }
+
+    /**
+     * Sets eapol Type name from eapol value.
+     *
+     * @param value eapol type as byte.
+     */
+    public void setEapolTypeVal(byte value) {
+        switch (value) {
+            case (byte) 0: this.eapolTypeVal = EapolType.EAPOL_PACKET.eaptype;
+                break;
+            case (byte) 1: this.eapolTypeVal = EapolType.EAPOL_START.eaptype;
+                break;
+            case (byte) 2: this.eapolTypeVal = EapolType.EAPOL_LOGOFF.eaptype;
+                break;
+            case (byte) 3: this.eapolTypeVal = EapolType.EAPOL_KEY.eaptype;
+                break;
+            case (byte) 4: this.eapolTypeVal = EapolType.EAPOL_ASF.eaptype;
+                break;
+            default : this.eapolTypeVal = "INVALID TYPE";
+        }
+    }
+
+    public String getSessionTerminateReason() {
+        return sessionTerminateReason;
+    }
+
+    public void setSessionTerminateReason(String sessionTerminateReason) {
+        this.sessionTerminateReason = sessionTerminateReason;
+    }
+
+    public int totalPacketsReceived() {
+        return this.totalPacketsReceived;
+    }
+
+    public void incrementTotalPacketsReceived() {
+        this.totalPacketsReceived = this.totalPacketsReceived + 1;
+    }
+
+    public int totalPacketsSent() {
+        return this.totalPacketsSent;
+    }
+
+    public void incrementTotalPacketsSent() {
+        this.totalPacketsSent = this.totalPacketsSent + 1;
+    }
+
+    public void incrementTotalOctetReceived(short packetLen) {
+        this.totalOctetReceived = this.totalOctetReceived + packetLen;
+    }
+
+    public void incrementTotalOctetSent(short packetLen) {
+        this.totalOctetSent = this.totalOctetSent + packetLen;
     }
 
     /**

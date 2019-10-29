@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d3f26ec_7e7d4196",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaSupplicantMachineStatsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2019-10-29T14:51:01Z",
+      "side": 1,
+      "message": "can we move these to trace level?",
+      "range": {
+        "startLine": 79,
+        "startChar": 12,
+        "endLine": 79,
+        "endChar": 17
+      },
+      "revId": "de12bfad6f9f3e3b4f814f08007087b4892ce64a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fb2c0bb_8dda09c5",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaSupplicantMachineStatsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2019-10-29T14:51:01Z",
+      "side": 1,
+      "message": "can we move these to trace level?",
+      "range": {
+        "startLine": 96,
+        "startChar": 12,
+        "endLine": 96,
+        "endChar": 17
+      },
+      "revId": "de12bfad6f9f3e3b4f814f08007087b4892ce64a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bd0f84b_83b336da",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 1000405
+      },
+      "writtenOn": "2019-11-08T10:03:38Z",
+      "side": 1,
+      "message": "What is \"ffff888e\"? Could you create a private static value to declare it? I don\u0027t understand what does it mean.",
+      "revId": "8942b1e53d05e6c385d98fe2a2550403aafaa749",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f86a06ac_f68dc5ca",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 1000405
+      },
+      "writtenOn": "2019-11-08T10:03:38Z",
+      "side": 1,
+      "message": "It would be great to use StateMachine.STATE_IDLE.equals(stateMachine.state()) syntax.",
+      "revId": "8942b1e53d05e6c385d98fe2a2550403aafaa749",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

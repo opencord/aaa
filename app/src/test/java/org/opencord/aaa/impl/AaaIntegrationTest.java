@@ -113,8 +113,7 @@ public class AaaIntegrationTest extends AaaTestBase {
 
         //  State machine should have been created by now
 
-        StateMachine stateMachine =
-                StateMachine.lookupStateMachineBySessionId(SESSION_ID);
+        StateMachine stateMachine = aaa.getStateMachine(SESSION_ID);
         assertThat(stateMachine, notNullValue());
         assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
 

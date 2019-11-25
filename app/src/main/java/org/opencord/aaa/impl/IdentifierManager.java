@@ -1,0 +1,76 @@
+package org.opencord.aaa.impl;
+
+import com.google.common.collect.Maps;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+/**
+ * Manages allocating request identifiers and mapping them to sessions.
+ */
+public class IdentifierManager {
+
+    private BlockingQueue<Integer> freeIdNumbers;
+
+    private ConcurrentMap<RequestIdentifier, String> idToSession;
+
+    /**
+     * Creates and initializes a new identifier manager.
+     */
+    public IdentifierManager() {
+        idToSession = Maps.newConcurrentMap();
+        freeIdNumbers = new LinkedBlockingQueue<>();
+
+        for (int i = 2; i < 256; i++) {
+            freeIdNumbers.add(i);
+        }
+    }
+
+    /**
+     * Gets a new identifier and maps it to the given session ID.
+     *
+     * @param sessionId session this identifier is associated with
+     * @return identifier
+     */
+    public synchronized RequestIdentifier getNewIdentifier(String sessionId) {
+        int idNum;
+        try {
+            idNum = freeIdNumbers.take();
+        } catch (InterruptedException e) {
+            return null;
+        }
+
+        RequestIdentifier id = RequestIdentifier.of((byte) idNum);
+
+        idToSession.put(id, sessionId);
+
+        return id;
+    }
+
+    /**
+     * Gets the session ID associated with a given request ID.
+     *
+     * @param id request ID
+     * @return session ID
+     */
+    public String getSessionId(RequestIdentifier id) {
+        return idToSession.get(id);
+    }
+
+    /**
+     * Releases a request identifier and removes session mapping.
+     *
+     * @param id request identifier to release
+     */
+    public synchronized void releaseIdentifier(RequestIdentifier id) {
+        String session = idToSession.remove(id);
+        if (session == null) {
+            // this id wasn't mapped to a session so is still free
+            return;
+        }
+
+        // add id number back to set of free ids
+        freeIdNumbers.add((int) id.identifier());
+    }
+}

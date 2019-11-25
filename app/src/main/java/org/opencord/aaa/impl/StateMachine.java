@@ -17,7 +17,6 @@
 
 package org.opencord.aaa.impl;
 
-import com.google.common.collect.Maps;
 import org.onlab.packet.MacAddress;
 import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.AuthenticationEvent;
@@ -25,15 +24,15 @@ import org.opencord.aaa.StateMachineDelegate;
 import org.slf4j.Logger;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * AAA Finite State Machine.
  */
-
 public class StateMachine {
     //INDEX to identify the state in the transition table
     static final int STATE_IDLE = 0;
@@ -43,7 +42,7 @@ public class StateMachine {
     static final int STATE_UNAUTHORIZED = 4;
 
     // Defining the states where timeout can happen
-    static final Set<Integer> TIMEOUT_ELIGIBLE_STATES = new HashSet();
+    static final Set<Integer> TIMEOUT_ELIGIBLE_STATES = new HashSet<>();
     static {
         TIMEOUT_ELIGIBLE_STATES.add(STATE_STARTED);
         TIMEOUT_ELIGIBLE_STATES.add(STATE_PENDING);
@@ -55,7 +54,7 @@ public class StateMachine {
     static final int TRANSITION_DENY_ACCESS = 3;
     static final int TRANSITION_LOGOFF = 4;
 
-    private static int identifier = 1;
+    private static int identifier = -1;
     private byte challengeIdentifier;
     private byte[] challengeState;
     private byte[] username;
@@ -120,6 +119,7 @@ public class StateMachine {
     private State[] states = {new Idle(), new Started(), new Pending(), new Authorized(), new Unauthorized() };
 
     // Cleanup Timer instance created for this session
+    private ScheduledExecutorService executor;
     private java.util.concurrent.ScheduledFuture<?> cleanupTimer = null;
 
     // TimeStamp of last EAPOL or RADIUS message received.
@@ -158,23 +158,7 @@ public class StateMachine {
 
     private int currentState = STATE_IDLE;
 
-    // Maps of state machines. Each state machine is represented by an
-    // unique identifier on the switch: dpid + port number
-    private static Map<String, StateMachine> sessionIdMap;
-    private static Map<Integer, StateMachine> identifierMap;
-
     private static StateMachineDelegate delegate;
-
-    public static void initializeMaps() {
-        sessionIdMap = Maps.newConcurrentMap();
-        identifierMap = Maps.newConcurrentMap();
-        identifier = 1;
-    }
-
-    public static void destroyMaps() {
-        sessionIdMap = null;
-        identifierMap = null;
-    }
 
     public static void setDelegate(StateMachineDelegate delegate) {
         StateMachine.delegate = delegate;
@@ -184,38 +168,27 @@ public class StateMachine {
         cleanupTimerTimeOutInMins = cleanupTimerTimeoutInMins;
     }
 
+    private void scheduleTimeout() {
+        cleanupTimer = executor.schedule(this::timeout, cleanupTimerTimeOutInMins, TimeUnit.MINUTES);
+    }
+
     public static void unsetDelegate(StateMachineDelegate delegate) {
         if (StateMachine.delegate == delegate) {
             StateMachine.delegate = null;
         }
     }
 
-    public static Map<String, StateMachine> sessionIdMap() {
-        return sessionIdMap;
-    }
-
-    public static StateMachine lookupStateMachineById(byte identifier) {
-        return identifierMap.get((int) identifier);
-    }
-
-    public static StateMachine lookupStateMachineBySessionId(String sessionId) {
-        return sessionIdMap.get(sessionId);
-    }
-
-    public static void deleteStateMachineId(String sessionId) {
-        sessionIdMap.remove(sessionId);
-    }
-
     public static void deleteStateMachineMapping(StateMachine machine) {
-        identifierMap.entrySet().removeIf(e -> e.getValue().equals(machine));
         if (machine.cleanupTimer != null) {
             machine.cleanupTimer.cancel(false);
             machine.cleanupTimer = null;
         }
     }
 
-    public java.util.concurrent.ScheduledFuture<?> getCleanupTimer() {
-        return cleanupTimer;
+    public void stop() {
+        if (cleanupTimer != null) {
+            cleanupTimer.cancel(false);
+        }
     }
 
     public boolean isWaitingForRadiusResponse() {
@@ -226,43 +199,16 @@ public class StateMachine {
         this.waitingForRadiusResponse = waitingForRadiusResponse;
     }
 
-    public void setCleanupTimer(java.util.concurrent.ScheduledFuture<?> cleanupTimer) {
-        this.cleanupTimer = cleanupTimer;
-    }
-
-    /**
-     * Deletes authentication state machine records for a given MAC address.
-     *
-     * @param mac mac address of the suppliant who's state machine should be removed
-     */
-    public static void deleteByMac(MacAddress mac) {
-
-        // Walk the map from session IDs to state machines looking for a MAC match
-        for (Map.Entry<String, StateMachine> e : sessionIdMap.entrySet()) {
-
-            // If a MAC match is found then delete the entry from the session ID
-            // and identifier map as well as call delete identifier to clean up
-            // the identifier bit set.
-            if (e.getValue() != null && e.getValue().supplicantAddress != null
-                    && e.getValue().supplicantAddress.equals(mac)) {
-                sessionIdMap.remove(e.getValue().sessionId);
-                if (e.getValue().identifier != 1) {
-                    deleteStateMachineMapping(e.getValue());
-                }
-                break;
-            }
-        }
-    }
-
     /**
      * Creates a new StateMachine with the given session ID.
      *
      * @param sessionId session Id represented by the switch dpid + port number
+     * @param executor executor to run background tasks on
      */
-    public StateMachine(String sessionId) {
+    public StateMachine(String sessionId, ScheduledExecutorService executor) {
         log.info("Creating a new state machine for {}", sessionId);
         this.sessionId = sessionId;
-        sessionIdMap.put(sessionId, this);
+        this.executor = executor;
     }
 
     /**
@@ -538,11 +484,8 @@ public class StateMachine {
      * @return The state machine identifier.
      */
     public synchronized byte identifier() {
-        //identifier 0 is for statusServerrequest
-        //identifier 1 is for fake accessRequest
-        identifier = (identifier + 1) % 253;
-        identifierMap.put((identifier + 2), this);
-        return (byte) (identifier + 2);
+        identifier = (identifier + 1) % 255;
+        return (byte) identifier;
     }
 
     /**
@@ -557,26 +500,23 @@ public class StateMachine {
 
     /**
      * Client has requested the start action to allow network access.
-     *
-     * @throws StateMachineException if authentication protocol is violated
      */
-    public void start() throws StateMachineException {
+    public void start() {
+        this.scheduleTimeout();
+
         states[currentState].start();
 
         delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.STARTED, supplicantConnectpoint));
 
         // move to the next state
         next(TRANSITION_START);
-        identifier = this.identifier();
     }
 
     /**
      * An Identification information has been sent by the supplicant. Move to the
      * next state if possible.
-     *
-     * @throws StateMachineException if authentication protocol is violated
      */
-    public void requestAccess() throws StateMachineException {
+    public void requestAccess() {
         states[currentState].requestAccess();
 
         delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.REQUESTED, supplicantConnectpoint));
@@ -587,10 +527,8 @@ public class StateMachine {
 
     /**
      * RADIUS has accepted the identification. Move to the next state if possible.
-     *
-     * @throws StateMachineException if authentication protocol is violated
      */
-    public void authorizeAccess() throws StateMachineException {
+    public void authorizeAccess() {
         states[currentState].radiusAccepted();
         // move to the next state
         next(TRANSITION_AUTHORIZE_ACCESS);
@@ -603,10 +541,8 @@ public class StateMachine {
 
     /**
      * RADIUS has denied the identification. Move to the next state if possible.
-     *
-     * @throws StateMachineException if authentication protocol is violated
      */
-    public void denyAccess() throws StateMachineException {
+    public void denyAccess() {
         states[currentState].radiusDenied();
         // move to the next state
         next(TRANSITION_DENY_ACCESS);
@@ -619,10 +555,8 @@ public class StateMachine {
 
     /**
      * Logoff request has been requested. Move to the next state if possible.
-     *
-     * @throws StateMachineException if authentication protocol is violated
      */
-    public void logoff() throws StateMachineException {
+    public void logoff() {
         states[currentState].logoff();
         // move to the next state
         next(TRANSITION_LOGOFF);
@@ -638,44 +572,52 @@ public class StateMachine {
         return currentState;
     }
 
-    @Override
-    public String toString() {
-        return ("sessionId: " + this.sessionId) + "\t" + ("identifier: " + this.identifier) + "\t"
-                + ("state: " + this.currentState);
+    public String stateString() {
+        return states[currentState].name();
     }
 
-    abstract class State {
+    @Override
+    public String toString() {
+        return ("sessionId: " + this.sessionId) + "\t" + ("state: " + this.currentState);
+    }
+
+    abstract static class State {
         private final Logger log = getLogger(getClass());
 
-        private String name = "State";
+        abstract String name();
 
-        public void start() throws StateMachineInvalidTransitionException {
+        public void start() {
             log.warn("START transition from this state is not allowed.");
         }
 
-        public void requestAccess() throws StateMachineInvalidTransitionException {
+        public void requestAccess() {
             log.warn("REQUEST ACCESS transition from this state is not allowed.");
         }
 
-        public void radiusAccepted() throws StateMachineInvalidTransitionException {
+        public void radiusAccepted() {
             log.warn("AUTHORIZE ACCESS transition from this state is not allowed.");
         }
 
-        public void radiusDenied() throws StateMachineInvalidTransitionException {
+        public void radiusDenied() {
             log.warn("DENY ACCESS transition from this state is not allowed.");
         }
 
-        public void logoff() throws StateMachineInvalidTransitionException {
+        public void logoff() {
             log.warn("LOGOFF transition from this state is not allowed.");
         }
     }
 
     /**
-     * Idle state: supplicant is logged of from the network.
+     * Idle state: supplicant is logged off from the network.
      */
-    class Idle extends State {
+    static class Idle extends State {
         private final Logger log = getLogger(getClass());
         private String name = "IDLE_STATE";
+
+        @Override
+        String name() {
+            return this.name;
+        }
 
         @Override
         public void start() {
@@ -687,9 +629,14 @@ public class StateMachine {
      * Started state: supplicant has entered the network and informed the
      * authenticator.
      */
-    class Started extends State {
+    static class Started extends State {
         private final Logger log = getLogger(getClass());
         private String name = "STARTED_STATE";
+
+        @Override
+        String name() {
+            return this.name;
+        }
 
         @Override
         public void requestAccess() {
@@ -701,9 +648,14 @@ public class StateMachine {
      * Pending state: supplicant has been identified by the authenticator but has
      * not access yet.
      */
-    class Pending extends State {
+    static class Pending extends State {
         private final Logger log = getLogger(getClass());
         private String name = "PENDING_STATE";
+
+        @Override
+        String name() {
+            return this.name;
+        }
 
         @Override
         public void radiusAccepted() {
@@ -719,9 +671,14 @@ public class StateMachine {
     /**
      * Authorized state: supplicant port has been accepted, access is granted.
      */
-    class Authorized extends State {
+    static class Authorized extends State {
         private final Logger log = getLogger(getClass());
         private String name = "AUTHORIZED_STATE";
+
+        @Override
+        String name() {
+            return this.name;
+        }
 
         @Override
         public void start() {
@@ -738,9 +695,14 @@ public class StateMachine {
     /**
      * Unauthorized state: supplicant port has been rejected, access is denied.
      */
-    class Unauthorized extends State {
+    static class Unauthorized extends State {
         private final Logger log = getLogger(getClass());
         private String name = "UNAUTHORIZED_STATE";
+
+        @Override
+        String name() {
+            return this.name;
+        }
 
         @Override
         public void start() {
@@ -753,53 +715,15 @@ public class StateMachine {
         }
     }
 
-    /**
-     * Class for cleaning the StateMachine for those session for which no response
-     * is coming--implementing timeout.
-     */
-    class CleanupTimerTask implements Runnable {
-        private final Logger log = getLogger(getClass());
-        private String sessionId;
-        private AaaManager aaaManager;
+    private void timeout() {
+        boolean noTrafficWithinThreshold =
+                (System.currentTimeMillis() - lastPacketReceivedTime) > ((cleanupTimerTimeOutInMins * 60 * 1000) / 2);
 
-        CleanupTimerTask(String sessionId, AaaManager aaaManager) {
-            this.sessionId = sessionId;
-            this.aaaManager = aaaManager;
-        }
-
-        @Override
-        public void run() {
-            StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
-            if (null != stateMachine) {
-                // Asserting if last packet received for this stateMachine session was beyond half of timeout period.
-                // StateMachine is considered eligible for cleanup when no packets has been exchanged by it with AAA
-                // Server or RG during a long period (half of timeout period). For example, when cleanup timer has
-                // been configured as 10 minutes, StateMachine would be cleaned up at the end of 10 minutes if
-                // the authentication is still pending and no packet was exchanged for this session during last 5
-                // minutes.
-
-                boolean noTrafficWithinThreshold = (System.currentTimeMillis()
-                        - stateMachine.getLastPacketReceivedTime()) > ((cleanupTimerTimeOutInMins * 60 * 1000) / 2);
-
-                        if ((TIMEOUT_ELIGIBLE_STATES.contains(stateMachine.state())) && noTrafficWithinThreshold) {
-                            log.info("Deleting StateMachineMapping for sessionId: {}", sessionId);
-                            cleanupTimer = null;
-                            if (stateMachine.state() == STATE_PENDING && stateMachine.isWaitingForRadiusResponse()) {
-                                aaaManager.aaaStatisticsManager.getAaaStats().increaseTimedOutPackets();
-                            }
-                            deleteStateMachineId(sessionId);
-                            deleteStateMachineMapping(stateMachine);
-
-                            // If StateMachine is not eligible for cleanup yet, reschedule cleanupTimer further.
-                        } else {
-                            aaaManager.scheduleStateMachineCleanupTimer(sessionId, stateMachine);
-                        }
-            } else {
-                // This statement should not be logged; cleanupTimer should be cancelled for stateMachine
-                // instances which have been authenticated successfully.
-                log.warn("state-machine not found for sessionId: {}", sessionId);
-            }
-
+        if (TIMEOUT_ELIGIBLE_STATES.contains(currentState) && noTrafficWithinThreshold) {
+            delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.TIMEOUT, this.supplicantConnectpoint));
+            // If StateMachine is not eligible for cleanup yet, reschedule cleanupTimer further.
+        } else {
+            this.scheduleTimeout();
         }
     }
 

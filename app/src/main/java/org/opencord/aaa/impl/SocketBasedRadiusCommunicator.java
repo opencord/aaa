@@ -198,10 +198,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                     } catch (DeserializationException dex) {
                         aaaManager.aaaStatisticsManager.getAaaStats().increaseMalformedResponsesRx();
                         log.error("Cannot deserialize packet", dex);
-                    } catch (StateMachineException sme) {
-                        log.error("Illegal state machine operation", sme);
                     }
-
                 } catch (IOException e) {
                     log.info("Socket was closed, exiting listener thread");
                     done = true;

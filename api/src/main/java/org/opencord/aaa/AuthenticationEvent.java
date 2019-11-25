@@ -47,7 +47,12 @@ public class AuthenticationEvent extends
         /**
          * Authentication request was denied.
          */
-        DENIED
+        DENIED,
+
+        /**
+         * Authentication flow timed out.
+         */
+        TIMEOUT
     }
 
     /**

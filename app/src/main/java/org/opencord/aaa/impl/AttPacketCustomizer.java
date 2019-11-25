@@ -16,7 +16,7 @@
 package org.opencord.aaa.impl;
 
 /**
- * AT&T specific RADIUS packet customization.
+ * AT&amp;T specific RADIUS packet customization.
  *
  */
 public class AttPacketCustomizer extends SamplePacketCustomizer {

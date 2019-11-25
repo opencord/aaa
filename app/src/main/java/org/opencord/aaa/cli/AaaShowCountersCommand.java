@@ -49,6 +49,13 @@ public class AaaShowCountersCommand extends AbstractShellCommand {
         System.out.format("%30s %10d\n", "UnknownServerRx", aaaStats.getUnknownServerRx());
         System.out.format("%30s %10d\n", "UnknownTypeRx", aaaStats.getUnknownTypeRx());
         System.out.format("%30s %10d\n", "RequestRttMillis", aaaStats.getRequestRttMilis());
+        System.out.format("%30s %10d\n", "EapolLogoffRx", aaaStats.getEapolLogoffRx());
+        System.out.format("%30s %10d\n", "EapolAuthSuccessTrans", aaaStats.getEapolAuthSuccessTrans());
+        System.out.format("%30s %10d\n", "EapolAuthFailureTrans", aaaStats.getEapolAuthFailureTrans());
+        System.out.format("%30s %10d\n", "EapolStartReqTrans", aaaStats.getEapolStartReqTrans());
+        System.out.format("%30s %10d\n", "EapolTransRespNotNak", aaaStats.getEapolTransRespNotNak());
+        System.out.format("%30s %10d\n", "EapPktTxauthChooseEap", aaaStats.getEapPktTxauthChooseEap());
+        System.out.format("%30s %10d\n", "EapolResIdentityMsgTrans", aaaStats.getEapolResIdentityMsgTrans());
 
   }
 }

@@ -20,7 +20,7 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onlab.packet.MacAddress;
 import org.onosproject.cli.AbstractShellCommand;
-import org.opencord.aaa.impl.StateMachine;
+import org.opencord.aaa.AuthenticationService;
 
 /**
  * Removes a AAA state machine.
@@ -35,8 +35,10 @@ public class AaaResetDeviceCommand extends AbstractShellCommand {
 
     @Override
     protected void doExecute() {
+        AuthenticationService service = get(AuthenticationService.class);
+
         for (String mac : macs) {
-            StateMachine.deleteByMac(MacAddress.valueOf(mac));
+            service.removeAuthenticationStateByMac(MacAddress.valueOf(mac));
         }
     }
 }

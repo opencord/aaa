@@ -15,7 +15,6 @@
  */
 package org.opencord.aaa.impl;
 
-import com.google.common.base.Charsets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,13 +36,13 @@ import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.onosproject.net.packet.InboundPacket;
 import org.opencord.aaa.AaaConfig;
 
-import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -111,50 +110,6 @@ public class AaaManagerTest extends AaaTestBase {
     }
 
     /**
-     * Constructs an Ethernet packet containing a RADIUS challenge
-     * packet.
-     *
-     * @param challengeCode code to use in challenge packet
-     * @param challengeType type to use in challenge packet
-     * @return Ethernet packet
-     */
-    private RADIUS constructRadiusCodeAccessChallengePacket(byte challengeCode, byte challengeType) {
-
-        String challenge = "12345678901234567";
-
-        EAP eap = new EAP(challengeType, (byte) 4, challengeType,
-                          challenge.getBytes(Charsets.US_ASCII));
-        eap.setIdentifier((byte) 4);
-
-        RADIUS radius = new RADIUS();
-        radius.setCode(challengeCode);
-        radius.setIdentifier((byte) 4);
-        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
-                            challenge.getBytes(Charsets.US_ASCII));
-
-        radius.setPayload(eap);
-        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE,
-                            eap.serialize());
-        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH,
-                aaaManager.radiusSecret.getBytes());
-        return radius;
-    }
-
-    public static void injectEventDispatcher(Object manager, EventDeliveryService svc) {
-        Class mc = manager.getClass();
-        for (Field f : mc.getSuperclass().getDeclaredFields()) {
-            if (f.getType().equals(EventDeliveryService.class)) {
-                try {
-                    TestUtils.setField(manager, f.getName(), svc);
-                } catch (TestUtils.TestUtilsException e) {
-                    throw new IllegalArgumentException("Unable to inject reference", e);
-                }
-                break;
-            }
-        }
-    }
-
-    /**
      * Sets up the services required by the AAA application.
      */
     @Before
@@ -217,7 +172,7 @@ public class AaaManagerTest extends AaaTestBase {
      * @throws DeserializationException if packed deserialization fails.
      */
     @Test
-    public void testAuthentication()  throws Exception {
+    public void testAuthentication() throws Exception {
 
         //  (1) Supplicant start up
 
@@ -229,10 +184,12 @@ public class AaaManagerTest extends AaaTestBase {
 
         //  (2) Supplicant identify
 
-        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 3, null);
+        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null,
+                EAP.ATTR_IDENTITY, (byte) 3, null);
         sendPacket(identifyPacket);
 
         RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+        byte reqId = radiusIdentifyPacket.getIdentifier();
 
         checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
 
@@ -248,15 +205,15 @@ public class AaaManagerTest extends AaaTestBase {
 
         //  State machine should have been created by now
 
-        StateMachine stateMachine =
-                StateMachine.lookupStateMachineBySessionId(SESSION_ID);
+        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
         assertThat(stateMachine, notNullValue());
         assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
 
         // (3) RADIUS MD5 challenge
 
         RADIUS radiusCodeAccessChallengePacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5);
+                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5,
+                reqId, aaaManager.radiusSecret.getBytes());
         aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
 
         Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
@@ -274,7 +231,8 @@ public class AaaManagerTest extends AaaTestBase {
         RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
         checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
+        //assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
+        reqId = responseMd5RadiusPacket.getIdentifier();
         assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
         //  State machine should be in pending state
@@ -285,7 +243,8 @@ public class AaaManagerTest extends AaaTestBase {
         // (5) RADIUS Success
 
         RADIUS successPacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS);
+                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT,
+                EAP.SUCCESS, reqId, aaaManager.radiusSecret.getBytes());
         aaaManager.handleRadiusPacket((successPacket));
         Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
 
@@ -295,7 +254,21 @@ public class AaaManagerTest extends AaaTestBase {
 
         assertThat(stateMachine, notNullValue());
         assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
+    }
 
+    @Test
+    public void testRemoveAuthentication() {
+        Ethernet startPacket = constructSupplicantStartPacket();
+        sendPacket(startPacket);
+
+        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+
+        assertThat(stateMachine, notNullValue());
+        assertThat(stateMachine.state(), is(StateMachine.STATE_STARTED));
+
+        aaaManager.removeAuthenticationStateByMac(stateMachine.supplicantAddress());
+
+        assertThat(aaaManager.getStateMachine(SESSION_ID), nullValue());
     }
 
     /**

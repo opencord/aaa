@@ -16,13 +16,6 @@
 
 package org.opencord.aaa.impl;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.osgi.service.component.annotations.Component;
 import org.onosproject.event.AbstractListenerManager;
 import org.opencord.aaa.AaaStatistics;
 import org.opencord.aaa.AuthenticationStatisticsDelegate;
@@ -30,8 +23,15 @@ import org.opencord.aaa.AuthenticationStatisticsEvent;
 import org.opencord.aaa.AuthenticationStatisticsEventListener;
 import org.opencord.aaa.AuthenticationStatisticsService;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 
 

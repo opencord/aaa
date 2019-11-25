@@ -391,12 +391,8 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                                     .deserialize(udpPacket.serialize(),
                                             8,
                                             udpPacket.getLength() - 8);
-                    try {
-                        aaaManager.aaaStatisticsManager.handleRoundtripTime(radiusMsg.getIdentifier());
-                        aaaManager.handleRadiusPacket(radiusMsg);
-                    }  catch (StateMachineException sme) {
-                        log.error("Illegal state machine operation", sme);
-                    }
+                    aaaManager.aaaStatisticsManager.handleRoundtripTime(radiusMsg.getIdentifier());
+                    aaaManager.handleRadiusPacket(radiusMsg);
                 } catch (DeserializationException dex) {
                     log.error("Cannot deserialize packet", dex);
                 }

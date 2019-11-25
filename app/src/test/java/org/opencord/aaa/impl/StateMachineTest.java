@@ -19,11 +19,10 @@ package org.opencord.aaa.impl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.onlab.packet.MacAddress;
+
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class StateMachineTest {
     StateMachine stateMachine = null;
@@ -31,15 +30,13 @@ public class StateMachineTest {
     @Before
     public void setUp() {
         System.out.println("Set Up.");
-        StateMachine.initializeMaps();
         StateMachine.setDelegate(e -> { });
-        stateMachine = new StateMachine("session0");
+        stateMachine = new StateMachine("session0", Executors.newSingleThreadScheduledExecutor());
     }
 
     @After
     public void tearDown() {
         System.out.println("Tear Down.");
-        StateMachine.destroyMaps();
         stateMachine = null;
     }
 
@@ -47,7 +44,7 @@ public class StateMachineTest {
     /**
      * Test all the basic inputs from state to state: IDLE -> STARTED -> PENDING -> AUTHORIZED -> IDLE
      */
-    public void basic() throws StateMachineException {
+    public void basic() {
         System.out.println("======= BASIC =======.");
         assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
 
@@ -68,7 +65,7 @@ public class StateMachineTest {
     /**
      * Test all inputs from an IDLE state (starting with the ones that are not impacting the current state)
      */
-    public void testIdleState() throws StateMachineException {
+    public void testIdleState() {
         System.out.println("======= IDLE STATE TEST =======.");
         stateMachine.requestAccess();
         assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
@@ -90,7 +87,7 @@ public class StateMachineTest {
     /**
      * Test all inputs from an STARTED state (starting with the ones that are not impacting the current state)
      */
-    public void testStartedState() throws StateMachineException {
+    public void testStartedState() {
         System.out.println("======= STARTED STATE TEST =======.");
         stateMachine.start();
 
@@ -115,7 +112,7 @@ public class StateMachineTest {
      * Test all inputs from a PENDING state (starting with the ones that are not impacting the current state).
      * The next valid state for this test is AUTHORIZED
      */
-    public void testPendingStateToAuthorized() throws StateMachineException {
+    public void testPendingStateToAuthorized() {
         System.out.println("======= PENDING STATE TEST (AUTHORIZED) =======.");
         stateMachine.start();
         stateMachine.requestAccess();
@@ -141,7 +138,7 @@ public class StateMachineTest {
      * Test all inputs from an PENDING state (starting with the ones that are not impacting the current state).
      * The next valid state for this test is UNAUTHORIZED
      */
-    public void testPendingStateToUnauthorized() throws StateMachineException {
+    public void testPendingStateToUnauthorized() {
         System.out.println("======= PENDING STATE TEST (DENIED) =======.");
         stateMachine.start();
         stateMachine.requestAccess();
@@ -166,7 +163,7 @@ public class StateMachineTest {
     /**
      * Test all inputs from an AUTHORIZED state (starting with the ones that are not impacting the current state).
      */
-    public void testAuthorizedState() throws StateMachineException {
+    public void testAuthorizedState() {
         System.out.println("======= AUTHORIZED STATE TEST =======.");
         stateMachine.start();
         stateMachine.requestAccess();
@@ -192,7 +189,7 @@ public class StateMachineTest {
     /**
      * Test all inputs from an UNAUTHORIZED state (starting with the ones that are not impacting the current state).
      */
-    public void testUnauthorizedState() throws StateMachineException {
+    public void testUnauthorizedState() {
         System.out.println("======= UNAUTHORIZED STATE TEST =======.");
         stateMachine.start();
         stateMachine.requestAccess();
@@ -214,87 +211,4 @@ public class StateMachineTest {
         assertEquals(stateMachine.state(), StateMachine.STATE_IDLE);
     }
 
-    @Test
-    public void testSessionIdLookups() {
-        String sessionId1 = "session1";
-        String sessionId2 = "session2";
-        String sessionId3 = "session3";
-
-        StateMachine machine1ShouldBeNull =
-                StateMachine.lookupStateMachineBySessionId(sessionId1);
-        assertNull(machine1ShouldBeNull);
-        StateMachine machine2ShouldBeNull =
-                StateMachine.lookupStateMachineBySessionId(sessionId2);
-        assertNull(machine2ShouldBeNull);
-
-        StateMachine stateMachine1 = new StateMachine(sessionId1);
-        StateMachine stateMachine2 = new StateMachine(sessionId2);
-
-        assertEquals(stateMachine1,
-                     StateMachine.lookupStateMachineBySessionId(sessionId1));
-        assertEquals(stateMachine2,
-                     StateMachine.lookupStateMachineBySessionId(sessionId2));
-        assertNull(StateMachine.lookupStateMachineBySessionId(sessionId3));
-    }
-
-    @Test
-    public void testIdentifierLookups() throws StateMachineException {
-        String sessionId1 = "session1";
-        String sessionId2 = "session2";
-
-        StateMachine machine1ShouldBeNull =
-                StateMachine.lookupStateMachineById((byte) 1);
-        assertNull(machine1ShouldBeNull);
-        StateMachine machine2ShouldBeNull =
-                StateMachine.lookupStateMachineById((byte) 2);
-        assertNull(machine2ShouldBeNull);
-
-        StateMachine stateMachine1 = new StateMachine(sessionId1);
-        stateMachine1.start();
-        StateMachine stateMachine2 = new StateMachine(sessionId2);
-        stateMachine2.start();
-
-        assertEquals(stateMachine1,
-                     StateMachine.lookupStateMachineById(stateMachine1.identifier()));
-        assertEquals(stateMachine2,
-                     StateMachine.lookupStateMachineById(stateMachine2.identifier()));
-    }
-
-    @Test
-    /**
-     * Test state machine deletes
-     */
-    public void testStateMachineReset() throws StateMachineException {
-
-        int count = 256;
-
-        //StateMachine.initializeMaps();
-        StateMachine.lookupStateMachineById((byte) 1);
-
-        // Instantiate a bunch of state machines
-        for (int i = 0; i < count; i += 1) {
-            String mac = String.format("00:00:00:00:00:%02x", i);
-            StateMachine sm = new StateMachine(mac);
-            sm.start();
-            sm.setSupplicantAddress(MacAddress.valueOf(mac));
-        }
-
-        // Verify all state machines with a "even" MAC exist
-        for (int i = 0; i < count; i += 2) {
-            String mac = String.format("00:00:00:00:00:%02x", i);
-            assertNotNull(StateMachine.lookupStateMachineBySessionId(mac));
-        }
-
-        // Delete all state machines with a "even" MAC
-        for (int i = 0; i < count; i += 2) {
-            String mac = String.format("00:00:00:00:00:%02x", i);
-            StateMachine.deleteByMac(MacAddress.valueOf(mac));
-        }
-
-        // Verify all the delete state machines no long exist
-        for (int i = 0; i < count; i += 2) {
-            String mac = String.format("00:00:00:00:00:%02x", i);
-            assertNull(StateMachine.lookupStateMachineBySessionId(mac));
-        }
-    }
 }

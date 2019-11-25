@@ -15,6 +15,7 @@
  */
 package org.opencord.aaa.impl;
 
+import com.google.common.base.Charsets;
 import org.onlab.packet.BasePacket;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
@@ -22,15 +23,17 @@ import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.Ip4Address;
 import org.onlab.packet.MacAddress;
+import org.onlab.packet.RADIUS;
+import org.onlab.packet.RADIUSAttribute;
 import org.onlab.packet.VlanId;
 import org.onosproject.cfg.ComponentConfigService;
 import org.onosproject.cfg.ConfigProperty;
 import org.onosproject.net.Annotations;
-import org.onosproject.net.device.DeviceServiceAdapter;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.Element;
 import org.onosproject.net.Port;
 import org.onosproject.net.PortNumber;
+import org.onosproject.net.device.DeviceServiceAdapter;
 import org.onosproject.net.packet.DefaultInboundPacket;
 import org.onosproject.net.packet.DefaultPacketContext;
 import org.onosproject.net.packet.InboundPacket;
@@ -38,7 +41,6 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketServiceAdapter;
-
 import org.opencord.sadis.BandwidthProfileInformation;
 import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
@@ -477,4 +479,34 @@ public class AaaTestBase {
         return eth;
     }
 
+    /**
+     * Constructs an Ethernet packet containing a RADIUS challenge
+     * packet.
+     *
+     * @param challengeCode code to use in challenge packet
+     * @param challengeType type to use in challenge packet
+     * @return Ethernet packet
+     */
+    RADIUS constructRadiusCodeAccessChallengePacket(byte challengeCode, byte challengeType,
+            byte identifier, byte[] messageAuth) {
+
+        String challenge = "12345678901234567";
+
+        EAP eap = new EAP(challengeType, (byte) 4, challengeType,
+                challenge.getBytes(Charsets.US_ASCII));
+        //eap.setIdentifier((byte) 4);
+        eap.setIdentifier(identifier);
+
+        RADIUS radius = new RADIUS();
+        radius.setCode(challengeCode);
+        //radius.setIdentifier((byte) 4);
+        radius.setIdentifier(identifier);
+        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
+                challenge.getBytes(Charsets.US_ASCII));
+
+        radius.setPayload(eap);
+        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE, eap.serialize());
+        radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_MESSAGE_AUTH, messageAuth);
+        return radius;
+    }
 }

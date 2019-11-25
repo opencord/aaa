@@ -20,7 +20,8 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.device.DeviceService;
-import org.opencord.aaa.impl.StateMachine;
+import org.opencord.aaa.AuthenticationRecord;
+import org.opencord.aaa.AuthenticationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
 
@@ -33,32 +34,25 @@ import org.opencord.sadis.SubscriberAndDeviceInformation;
 public class AaaShowUsersCommand extends AbstractShellCommand {
     @Override
     protected void doExecute() {
-        String[] state = {
-                "IDLE",
-                "STARTED",
-                "PENDING",
-                "AUTHORIZED",
-                "UNAUTHORIZED"
-        };
 
-        DeviceService devService = AbstractShellCommand.get(DeviceService.class);
-        SadisService sadisService =
-                AbstractShellCommand.get(SadisService.class);
+        DeviceService devService = get(DeviceService.class);
+        SadisService sadisService = get(SadisService.class);
+        AuthenticationService authService = get(AuthenticationService.class);
 
-        for (StateMachine stateMachine : StateMachine.sessionIdMap().values()) {
-            String deviceId = stateMachine.supplicantConnectpoint().deviceId().toString();
-            String portNum = stateMachine.supplicantConnectpoint().port().toString();
+        for (AuthenticationRecord auth : authService.getAuthenticationRecords()) {
+            String deviceId = auth.supplicantConnectPoint().deviceId().toString();
+            String portNum = auth.supplicantConnectPoint().port().toString();
 
             String username = "UNKNOWN";
-            if (stateMachine.username() != null) {
-                username = new String(stateMachine.username());
+            if (auth.username() != null) {
+                username = new String(auth.username());
             }
             String mac = "UNKNOWN";
-            if (stateMachine.supplicantAddress() != null) {
-                mac = stateMachine.supplicantAddress().toString();
+            if (auth.supplicantAddress() != null) {
+                mac = auth.supplicantAddress().toString();
             }
 
-            String nasPortId = devService.getPort(stateMachine.supplicantConnectpoint()).
+            String nasPortId = devService.getPort(auth.supplicantConnectPoint()).
                     annotations().value(AnnotationKeys.PORT_NAME);
 
             String subsId = "UNKNOWN";
@@ -68,7 +62,7 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
             }
 
             print("UserName=%s,CurrentState=%s,DeviceId=%s,MAC=%s,PortNumber=%s,SubscriberId=%s",
-                  username, state[stateMachine.state()], deviceId, mac, portNum, subsId);
+                  username, auth.state(), deviceId, mac, portNum, subsId);
         }
     }
 }

@@ -282,6 +282,14 @@ public class AaaStatistics {
         requestRttMilis.set(0);
         unknownServerRx.set(0);
         unknownTypeRx.set(0);
+        eapolLogoffRx.set(0);
+        eapolAuthSuccessTrans.set(0);
+        eapolAuthFailureTrans.set(0);
+        eapolStartReqTrans.set(0);
+        eapolTransRespNotNak.set(0);
+        eapPktTxauthChooseEap.set(0);
+        eapolResIdentityMsgTrans.set(0);
+
     }
     public void countTransRespNotNak() {
         long eapolTransactionNotNak = eapolMd5RspChall.get();

@@ -290,7 +290,7 @@ public class AaaManager
                 ? STATISTICS_GENERATION_EVENT_DEFAULT : Integer.parseInt(s.trim());
     }
 
-    private void configureRadiusCommunication() {
+    protected void configureRadiusCommunication() {
         if (radiusConnectionType.toLowerCase().equals("socket")) {
             impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
         } else {

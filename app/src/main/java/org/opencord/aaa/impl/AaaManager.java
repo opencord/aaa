@@ -289,7 +289,7 @@ public class AaaManager
     statisticsGenerationEvent = Strings.isNullOrEmpty(s) ? DEFAULT_REPEAT_DELAY : Integer.parseInt(s.trim());
     }
 
-    private void configureRadiusCommunication() {
+    protected void configureRadiusCommunication() {
         if (radiusConnectionType.toLowerCase().equals("socket")) {
             impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
         } else {

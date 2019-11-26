@@ -319,7 +319,7 @@ public class AaaTestBase {
      */
     final class TestPacketContext extends DefaultPacketContext {
 
-        private TestPacketContext(long time, InboundPacket inPkt,
+        TestPacketContext(long time, InboundPacket inPkt,
                                   OutboundPacket outPkt, boolean block) {
             super(time, inPkt, outPkt, block);
         }

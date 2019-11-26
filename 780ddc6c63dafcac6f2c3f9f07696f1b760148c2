@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15f9c3bb_19c73da8",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2019-11-26T20:48:05Z",
+      "side": 1,
+      "message": "I\u0027m a little confused about the logic of using fixed identifiers for the status requests. Is this required by the protocol? Or can we use any identifier?",
+      "revId": "780ddc6c63dafcac6f2c3f9f07696f1b760148c2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac952d6d_6817d38e",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2019-11-26T20:48:05Z",
+      "side": 1,
+      "message": "What is the purpose of the fake access request? Is it purely a facility for testing? Or is it used in production to send messages to the radius server? If so, how does it differ from the non-fake statusServerRequest?",
+      "revId": "780ddc6c63dafcac6f2c3f9f07696f1b760148c2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

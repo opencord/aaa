@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "006bca42_a30b1c0f",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2019-11-27T00:32:25Z",
+      "side": 1,
+      "message": "Instead of checking the identifier and setting the outgoing time here, why not just set the timestamp in the RadiusOperationalStatusManager before this send method is called? The timestamp will not be that different, and then you don\u0027t need to have special logic in these classes - they just send out the packets they are given. It also means the keepalive system doesn\u0027t rely so much on having special identifiers.",
+      "revId": "192d7c2d045969c7d1d5fd005b6df9716736ae80",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

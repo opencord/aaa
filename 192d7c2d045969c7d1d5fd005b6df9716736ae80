@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9c79242e_4c8d0d75",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2019-11-27T00:35:17Z",
+      "side": 1,
+      "message": "I\u0027d suggest moving as much of this logic to run the status checks (including the properties and executors) to the RadiusOperationalStatusManager. This provides a clean separation of concerns.",
+      "revId": "192d7c2d045969c7d1d5fd005b6df9716736ae80",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "006bca42_a30b1c0f",
         "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
         "patchSetId": 3

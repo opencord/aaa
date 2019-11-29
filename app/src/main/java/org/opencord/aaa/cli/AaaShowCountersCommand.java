@@ -56,6 +56,15 @@ public class AaaShowCountersCommand extends AbstractShellCommand {
         System.out.format("%30s %10d\n", "EapolTransRespNotNak", aaaStats.getEapolTransRespNotNak());
         System.out.format("%30s %10d\n", "EapPktTxauthChooseEap", aaaStats.getEapPktTxauthChooseEap());
         System.out.format("%30s %10d\n", "EapolResIdentityMsgTrans", aaaStats.getEapolResIdentityMsgTrans());
+        System.out.format("%30s %10d\n", "AuthStateIdle", aaaStats.getAuthStateIdle());
+        System.out.format("%30s %10d\n", "RequestIdFramesTx", aaaStats.getRequestIdFramesTx());
+        System.out.format("%30s %10d\n", "ReqEapFramesTx", aaaStats.getReqEapFramesTx());
+        System.out.format("%30s %10d\n", "InvalidPktType", aaaStats.getInvalidPktType());
+        System.out.format("%30s %10d\n", "InvalidBodyLength", aaaStats.getInvalidBodyLength());
+        System.out.format("%30s %10d\n", "ValidEapolFramesRx", aaaStats.getValidEapolFramesRx());
+        System.out.format("%30s %10d\n", "PendingResSupp", aaaStats.getPendingResSupp());
+        System.out.format("%30s %10d\n", "EapolFramesTx", aaaStats.getEapolFramesTx());
+        System.out.format("%30s %10d\n", "TimedOutPackets", aaaStats.getTimedOutPackets());
 
   }
 }

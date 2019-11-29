@@ -385,6 +385,8 @@ public class AaaStatistics {
         invalidBodyLength.set(0);
         validEapolFramesRx.set(0);
         pendingResSupp.set(0);
+        timedOutPackets.set(0);
+
     }
     public void countTransRespNotNak() {
         long eapolTransactionNotNak = eapolMd5RspChall.get();

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "295f5fd8_0040960c",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2019-12-02T18:52:18Z",
+      "side": 1,
+      "message": "Do the stats need to be send immediately when an event happens? Can they instead be sent into kafka periodically based on a timer? This is how the other stats in AAA are implemented and I think this would be a better approach. You can use the same timer thread that already exists in AaaManager.",
+      "revId": "feade070251f3ec8c9ec7284a843214d113d51df",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b19e0c86_8cf31682",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaSupplicantMachineStatsManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2019-12-02T18:52:18Z",
+      "side": 1,
+      "message": "I think you can just make this a method on the StateMachine class, because that is where the data is being stored. This would remove the need to pass an Object to this service and cast it back to StateMachine.",
+      "revId": "feade070251f3ec8c9ec7284a843214d113d51df",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

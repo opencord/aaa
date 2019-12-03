@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d12505a9_2ffb9691",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-12-03T14:21:30Z",
+      "side": 1,
+      "message": "The stats which are being pushed are collected whenever the session is terminated, which won\u0027t be triggering periodically.",
+      "parentUuid": "295f5fd8_0040960c",
+      "revId": "feade070251f3ec8c9ec7284a843214d113d51df",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b19e0c86_8cf31682",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaSupplicantMachineStatsManager.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2019-12-02T18:52:18Z",
       "side": 1,
       "message": "I think you can just make this a method on the StateMachine class, because that is where the data is being stored. This would remove the need to pass an Object to this service and cast it back to StateMachine.",
+      "revId": "feade070251f3ec8c9ec7284a843214d113d51df",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8887e332_64b52ec4",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaSupplicantMachineStatsManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1000572
+      },
+      "writtenOn": "2019-12-03T14:21:30Z",
+      "side": 1,
+      "message": "There were some additional data from those in StateMachine  to be pushed, that\u0027s why AaaSupplicantMachineStats class is used.\nThe additional values which I mentioned are fetched on the time of session termination so I think storing those data in StateMachine won\u0027t be much use.\nI\u0027ll look for a way to avoid casting the object and update it if I found a way to do that.",
+      "parentUuid": "b19e0c86_8cf31682",
       "revId": "feade070251f3ec8c9ec7284a843214d113d51df",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false

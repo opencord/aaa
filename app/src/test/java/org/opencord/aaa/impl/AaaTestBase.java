@@ -449,4 +449,32 @@ public class AaaTestBase {
 
         assertThat(eap.getCode(), is(code));
     }
+
+    /**
+     * Constructs an Ethernet packet containing a EAPOL_LOGOFF Payload.
+     *
+     * @return Ethernet packet
+     */
+    Ethernet constructSupplicantLogoffPacket() {
+        Ethernet eth = new Ethernet();
+        eth.setDestinationMACAddress(clientMac.toBytes());
+        eth.setSourceMACAddress(serverMac.toBytes());
+        eth.setEtherType(EthType.EtherType.EAPOL.ethType().toShort());
+        eth.setVlanID((short) 2);
+
+        EAP eap = new EAP(EAPOL.EAPOL_LOGOFF, (byte) 2, EAPOL.EAPOL_LOGOFF, null);
+
+        // eapol header
+        EAPOL eapol = new EAPOL();
+        eapol.setEapolType(EAPOL.EAPOL_LOGOFF);
+        eapol.setPacketLength(eap.getLength());
+
+        // eap part
+        eapol.setPayload(eap);
+
+        eth.setPayload(eapol);
+        eth.setPad(true);
+        return eth;
+    }
+
 }

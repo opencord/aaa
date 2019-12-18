@@ -319,9 +319,15 @@ private BasePacket fetchPacket(int index) {
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
 
-       // Counts the aaa Statistics count and displays in the log
-       countAaaStatistics();
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getAcceptResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingRequests(), ZERO);
 
+        // Counts the aaa Statistics count and displays in the log
+        countAaaStatistics();
     }
 
     /** Tests the count for defected packets.
@@ -386,6 +392,15 @@ private BasePacket fetchPacket(int index) {
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
 
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingRequests(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getRejectResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestRttMilis(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getUnknownTypeRx(), ZERO);
+
         // Counts the aaa Statistics count
         countAaaStatistics();
 
@@ -430,9 +445,17 @@ private BasePacket fetchPacket(int index) {
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
 
-        countAaaStatistics();
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingRequests(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getMalformedResponsesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestReTx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestRttMilis(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getUnknownTypeRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getUnknownServerRx(), ZERO);
 
-     }
+        countAaaStatistics();
+    }
 
     /** Tests the authentication path through the AAA application.
      *  And counts the aaa Stats for logoff transactionXZ.

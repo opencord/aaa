@@ -21,6 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
@@ -94,6 +96,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.opencord.olt.AccessDeviceService;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 /**
@@ -139,7 +143,14 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected RadiusOperationalStatusService radiusOperationalStatusService;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY,
+            policy = ReferencePolicy.DYNAMIC,
+            bind = "bindAccessDeviceService",
+            unbind = "unbindAccessDeviceService")
+    protected volatile AccessDeviceService accessDeviceService;
+
     protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
+    protected ProvisionCaller provisionCaller;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
@@ -165,6 +176,12 @@ public class AaaManager
             label = "Evaluation mode for determining the Operational Status of Radius Server. Valid values are AUTO "
                     + "(default), STATUS_REQUEST and ACCESS_REQUEST")
     protected String operationalStatusEvaluationMode = DEFAULT_STATUS_SERVER_MODE;
+
+    private static final int DEFAULT_PROVISION_DELAY = 5;
+    @Property(name = "provisionGenerationDelay", intValue = DEFAULT_PROVISION_DELAY,
+            label = "provisionGenerationDelay")
+    private int provisionGenerationDelay = DEFAULT_PROVISION_DELAY;
+    private static long lastPacketTime;
 
     // NAS IP address
     protected InetAddress nasIpAddress;
@@ -212,10 +229,12 @@ public class AaaManager
 
     ScheduledFuture<?> scheduledFuture;
     ScheduledFuture<?> scheduledStatusServerChecker;
+    ScheduledFuture<?> scheduledFutureProvision;
     ScheduledExecutorService executor;
     String configuredAaaServerAddress;
     HashSet<Byte> outPacketSet = new HashSet<Byte>();
     HashSet<Byte> outPacketSupp = new HashSet<Byte>();
+    List<Byte> needProvision = new ArrayList<>();
     static final List<Byte> VALID_EAPOL_TYPE = Arrays.asList(EAPOL.EAPOL_START, EAPOL.EAPOL_LOGOFF, EAPOL.EAPOL_PACKET);
     static final int HEADER_LENGTH = 4;
     // Configuration properties factory
@@ -233,6 +252,21 @@ public class AaaManager
     private final InternalConfigListener cfgListener = new InternalConfigListener();
 
     private StateMachineDelegate delegate = new InternalStateMachineDelegate();
+
+
+    protected void bindAccessDeviceService(AccessDeviceService accessDeviceService) {
+        if ((StateMachine.getAccessDeviceService() == null) && (accessDeviceService != null)) {
+            log.info("binding AccessDeviceService");
+            StateMachine.setAccessDeviceService(accessDeviceService);
+        }
+    }
+
+    protected void unbindAccessDeviceService(AccessDeviceService accessDeviceService) {
+        if (StateMachine.getAccessDeviceService() == accessDeviceService) {
+            log.info("unbinding AccessDeviceService");
+            StateMachine.setAccessDeviceService(null);
+        }
+    }
 
     /**
      * Builds an EAPOL packet based on the given parameters.
@@ -317,6 +351,9 @@ public class AaaManager
         eventDispatcher.removeSink(AuthenticationEvent.class);
         scheduledFuture.cancel(true);
         scheduledStatusServerChecker.cancel(true);
+        if (scheduledFutureProvision != null) {
+            scheduledFutureProvision.cancel(true);
+        }
         executor.shutdown();
         log.info("Stopped");
     }
@@ -499,6 +536,7 @@ public class AaaManager
         }
         switch (radiusPacket.getCode()) {
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
+
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE");
                 RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);
                 byte[] challengeState = null;
@@ -520,6 +558,7 @@ public class AaaManager
                 //increasing packets send to server
                 machineStats.incrementTotalPacketsSent();
                 machineStats.incrementTotalOctetSent(eapPayload.getLength());
+                lastPacketTime = System.currentTimeMillis();
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT");
@@ -542,6 +581,7 @@ public class AaaManager
                 //increasing packets send to server
                 machineStats.incrementTotalPacketsSent();
                 machineStats.incrementTotalOctetSent(eapPayload.getLength());
+                needProvision.add(radiusPacket.getIdentifier());
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
                 log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT");
@@ -741,7 +781,7 @@ public class AaaManager
                     log.debug("Getting EAP identity from supplicant {}", stateMachine.supplicantAddress().toString());
                     sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
                     aaaStatisticsManager.getAaaStats().incrementRequestIdFramesTx();
-
+                    lastPacketTime = System.currentTimeMillis();
                     break;
                 case EAPOL.EAPOL_LOGOFF:
                     log.debug("EAP packet: EAPOL_LOGOFF");
@@ -795,6 +835,7 @@ public class AaaManager
                                 stateMachine.incrementTotalOctetSent(eapol.getPacketLength());
                             }
                             stateMachine.requestAccess();
+                            lastPacketTime = System.currentTimeMillis();
                             break;
                         case EAP.ATTR_MD5:
                             stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
@@ -894,6 +935,13 @@ public class AaaManager
                 newCfg = new AaaConfig();
             } else {
                 newCfg = cfg;
+                StateMachine.setAutoProvision(newCfg.autoProvision());
+                if (newCfg.autoProvision()) {
+                    // make a thread for provisioning
+                    provisionCaller = new ProvisionCaller();
+                    scheduledFutureProvision = executor.scheduleAtFixedRate(
+                            provisionCaller, 0, provisionGenerationDelay, TimeUnit.SECONDS);
+                }
             }
             if (newCfg.nasIp() != null) {
                 nasIpAddress = newCfg.nasIp();
@@ -1040,5 +1088,24 @@ public class AaaManager
                         getRadiusServerOperationalStatus()));
         }
 
+    }
+
+    private class ProvisionCaller implements Runnable {
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long diff = currentTime - lastPacketTime;
+            if ((diff > provisionGenerationDelay * 1000) && (!needProvision.isEmpty())) {
+                Byte subId = needProvision.get(0);
+                StateMachine stateMachine = StateMachine.lookupStateMachineById(subId);
+                if (stateMachine == null) {
+                    log.error("Invalid packet identifier {}, could not find corresponding "
+                                      + "state machine, removed", subId);
+                    needProvision.remove(0);
+                    return;
+                }
+                stateMachine.provisionSubscriber();
+                needProvision.remove(0);
+            }
+        }
     }
 }

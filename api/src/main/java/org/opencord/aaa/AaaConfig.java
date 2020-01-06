@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSet;
  */
 public class AaaConfig extends Config<ApplicationId> {
 
+    private static final String AUTO_PROVISION = "autoProvision";
     private static final String RADIUS_HOST = "radiusHost";
     private static final String RADIUS_IP = "radiusIp";
     private static final String RADIUS_SERVER_PORT = "radiusServerPort";
@@ -95,6 +96,13 @@ public class AaaConfig extends Config<ApplicationId> {
      * @return String value if one os found, default value otherwise
      */
     private String getStringProperty(String name, String defaultValue) {
+        if (object == null) {
+            return defaultValue;
+        }
+        return get(name, defaultValue);
+    }
+
+    private boolean getBooleanProperty(String name, boolean defaultValue) {
         if (object == null) {
             return defaultValue;
         }
@@ -301,6 +309,14 @@ public class AaaConfig extends Config<ApplicationId> {
             }
         }
         return builder.build();
+    }
+
+    public BasicElementConfig autoProvision(boolean enabled) {
+        return (BasicElementConfig) setOrClear(AUTO_PROVISION, enabled);
+    }
+
+    public boolean autoProvision() {
+        return getBooleanProperty(AUTO_PROVISION, false);
     }
 
     @Override

@@ -21,4 +21,5 @@
     <description>${project.description}</description>
     <artifact>mvn:${project.groupId}/${project.artifactId}/${project.version}</artifact>
     <artifact>mvn:${project.groupId}/aaa-api/${project.version}</artifact>
+    <artifact>mvn:${project.groupId}/olt-api/${olt.api.version}</artifact>
 </app>

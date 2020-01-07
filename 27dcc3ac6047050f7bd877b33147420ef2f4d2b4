@@ -46,6 +46,30 @@
       "revId": "27dcc3ac6047050f7bd877b33147420ef2f4d2b4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23b5ddf8_d7bdfc16",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-01-07T22:09:06Z",
+      "side": 1,
+      "message": "So it is not so much a delay as a provisioning repeat time then, but naming really isn\u0027t the issue. It sounds like there is a sort of process QoS scheme that is needed in ONOS to prevent resource starvation as well as to prioritize processing of packets. I would think this is needed beyond the AAA app.",
+      "parentUuid": "75706d68_555c50f0",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 57
+      },
+      "revId": "27dcc3ac6047050f7bd877b33147420ef2f4d2b4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

@@ -1023,9 +1023,9 @@ public class AaaManager
     private class ServerStatusChecker implements Runnable {
         @Override
         public void run() {
-            log.info("Notifying RadiusOperationalStatusEvent");
+            log.debug("Notifying RadiusOperationalStatusEvent");
             radiusOperationalStatusService.checkServerOperationalStatus();
-            log.info("--POSTING--" + radiusOperationalStatusService.getRadiusServerOperationalStatus());
+            log.trace("--POSTING--" + radiusOperationalStatusService.getRadiusServerOperationalStatus());
             radiusOperationalStatusService.getRadiusOprStDelegate()
                 .notify(new RadiusOperationalStatusEvent(
                         RadiusOperationalStatusEvent.Type.RADIUS_OPERATIONAL_STATUS,

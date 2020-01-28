@@ -427,6 +427,33 @@ public class AaaTestBase {
     }
 
     /**
+     * Constructs an Ethernet packet containing a EAPOL_ASF Payload.
+     *
+     * @return Ethernet packet
+     */
+    Ethernet constructSupplicantAsfPacket() {
+        Ethernet eth = new Ethernet();
+        eth.setDestinationMACAddress(clientMac.toBytes());
+        eth.setSourceMACAddress(serverMac.toBytes());
+        eth.setEtherType(EthType.EtherType.EAPOL.ethType().toShort());
+        eth.setVlanID((short) 2);
+
+        EAP eap = new EAP(EAPOL.EAPOL_START, (byte) 3, EAPOL.EAPOL_START, null);
+
+        // eapol header
+        EAPOL eapol = new EAPOL();
+        eapol.setEapolType(EAPOL.EAPOL_ASF);
+        eapol.setPacketLength(eap.getLength());
+
+        // eap part
+        eapol.setPayload(eap);
+
+        eth.setPayload(eapol);
+        eth.setPad(true);
+        return eth;
+    }
+
+    /**
      * Checks the contents of a RADIUS packet being sent to the RADIUS server.
      *
      * @param radiusPacket packet to check

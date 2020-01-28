@@ -52,6 +52,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.onosproject.net.NetTestTools.connectPoint;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -279,19 +280,90 @@ public class AaaStatisticsTest extends AaaTestBase {
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getValidEapolFramesRx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolFramesTx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getReqEapFramesTx(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestIdFramesTx(), ZERO);
+        assertEquals(aaaStatisticsManager.getAaaStats().getInvalidBodyLength(), ZERO);
+        assertEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
+        assertEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
+       // Counts the aaa Statistics count and displays in the log
+       countAaaStatistics();
 
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getAcceptResponsesRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
-
-        // Counts the aaa Statistics count and displays in the log
-        countAaaStatistics();
     }
 
-    /**
-     * Tests the count for defected packets.
+    /** Tests invalid packets reaching AAA.
+     *  And counts the aaa Stats for successful transmission.
+     *   @throws DeserializationException
+     *  if packed deserialization fails.
+     */
+    @Test
+    public void testStatisticsForInvalidPackets() throws Exception {
+
+        //Test Authenticator State Machine Status. Should be Pending
+        // (1) Supplicant start up
+        Ethernet startPacket = constructSupplicantStartPacket();
+        sendPacket(startPacket);
+
+        Ethernet responsePacket = (Ethernet) fetchPacket(0);
+        checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+
+        // (2) Supplicant identify
+
+        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 1, null);
+        sendPacket(identifyPacket);
+
+        RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+        checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+
+        assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+        assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
+                is("testuser"));
+        IpAddress nasIp = IpAddress.valueOf(IpAddress.Version.INET,
+                  radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP).getValue());
+        assertThat(nasIp.toString(), is(aaaManager.nasIpAddress.getHostAddress()));
+
+        // State machine should have been created by now
+
+        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+        assertThat(stateMachine, notNullValue());
+        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+
+        // (3) RADIUS NAK challenge
+
+       RADIUS radiusCodeAccessChallengePacket = constructRadiusCodeAccessChallengePacket(
+                  RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_NAK, radiusIdentifyPacket.getIdentifier(),
+                  aaaManager.radiusSecret.getBytes());
+        aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
+
+        Ethernet radiusChallengeNakPacket = (Ethernet) fetchPacket(2);
+        checkRadiusPacket(aaaManager, radiusChallengeNakPacket, EAP.ATTR_NAK);
+
+        // (4) Supplicant NAK response
+
+       Ethernet nakRadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_NAK,
+           stateMachine.challengeIdentifier(), radiusChallengeNakPacket);
+       sendPacket(nakRadiusPacket);
+
+       //Statistic Should be increased.
+       assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
+
+       //Test if packet with invalid eapol type recieved.
+       // Supplicant ASF Packet
+       Ethernet invalidPacket = constructSupplicantAsfPacket();
+       sendPacket(invalidPacket);
+       //Statistic Should be increased.
+       assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
+       assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+       assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+       assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
+       assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
+       // Counts the aaa Statistics count and displays in the log
+       countAaaStatistics();
+    }
+
+
+    /** Tests the count for defected packets.
      *
      * @throws DeserializationException if packed deserialization fails.
      */
@@ -510,6 +582,7 @@ public class AaaStatisticsTest extends AaaTestBase {
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getAuthStateIdle(), ZERO);
         // Counts the aaa Statistics count
         countAaaStatistics();
 

@@ -1084,6 +1084,7 @@ public class AaaManager
             aaaSupplicantStatsManager.getMachineStatsDelegate()
                    .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
             StateMachine removed = stateMachines.remove(sessionId);
+
             if (removed != null) {
                 StateMachine.deleteStateMachineMapping(removed);
             }

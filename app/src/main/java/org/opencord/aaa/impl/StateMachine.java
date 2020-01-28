@@ -24,7 +24,10 @@ import org.opencord.aaa.AuthenticationRecord;
 import org.opencord.aaa.StateMachineDelegate;
 import org.slf4j.Logger;
 
+import com.google.common.collect.Maps;
+
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -201,6 +204,12 @@ public class StateMachine {
         this.waitingForRadiusResponse = waitingForRadiusResponse;
     }
 
+    private static Map<String, StateMachine> stateMachineSessionIdMap = Maps.newConcurrentMap();
+
+    public static Map<String, StateMachine> getStateMachineSessionIdMap() {
+        return stateMachineSessionIdMap;
+    }
+
     /**
      * Creates a new StateMachine with the given session ID.
      *
@@ -211,6 +220,7 @@ public class StateMachine {
         log.info("Creating a new state machine for {}", sessionId);
         this.sessionId = sessionId;
         this.executor = executor;
+        stateMachineSessionIdMap.put(sessionId, this);
     }
 
     /**

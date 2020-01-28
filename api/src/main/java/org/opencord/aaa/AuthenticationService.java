@@ -16,6 +16,8 @@
 
 package org.opencord.aaa;
 
+import java.util.concurrent.ConcurrentMap;
+
 import org.onlab.packet.MacAddress;
 import org.onosproject.event.ListenerService;
 
@@ -39,5 +41,13 @@ public interface AuthenticationService extends
      * @return true if a record was removed, otherwise false
      */
     boolean removeAuthenticationStateByMac(MacAddress mac);
+
+    /**
+     * Gets state machines created.
+     * @param <StateMachine> StateMachine
+     *
+     * @return map of state machines
+     */
+     <StateMachine> ConcurrentMap<String, StateMachine> getStateMachines();
 
 }

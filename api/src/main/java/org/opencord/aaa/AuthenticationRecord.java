@@ -32,6 +32,8 @@ public class AuthenticationRecord {
 
     private final String state;
 
+    private final long lastChanged;
+
     /**
      * Creates a new authentication record.
      *
@@ -39,13 +41,15 @@ public class AuthenticationRecord {
      * @param username user name
      * @param supplicantAddress MAC address of supplicant
      * @param state authentication state
+     * @param lastChanged timestamp of latest activity
      */
     public AuthenticationRecord(ConnectPoint supplicantConnectPoint, byte[] username,
-                                MacAddress supplicantAddress, String state) {
+                                MacAddress supplicantAddress, String state, long lastChanged) {
         this.supplicantConnectPoint = supplicantConnectPoint;
         this.username = username;
         this.supplicantAddress = supplicantAddress;
         this.state = state;
+        this.lastChanged = lastChanged;
     }
 
     /**
@@ -82,5 +86,14 @@ public class AuthenticationRecord {
      */
     public String state() {
         return state;
+    }
+
+    /**
+     * Gets the timestamp of the last activity on this authentication.
+     *
+     * @return timestamp
+     */
+    public long lastChanged() {
+        return lastChanged;
     }
 }

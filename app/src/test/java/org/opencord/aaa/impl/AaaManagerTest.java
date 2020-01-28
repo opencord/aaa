@@ -34,6 +34,7 @@ import org.onosproject.event.EventSink;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.onosproject.net.packet.InboundPacket;
+import org.onosproject.store.service.TestStorageService;
 import org.opencord.aaa.AaaConfig;
 
 import java.net.InetAddress;
@@ -121,6 +122,7 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.deviceService = new TestDeviceService();
         aaaManager.sadisService = new MockSadisService();
         aaaManager.cfgService = new MockCfgService();
+        aaaManager.storageService = new TestStorageService();
         aaaStatisticsManager = new AaaStatisticsManager();
         aaaManager.radiusOperationalStatusService = new RadiusOperationalStatusManager();
         TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());

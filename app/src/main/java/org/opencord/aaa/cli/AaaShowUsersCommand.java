@@ -17,6 +17,7 @@ package org.opencord.aaa.cli;
 
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.onlab.util.Tools;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.device.DeviceService;
@@ -40,9 +41,6 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
         AuthenticationService authService = get(AuthenticationService.class);
 
         for (AuthenticationRecord auth : authService.getAuthenticationRecords()) {
-            String deviceId = auth.supplicantConnectPoint().deviceId().toString();
-            String portNum = auth.supplicantConnectPoint().port().toString();
-
             String username = "UNKNOWN";
             if (auth.username() != null) {
                 username = new String(auth.username());
@@ -61,8 +59,9 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
                 subsId = subscriber.nasPortId();
             }
 
-            print("UserName=%s,CurrentState=%s,DeviceId=%s,MAC=%s,PortNumber=%s,SubscriberId=%s",
-                  username, auth.state(), deviceId, mac, portNum, subsId);
+            print("%s: %s, last-changed=%s, mac=%s, subid=%s, username=%s",
+                    auth.supplicantConnectPoint(), auth.state(), Tools.timeAgo(auth.lastChanged()),
+                    mac, subsId, username);
         }
     }
 }

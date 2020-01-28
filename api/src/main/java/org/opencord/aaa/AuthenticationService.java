@@ -19,8 +19,6 @@ package org.opencord.aaa;
 import org.onlab.packet.MacAddress;
 import org.onosproject.event.ListenerService;
 
-import java.util.List;
-
 /**
  * Service for interacting with authentication state.
  */
@@ -32,13 +30,13 @@ public interface AuthenticationService extends
      *
      * @return list of authentication records
      */
-    List<AuthenticationRecord> getAuthenticationRecords();
+    Iterable<AuthenticationRecord> getAuthenticationRecords();
 
     /**
      * Removes an authentication record.
      *
      * @param mac MAC address of record to remove
-     * @return true if a record was remove, otherwise false
+     * @return true if a record was removed, otherwise false
      */
     boolean removeAuthenticationStateByMac(MacAddress mac);
 

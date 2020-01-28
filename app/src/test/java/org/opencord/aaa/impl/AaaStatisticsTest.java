@@ -38,6 +38,7 @@ import org.onosproject.net.packet.DefaultInboundPacket;
 import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketService;
+import org.onosproject.store.service.TestStorageService;
 import org.opencord.aaa.AaaConfig;
 import org.slf4j.Logger;
 
@@ -141,6 +142,7 @@ public class AaaStatisticsTest extends AaaTestBase {
         aaaManager.deviceService = new TestDeviceService();
         aaaManager.sadisService = new MockSadisService();
         aaaManager.cfgService = new MockCfgService();
+        aaaManager.storageService = new TestStorageService();
         aaaStatisticsManager = new AaaStatisticsManager();
         aaaSupplicantStatsManager = new AaaSupplicantMachineStatsManager();
         TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());

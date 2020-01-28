@@ -20,6 +20,7 @@ package org.opencord.aaa.impl;
 import org.onlab.packet.MacAddress;
 import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.AuthenticationEvent;
+import org.opencord.aaa.AuthenticationRecord;
 import org.opencord.aaa.StateMachineDelegate;
 import org.slf4j.Logger;
 
@@ -506,7 +507,8 @@ public class StateMachine {
 
         states[currentState].start();
 
-        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.STARTED, supplicantConnectpoint));
+        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.STARTED,
+                supplicantConnectpoint, toAuthRecord()));
 
         // move to the next state
         next(TRANSITION_START);
@@ -519,7 +521,8 @@ public class StateMachine {
     public void requestAccess() {
         states[currentState].requestAccess();
 
-        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.REQUESTED, supplicantConnectpoint));
+        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.REQUESTED,
+                supplicantConnectpoint, toAuthRecord()));
 
         // move to the next state
         next(TRANSITION_REQUEST_ACCESS);
@@ -533,7 +536,8 @@ public class StateMachine {
         // move to the next state
         next(TRANSITION_AUTHORIZE_ACCESS);
 
-        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.APPROVED, supplicantConnectpoint));
+        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.APPROVED,
+                supplicantConnectpoint, toAuthRecord()));
 
         // Clear mapping
         deleteStateMachineMapping(this);
@@ -547,7 +551,8 @@ public class StateMachine {
         // move to the next state
         next(TRANSITION_DENY_ACCESS);
 
-        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.DENIED, supplicantConnectpoint));
+        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.DENIED,
+                supplicantConnectpoint, toAuthRecord()));
 
         // Clear mappings
         deleteStateMachineMapping(this);
@@ -558,8 +563,17 @@ public class StateMachine {
      */
     public void logoff() {
         states[currentState].logoff();
+
+        // TODO event here?
+
         // move to the next state
         next(TRANSITION_LOGOFF);
+    }
+
+    private AuthenticationRecord toAuthRecord() {
+        return new AuthenticationRecord(this.supplicantConnectpoint(),
+                this.username(), this.supplicantAddress(), this.stateString(),
+                this.getLastPacketReceivedTime());
     }
 
     /**
@@ -720,7 +734,10 @@ public class StateMachine {
                 (System.currentTimeMillis() - lastPacketReceivedTime) > ((cleanupTimerTimeOutInMins * 60 * 1000) / 2);
 
         if (TIMEOUT_ELIGIBLE_STATES.contains(currentState) && noTrafficWithinThreshold) {
-            delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.TIMEOUT, this.supplicantConnectpoint));
+            this.setSessionTerminateReason(SessionTerminationReasons.TIME_OUT.reason);
+
+            delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.TIMEOUT,
+                    this.supplicantConnectpoint));
             // If StateMachine is not eligible for cleanup yet, reschedule cleanupTimer further.
         } else {
             this.scheduleTimeout();

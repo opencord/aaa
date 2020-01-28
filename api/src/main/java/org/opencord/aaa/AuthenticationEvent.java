@@ -55,6 +55,8 @@ public class AuthenticationEvent extends
         TIMEOUT
     }
 
+    private AuthenticationRecord authRecord;
+
     /**
      * Creates a new authentication event.
      *
@@ -63,6 +65,27 @@ public class AuthenticationEvent extends
      */
     public AuthenticationEvent(Type type, ConnectPoint connectPoint) {
         super(type, connectPoint);
+    }
+
+    /**
+     * Creates a new authentication event.
+     *
+     * @param type event type
+     * @param connectPoint port
+     * @param record information about the authentication state
+     */
+    public AuthenticationEvent(Type type, ConnectPoint connectPoint, AuthenticationRecord record) {
+        super(type, connectPoint);
+        this.authRecord = record;
+    }
+
+    /**
+     * Gets information about the authentication state.
+     *
+     * @return authentication record
+     */
+    public AuthenticationRecord authenticationRecord() {
+        return this.authRecord;
     }
 
 }

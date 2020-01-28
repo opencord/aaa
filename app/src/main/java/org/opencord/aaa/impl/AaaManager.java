@@ -638,6 +638,12 @@ public class AaaManager
         return authentications.values();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public ConcurrentMap<String, StateMachine> getStateMachines() {
+        return stateMachines;
+    }
+
     @Override
     public boolean removeAuthenticationStateByMac(MacAddress mac) {
 
@@ -926,7 +932,6 @@ public class AaaManager
 
     private void handleStateMachineTimeout(ConnectPoint supplicantConnectPoint) {
         StateMachine stateMachine = stateMachines.remove(sessionId(supplicantConnectPoint));
-
         //pushing captured machine stats to kafka
         stateMachine.setSessionTerminateReason("Time out");
         AaaSupplicantMachineStats obj = aaaSupplicantStatsManager
@@ -1086,6 +1091,7 @@ public class AaaManager
                    .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
 
             StateMachine removed = stateMachines.remove(sessionId);
+
             if (removed != null) {
                 StateMachine.deleteStateMachineMapping(removed);
             }

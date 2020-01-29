@@ -19,52 +19,27 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onosproject.cli.AbstractShellCommand;
 import org.opencord.aaa.AaaStatistics;
+import org.opencord.aaa.AaaStatisticsSnapshot;
 import org.opencord.aaa.AuthenticationStatisticsService;
 
 /**
  * Display current value of all aaa statistics counters.
  */
 @Service
-@Command(scope = "onos", name = "show-aaa-counters",
+@Command(scope = "onos", name = "aaa-statistics",
 description = "Display current value of all aaa statistics counters")
 public class AaaShowCountersCommand extends AbstractShellCommand {
+
     @Override
     protected void doExecute() {
-
-        AaaStatistics aaaStats = new AaaStatistics();
-
         AuthenticationStatisticsService aaaStatisticsManager =
                 AbstractShellCommand.get(AuthenticationStatisticsService.class);
-        aaaStats = aaaStatisticsManager.getAaaStats();
 
-        System.out.format("%30s %10d\n", "AccessRequestsTx", aaaStats.getAccessRequestsTx());
-        System.out.format("%30s %10d\n", "ChallengeResponsesRx", aaaStats.getChallengeResponsesRx());
-        System.out.format("%30s %10d\n", "RequestReTx", aaaStats.getRequestReTx());
-        System.out.format("%30s %10d\n", "AcceptResponsesRx", aaaStats.getAcceptResponsesRx());
-        System.out.format("%30s %10d\n", "RejectResponsesRx", aaaStats.getRejectResponsesRx());
-        System.out.format("%30s %10d\n", "PendingRequests", aaaStats.getPendingRequests());
-        System.out.format("%30s %10d\n", "DroppedResponsesRx", aaaStats.getDroppedResponsesRx());
-        System.out.format("%30s %10d\n", "InvalidValidatorsRx", aaaStats.getInvalidValidatorsRx());
-        System.out.format("%30s %10d\n", "MalformedResponsesRx", aaaStats.getMalformedResponsesRx());
-        System.out.format("%30s %10d\n", "UnknownServerRx", aaaStats.getUnknownServerRx());
-        System.out.format("%30s %10d\n", "UnknownTypeRx", aaaStats.getUnknownTypeRx());
-        System.out.format("%30s %10d\n", "RequestRttMillis", aaaStats.getRequestRttMilis());
-        System.out.format("%30s %10d\n", "EapolLogoffRx", aaaStats.getEapolLogoffRx());
-        System.out.format("%30s %10d\n", "EapolAuthSuccessTrans", aaaStats.getEapolAuthSuccessTrans());
-        System.out.format("%30s %10d\n", "EapolAuthFailureTrans", aaaStats.getEapolAuthFailureTrans());
-        System.out.format("%30s %10d\n", "EapolStartReqTrans", aaaStats.getEapolStartReqTrans());
-        System.out.format("%30s %10d\n", "EapolTransRespNotNak", aaaStats.getEapolTransRespNotNak());
-        System.out.format("%30s %10d\n", "EapPktTxauthChooseEap", aaaStats.getEapPktTxauthChooseEap());
-        System.out.format("%30s %10d\n", "EapolResIdentityMsgTrans", aaaStats.getEapolResIdentityMsgTrans());
-        System.out.format("%30s %10d\n", "AuthStateIdle", aaaStats.getAuthStateIdle());
-        System.out.format("%30s %10d\n", "RequestIdFramesTx", aaaStats.getRequestIdFramesTx());
-        System.out.format("%30s %10d\n", "ReqEapFramesTx", aaaStats.getReqEapFramesTx());
-        System.out.format("%30s %10d\n", "InvalidPktType", aaaStats.getInvalidPktType());
-        System.out.format("%30s %10d\n", "InvalidBodyLength", aaaStats.getInvalidBodyLength());
-        System.out.format("%30s %10d\n", "ValidEapolFramesRx", aaaStats.getValidEapolFramesRx());
-        System.out.format("%30s %10d\n", "PendingResSupp", aaaStats.getPendingResSupp());
-        System.out.format("%30s %10d\n", "EapolFramesTx", aaaStats.getEapolFramesTx());
-        System.out.format("%30s %10d\n", "TimedOutPackets", aaaStats.getTimedOutPackets());
+        AaaStatisticsSnapshot stats = aaaStatisticsManager.getClusterStatistics();
 
-  }
+        for (String name : AaaStatistics.COUNTER_NAMES) {
+            print("%30s %10d", name, stats.get(name));
+        }
+
+    }
 }

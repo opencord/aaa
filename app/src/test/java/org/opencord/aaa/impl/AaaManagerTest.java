@@ -26,6 +26,9 @@ import org.onlab.packet.Ethernet;
 import org.onlab.packet.IpAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
+import org.onosproject.cluster.ClusterServiceAdapter;
+import org.onosproject.cluster.LeadershipServiceAdapter;
+import org.onosproject.cluster.NodeId;
 import org.onosproject.core.CoreServiceAdapter;
 import org.onosproject.event.DefaultEventSinkRegistry;
 import org.onosproject.event.Event;
@@ -34,6 +37,7 @@ import org.onosproject.event.EventSink;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.onosproject.net.packet.InboundPacket;
+import org.onosproject.store.cluster.messaging.ClusterCommunicationServiceAdapter;
 import org.onosproject.store.service.TestStorageService;
 import org.opencord.aaa.AaaConfig;
 
@@ -74,6 +78,13 @@ public class AaaManagerTest extends AaaTestBase {
                 // can't happen
                 throw new IllegalStateException(ex);
             }
+        }
+    }
+
+    static final class TestLeadershipService extends LeadershipServiceAdapter {
+        @Override
+        public NodeId getLeader(String path) {
+            return new ClusterServiceAdapter().getLocalNode().id();
         }
     }
 
@@ -124,9 +135,13 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.cfgService = new MockCfgService();
         aaaManager.storageService = new TestStorageService();
         aaaStatisticsManager = new AaaStatisticsManager();
+        aaaStatisticsManager.storageService = new TestStorageService();
+        aaaStatisticsManager.clusterService = new ClusterServiceAdapter();
+        aaaStatisticsManager.leadershipService = new TestLeadershipService();
+        aaaStatisticsManager.clusterCommunicationService = new ClusterCommunicationServiceAdapter();
         aaaManager.radiusOperationalStatusService = new RadiusOperationalStatusManager();
         TestUtils.setField(aaaStatisticsManager, "eventDispatcher", new TestEventDispatcher());
-        aaaStatisticsManager.activate();
+        aaaStatisticsManager.activate(new MockComponentContext());
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
         aaaManager.activate(new AaaTestBase.MockComponentContext());

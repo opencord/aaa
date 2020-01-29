@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cfc1f7db_e0533905",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-01-29T09:33:22Z",
+      "side": 1,
+      "message": "is this map ok to be local meaning every ONOS instance can handle a certain number of connections to radius ? and the session ID does not have to be shared ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 25
+      },
+      "revId": "3edf8b02c4292800149ab334d4b6222a70089eb9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40eedbf1_fc202cba",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-01-29T09:33:22Z",
+      "side": 1,
+      "message": "is this because the max number of radio connections is 255 ? if so I know it\u0027s a minor comment, but can it be extracted so people know what stands for ?",
+      "range": {
+        "startLine": 41,
+        "startChar": 28,
+        "endLine": 41,
+        "endChar": 31
+      },
+      "revId": "3edf8b02c4292800149ab334d4b6222a70089eb9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6700ad5_3d3dc8b5",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-01-29T09:33:22Z",
+      "side": 1,
+      "message": "unrelated to the patch but the packet is not getting inserted into the log here, missing {}",
+      "range": {
+        "startLine": 200,
+        "startChar": 24,
+        "endLine": 200,
+        "endChar": 68
+      },
+      "revId": "3edf8b02c4292800149ab334d4b6222a70089eb9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

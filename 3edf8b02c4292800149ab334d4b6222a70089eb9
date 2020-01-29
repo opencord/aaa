@@ -92,6 +92,30 @@
       "revId": "3edf8b02c4292800149ab334d4b6222a70089eb9",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5619a7d_92d62898",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-01-29T16:11:24Z",
+      "side": 1,
+      "message": "dex is an exception and the stack trace of it will be logged (it is using the log.error(String msg, Throwable t) version of the log function)",
+      "parentUuid": "b6700ad5_3d3dc8b5",
+      "range": {
+        "startLine": 200,
+        "startChar": 24,
+        "endLine": 200,
+        "endChar": 68
+      },
+      "revId": "3edf8b02c4292800149ab334d4b6222a70089eb9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

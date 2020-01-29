@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cbe17b02_d56f5b06",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-01-29T16:06:59Z",
+      "side": 1,
+      "message": "Yeah it\u0027s local, it is basically an identifier for each request/response pair. So you can have 256 outstanding requests to RADIUS at any one time. From reading the RFC there are apparently ways to increase the number of outstanding requests possible by using a combination of the UDP port number and this identifier, but I figured we can implement that when/if we get to the point that we need to.",
+      "parentUuid": "cfc1f7db_e0533905",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 25
+      },
+      "revId": "3edf8b02c4292800149ab334d4b6222a70089eb9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40eedbf1_fc202cba",
         "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
         "patchSetId": 4

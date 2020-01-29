@@ -27,6 +27,9 @@ public final class OsgiPropertyConstants {
     public static final String STATISTICS_GENERATION_PERIOD = "statisticsGenerationPeriodInSeconds";
     public static final int STATISTICS_GENERATION_PERIOD_DEFAULT = 20;
 
+    public static final String STATISTICS_SYNC_PERIOD = "statisticsSyncPeriodInSeconds";
+    public static final int STATISTICS_SYNC_PERIOD_DEFAULT = 5;
+
     public static final String OPERATIONAL_STATUS_SERVER_EVENT_GENERATION =
             "operationalStatusEventGenerationPeriodInSeconds";
     public static final int OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT = 30;

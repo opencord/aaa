@@ -19,46 +19,46 @@ package org.opencord.aaa;
 import org.onosproject.event.ListenerService;
 
 /**
- * Service for interacting with accounting module.
+ * Service for interacting with accounting statistics.
  */
-
 public interface AuthenticationStatisticsService extends
-ListenerService<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener> {
+        ListenerService<AuthenticationStatisticsEvent, AuthenticationStatisticsEventListener> {
 
     /**
-     * Returns AaaStatistics object.
+     * Returns AaaStatistics object containing only local (this instance) statistics.
      *
      * @return AaaStatistics
      */
-    public AaaStatistics getAaaStats();
+    AaaStatistics getAaaStats();
+
     /**
-     * Returns AuthenticationStatisticsDelegate object.
+     * Gets the cluster-wide statistics.
      *
-     * @return AuthenticationStatisticsDelegate
+     * @return snapshot containing cluster statistics
      */
-    public AuthenticationStatisticsDelegate getStatsDelegate();
+    AaaStatisticsSnapshot getClusterStatistics();
 
     /**
      * Handle the roundTrip time of Radius Packet.
      *
      * @param identifier identifier of incoming radius packet
      */
-    public void handleRoundtripTime(byte identifier);
+    void handleRoundtripTime(byte identifier);
 
     /**
      * Calculate average roundTrip time of multiple Packets.
      */
-    public void calculatePacketRoundtripTime();
+    void calculatePacketRoundtripTime();
 
     /**
      * Put the identifier value to map.
      *
      * @param identifier identifier of incoming radius packet
      */
-    public void putOutgoingIdentifierToMap(byte identifier);
+    void putOutgoingIdentifierToMap(byte identifier);
 
-   /**
-    * Reset all the values of aaa counters to 0.
-    */
-    public void resetAllCounters();
+    /**
+     * Reset all the values of aaa counters to 0.
+     */
+    void resetAllCounters();
 }

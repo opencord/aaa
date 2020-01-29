@@ -21,10 +21,16 @@ import org.onlab.util.Tools;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.device.DeviceService;
+import org.onosproject.utils.Comparators;
 import org.opencord.aaa.AuthenticationRecord;
 import org.opencord.aaa.AuthenticationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
+
+import java.util.Comparator;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Shows the users in the aaa.
@@ -36,11 +42,19 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
     @Override
     protected void doExecute() {
 
+        final Comparator<AuthenticationRecord> authenticationRecordComparator =
+                (a1, a2) -> Comparators.CONNECT_POINT_COMPARATOR.
+                        compare(a1.supplicantConnectPoint(), a2.supplicantConnectPoint());
+
         DeviceService devService = get(DeviceService.class);
         SadisService sadisService = get(SadisService.class);
         AuthenticationService authService = get(AuthenticationService.class);
 
-        for (AuthenticationRecord auth : authService.getAuthenticationRecords()) {
+        List<AuthenticationRecord> authentications = newArrayList(authService.getAuthenticationRecords());
+
+        authentications.sort(authenticationRecordComparator);
+
+        for (AuthenticationRecord auth : authentications) {
             String username = "UNKNOWN";
             if (auth.username() != null) {
                 username = new String(auth.username());

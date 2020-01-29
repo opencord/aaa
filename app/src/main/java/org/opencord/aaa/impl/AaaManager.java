@@ -49,7 +49,6 @@ import org.onosproject.event.AbstractListenerManager;
 import org.onosproject.mastership.MastershipService;
 import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.DeviceId;
-import org.onosproject.net.ElementId;
 import org.onosproject.net.PortNumber;
 import org.onosproject.net.config.ConfigFactory;
 import org.onosproject.net.config.NetworkConfigEvent;
@@ -66,6 +65,7 @@ import org.onosproject.net.packet.OutboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
+import org.onosproject.store.serializers.KryoNamespaces;
 import org.onosproject.store.service.ConsistentMap;
 import org.onosproject.store.service.MapEvent;
 import org.onosproject.store.service.MapEventListener;
@@ -80,7 +80,6 @@ import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.AuthenticationEventListener;
 import org.opencord.aaa.AuthenticationRecord;
 import org.opencord.aaa.AuthenticationService;
-import org.opencord.aaa.AuthenticationStatisticsEvent;
 import org.opencord.aaa.AuthenticationStatisticsService;
 import org.opencord.aaa.RadiusCommunicator;
 import org.opencord.aaa.RadiusOperationalStatusEvent;
@@ -101,7 +100,6 @@ import org.slf4j.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
@@ -113,8 +111,6 @@ import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SER
 import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_TIMEOUT;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT;
-import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_PERIOD;
-import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_PERIOD_DEFAULT;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE_DEFAULT;
 
@@ -122,7 +118,6 @@ import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE_DEF
  * AAA application for ONOS.
  */
 @Component(immediate = true, property = {
-        STATISTICS_GENERATION_PERIOD + ":Integer=" + STATISTICS_GENERATION_PERIOD_DEFAULT,
         OPERATIONAL_STATUS_SERVER_EVENT_GENERATION + ":Integer=" + OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT,
         OPERATIONAL_STATUS_SERVER_TIMEOUT + ":Integer=" + OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT,
         STATUS_SERVER_MODE + ":String=" + STATUS_SERVER_MODE_DEFAULT,
@@ -168,12 +163,10 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected RadiusOperationalStatusService radiusOperationalStatusService;
 
-    protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
     private final DeviceListener deviceListener = new InternalDeviceListener();
 
     // Properties
-    private int statisticsGenerationPeriodInSeconds = STATISTICS_GENERATION_PERIOD_DEFAULT;
     private int operationalStatusEventGenerationPeriodInSeconds = OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT;
     private int operationalStatusServerTimeoutInSeconds = OPERATIONAL_STATUS_SERVER_TIMEOUT_DEFAULT;
     protected String operationalStatusEvaluationMode = STATUS_SERVER_MODE_DEFAULT;
@@ -228,12 +221,11 @@ public class AaaManager
     // latest configuration
     AaaConfig newCfg;
 
-    ScheduledFuture<?> scheduledFuture;
     ScheduledFuture<?> scheduledStatusServerChecker;
     ScheduledExecutorService executor;
     String configuredAaaServerAddress;
-    HashSet<Byte> outPacketSet = new HashSet<Byte>();
-    HashSet<Byte> outPacketSupp = new HashSet<Byte>();
+    HashSet<Byte> outPacketSet = new HashSet<>();
+    HashSet<Byte> outPacketSupp = new HashSet<>();
     static final List<Byte> VALID_EAPOL_TYPE = Arrays.asList(EAPOL.EAPOL_START, EAPOL.EAPOL_LOGOFF, EAPOL.EAPOL_PACKET);
     static final int HEADER_LENGTH = 4;
     // Configuration properties factory
@@ -295,16 +287,7 @@ public class AaaManager
         appId = coreService.registerApplication(APP_NAME);
 
         KryoNamespace authSerializer = KryoNamespace.newBuilder()
-                .register(byte[].class)
-                .register(String.class)
-                .register(long.class)
-                .register(boolean.class)
-                .register(URI.class)
-                .register(DeviceId.class)
-                .register(ElementId.class)
-                .register(PortNumber.class)
-                .register(ConnectPoint.class)
-                .register(MacAddress.class)
+                .register(KryoNamespaces.API)
                 .register(AuthenticationRecord.class)
                 .build();
 
@@ -335,12 +318,8 @@ public class AaaManager
         deviceService.addListener(deviceListener);
         getConfiguredAaaServerAddress();
         radiusOperationalStatusService.initialize(nasIpAddress.getAddress(), radiusSecret, impl);
-        authenticationStatisticsPublisher =
-                new AuthenticationStatisticsEventPublisher();
         executor = Executors.newScheduledThreadPool(3);
 
-        scheduledFuture = executor.scheduleAtFixedRate(authenticationStatisticsPublisher,
-            0, statisticsGenerationPeriodInSeconds, TimeUnit.SECONDS);
         scheduledStatusServerChecker = executor.scheduleAtFixedRate(new ServerStatusChecker(), 0,
             operationalStatusEventGenerationPeriodInSeconds, TimeUnit.SECONDS);
 
@@ -357,7 +336,6 @@ public class AaaManager
         impl.deactivate();
         deviceService.removeListener(deviceListener);
         eventDispatcher.removeSink(AuthenticationEvent.class);
-        scheduledFuture.cancel(true);
         scheduledStatusServerChecker.cancel(true);
         executor.shutdown();
 
@@ -369,11 +347,7 @@ public class AaaManager
     public void modified(ComponentContext context) {
         Dictionary<String, Object> properties = context.getProperties();
 
-        String s = Tools.get(properties, "statisticsGenerationPeriodInSeconds");
-        statisticsGenerationPeriodInSeconds = Strings.isNullOrEmpty(s) ? STATISTICS_GENERATION_PERIOD_DEFAULT
-                : Integer.parseInt(s.trim());
-
-        s = Tools.get(properties, "operationalStatusEventGenerationPeriodInSeconds");
+        String s = Tools.get(properties, "operationalStatusEventGenerationPeriodInSeconds");
         operationalStatusEventGenerationPeriodInSeconds = Strings.isNullOrEmpty(s)
                 ? OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT
                     : Integer.parseInt(s.trim());
@@ -1118,51 +1092,6 @@ public class AaaManager
             if (removed != null) {
                 StateMachine.deleteStateMachineMapping(removed);
             }
-        }
-    }
-
-    private class AuthenticationStatisticsEventPublisher implements Runnable {
-        private final Logger log = getLogger(getClass());
-        public void run() {
-            log.info("Notifying AuthenticationStatisticsEvent");
-            aaaStatisticsManager.calculatePacketRoundtripTime();
-            log.debug("AcceptResponsesRx---" + aaaStatisticsManager.getAaaStats().getAcceptResponsesRx());
-            log.debug("AccessRequestsTx---" + aaaStatisticsManager.getAaaStats().getAccessRequestsTx());
-            log.debug("ChallengeResponsesRx---" + aaaStatisticsManager.getAaaStats().getChallengeResponsesRx());
-            log.debug("DroppedResponsesRx---" + aaaStatisticsManager.getAaaStats().getDroppedResponsesRx());
-            log.debug("InvalidValidatorsRx---" + aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx());
-            log.debug("MalformedResponsesRx---" + aaaStatisticsManager.getAaaStats().getMalformedResponsesRx());
-            log.debug("PendingRequests---" + aaaStatisticsManager.getAaaStats().getPendingRequests());
-            log.debug("RejectResponsesRx---" + aaaStatisticsManager.getAaaStats().getRejectResponsesRx());
-            log.debug("RequestReTx---" + aaaStatisticsManager.getAaaStats().getRequestReTx());
-            log.debug("RequestRttMilis---" + aaaStatisticsManager.getAaaStats().getRequestRttMilis());
-            log.debug("UnknownServerRx---" + aaaStatisticsManager.getAaaStats().getUnknownServerRx());
-            log.debug("UnknownTypeRx---" + aaaStatisticsManager.getAaaStats().getUnknownTypeRx());
-            log.debug("TimedOutPackets----" + aaaStatisticsManager.getAaaStats().getTimedOutPackets());
-            log.debug("EapolLogoffRx---" + aaaStatisticsManager.getAaaStats().getEapolLogoffRx());
-            log.debug("EapolAuthSuccessTrans---" + aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans());
-            log.debug("EapolAuthFailureTrans---" +
-            aaaStatisticsManager.getAaaStats().getEapolAuthFailureTrans());
-            log.debug("EapolStartReqTrans---" +
-            aaaStatisticsManager.getAaaStats().getEapolStartReqTrans());
-            log.debug("EapolTransRespNotNak---" +
-            aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak());
-            log.debug("EapPktTxauthChooseEap---" +
-            aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap());
-            log.debug("EapolResIdentityMsgTrans---" +
-            aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans());
-            log.debug("EapolFramesTx---" + aaaStatisticsManager.getAaaStats().getEapolFramesTx());
-            log.debug("AuthStateIdle---" + aaaStatisticsManager.getAaaStats().getAuthStateIdle());
-            log.debug("RequestIdFramesTx---" + aaaStatisticsManager.getAaaStats().getRequestIdFramesTx());
-            log.debug("ReqEapFramesTx---" + aaaStatisticsManager.getAaaStats().getReqEapFramesTx());
-            log.debug("InvalidPktType---" + aaaStatisticsManager.getAaaStats().getInvalidPktType());
-            log.debug("InvalidBodyLength---" + aaaStatisticsManager.getAaaStats().getInvalidBodyLength());
-            log.debug("ValidEapolFramesRx---" + aaaStatisticsManager.getAaaStats().getValidEapolFramesRx());
-            log.debug("PendingResSupp---" + aaaStatisticsManager.getAaaStats().getPendingResSupp());
-            log.debug("ResIdEapFramesRx---" + aaaStatisticsManager.getAaaStats().getEapolattrIdentity());
-            aaaStatisticsManager.getStatsDelegate().
-                notify(new AuthenticationStatisticsEvent(AuthenticationStatisticsEvent.Type.STATS_UPDATE,
-                    aaaStatisticsManager.getAaaStats()));
         }
     }
 

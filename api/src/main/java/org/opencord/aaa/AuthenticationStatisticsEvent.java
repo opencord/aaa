@@ -15,22 +15,26 @@
  */
 
 package org.opencord.aaa;
+
 import org.onosproject.event.AbstractEvent;
+
 /**
  * Event indicating the Accounting Data of AAA.
  */
 public class AuthenticationStatisticsEvent extends
         AbstractEvent<AuthenticationStatisticsEvent.Type, AaaStatistics> {
-/**
- * Accounting data.
- * AuthenticationMetrixEvent event type.
- */
+
+    /**
+     * Type of AuthenticationStatisticsEvent.
+     */
     public enum Type {
+
         /**
-         * signifies that the Authentication Metrix Event stats has been updated.
+         * Signifies that the authentication statistics have been updated.
          */
         STATS_UPDATE
     }
+
     public AuthenticationStatisticsEvent(Type type, AaaStatistics stats) {
         super(type, stats);
     }

@@ -141,7 +141,7 @@ public class AaaManager
 
     protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
-    private final DeviceListener deviceListener = new InternalDeviceListener();
+    protected final DeviceListener deviceListener = new InternalDeviceListener();
 
     private static final int DEFAULT_REPEAT_DELAY = 20;
     @Property(name = "statisticsGenerationPeriodInSeconds", intValue = DEFAULT_REPEAT_DELAY,
@@ -209,6 +209,9 @@ public class AaaManager
 
     // latest configuration
     AaaConfig newCfg;
+
+    // AaaSuplicantMachineStats Object;
+    AaaSupplicantMachineStats aaaSupplicantObj;
 
     ScheduledFuture<?> scheduledFuture;
     ScheduledFuture<?> scheduledStatusServerChecker;
@@ -573,9 +576,10 @@ public class AaaManager
                 machineStats.incrementTotalPacketsSent();
                 machineStats.incrementTotalOctetSent(eapPayload.getLength());
                 //pushing machine stats to kafka
-                AaaSupplicantMachineStats machineObj = aaaSupplicantStatsManager.getSupplicantStats(machineStats);
+                aaaSupplicantObj = aaaSupplicantStatsManager.getSupplicantStats(machineStats);
                 aaaSupplicantStatsManager.getMachineStatsDelegate()
-                        .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, machineObj));
+                        .notify(new AaaMachineStatisticsEvent(
+                                AaaMachineStatisticsEvent.Type.STATS_UPDATE, aaaSupplicantObj));
                 break;
             default:
                 log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());
@@ -751,9 +755,10 @@ public class AaaManager
                         stateMachine.setSessionTerminateReason(
                                 StateMachine.SessionTerminationReasons.SUPPLICANT_LOGOFF.getReason());
                     }
-                    AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+                    aaaSupplicantObj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
                     aaaSupplicantStatsManager.getMachineStatsDelegate()
-                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+                            .notify(new AaaMachineStatisticsEvent(
+                                    AaaMachineStatisticsEvent.Type.STATS_UPDATE, aaaSupplicantObj));
                     if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
                         stateMachine.logoff();
                         aaaStatisticsManager.getAaaStats().incrementEapolLogoffRx();
@@ -966,9 +971,10 @@ public class AaaManager
                                 StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
                     }
                     //pushing captured machine stats to kafka
-                    AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+                    aaaSupplicantObj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
                     aaaSupplicantStatsManager.getMachineStatsDelegate()
-                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+                            .notify(new AaaMachineStatisticsEvent(
+                                    AaaMachineStatisticsEvent.Type.STATS_UPDATE, aaaSupplicantObj));
 
                     Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
                     StateMachine removed = sessionIdMap.remove(sessionId);

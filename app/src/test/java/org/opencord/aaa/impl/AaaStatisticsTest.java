@@ -24,6 +24,7 @@ import org.onlab.packet.BasePacket;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.Ethernet;
+import org.onlab.packet.Ip4Address;
 import org.onlab.packet.IpAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
@@ -33,13 +34,26 @@ import org.onosproject.event.DefaultEventSinkRegistry;
 import org.onosproject.event.Event;
 import org.onosproject.event.EventDeliveryService;
 import org.onosproject.event.EventSink;
+import org.onosproject.net.AnnotationKeys;
+import org.onosproject.net.Annotations;
+import org.onosproject.net.DefaultAnnotations;
+import org.onosproject.net.DefaultDevice;
+import org.onosproject.net.DefaultPort;
+import org.onosproject.net.Device;
+import org.onosproject.net.DeviceId;
+import org.onosproject.net.Port;
+import org.onosproject.net.SparseAnnotations;
+import org.onosproject.net.Port.Type;
+import org.onosproject.net.PortNumber;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
+import org.onosproject.net.device.DeviceEvent;
 import org.onosproject.net.packet.DefaultInboundPacket;
 import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketService;
 import org.opencord.aaa.AaaConfig;
+import org.opencord.aaa.AaaSupplicantMachineStats;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -50,6 +64,7 @@ import java.nio.ByteBuffer;
 import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.onosproject.net.NetTestTools.connectPoint;
@@ -553,7 +568,6 @@ private BasePacket fetchPacket(int index) {
 
     }
 
-
     /** Tests the authentication path through the AAA application.
      *  And counts the aaa Stats for timeout.
      *   @throws DeserializationException
@@ -600,6 +614,130 @@ private BasePacket fetchPacket(int index) {
         assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
        countAaaStatistics();
 
+    }
+
+
+    /** Tests the authentication path through the AAA application.
+     *  And counts the aaa Stats for logoff transactionXZ.
+     *   @throws DeserializationException
+     *  if packed deserialization fails.
+     */
+    @Test
+    public void testAaaSuplicantStatsForEapolLogOff() throws Exception {
+
+        // (1) Supplicant start up
+        Ethernet startPacket = constructSupplicantStartPacket();
+        sendPacket(startPacket);
+
+        Ethernet responsePacket = (Ethernet) fetchPacket(0);
+        checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+
+        // (2) Supplicant identify
+
+        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 1, null);
+        sendPacket(identifyPacket);
+
+        RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+        checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+
+        // State machine should have been created by now
+
+        StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(SESSION_ID);
+
+        // (3) RADIUS MD5 challenge
+
+        RADIUS radiusCodeAccessChallengePacket = constructRadiusCodeAccessChallengePacket(
+                  RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5);
+        aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
+
+        Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
+        checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
+
+        // (4) Supplicant MD5 response
+
+        Ethernet md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
+           stateMachine.challengeIdentifier(), radiusChallengeMD5Packet);
+        sendPacket(md5RadiusPacket);
+
+        RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
+
+        checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
+
+        // (5) RADIUS Success
+
+        RADIUS successPacket =
+                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS);
+        aaaManager.handleRadiusPacket((successPacket));
+        Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
+
+        checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
+
+        // Supplicant trigger EAP Logoff
+        Ethernet loggoffPacket = constructSupplicantLogoffPacket();
+        sendPacket(loggoffPacket);
+        AaaSupplicantMachineStats aaaSupplicantObj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+
+        // Check the aaa supplicant stats.
+        assertEquals(aaaSupplicantObj.getSessionTerminateReason(), "SUPPLICANT_LOGOFF");
+        assertEquals(aaaSupplicantObj.getEapolType(), "EAPOL_LOGOFF");
+        assertNotEquals(aaaSupplicantObj.getSessionDuration(), 0);
+        assertEquals(aaaSupplicantObj.getSessionName(), "testuser");
+        assertEquals(aaaSupplicantObj.getSessionId(), SESSION_ID);
+        assertEquals(aaaSupplicantObj.getSrcMacAddress(), serverMac.toString());
+        assertNotEquals(aaaSupplicantObj.getTotalFramesReceived(), 0);
+        assertNotEquals(aaaSupplicantObj.getTotalFramesSent(), 0);
+        assertNotEquals(aaaSupplicantObj.getTotalPacketsRecieved(), 0);
+        assertNotEquals(aaaSupplicantObj.getTotalPacketsSent(), 0);
+    }
+
+
+    @Test
+    public void testAaaSuplicantStatsForPortRemoved() throws Exception {
+
+        // (1) Supplicant start up
+        Ethernet startPacket = constructSupplicantStartPacket();
+        sendPacket(startPacket);
+
+        Ethernet responsePacket = (Ethernet) fetchPacket(0);
+        checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+
+        // (2) Supplicant identify
+
+        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 1, null);
+        sendPacket(identifyPacket);
+
+        RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+        checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+
+        // State machine should have been created by now
+        StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(SESSION_ID);
+
+        // Device configuration
+        DeviceId deviceId = DeviceId.deviceId("of:1");
+        // Source ip address of two different device.
+        Ip4Address sourceIp = Ip4Address.valueOf("10.177.125.4");
+        DefaultAnnotations.Builder annotationsBuilder = DefaultAnnotations.builder()
+                .set(AnnotationKeys.MANAGEMENT_ADDRESS, sourceIp.toString());
+        SparseAnnotations annotations = annotationsBuilder.build();
+        Annotations[] deviceAnnotations = {annotations };
+        Device deviceA = new DefaultDevice(null, deviceId, Device.Type.OTHER, "", "", "", "", null, deviceAnnotations);
+        Port port =
+             new DefaultPort(null, PortNumber.portNumber(1), true, Type.COPPER, DefaultPort.DEFAULT_SPEED, annotations);
+        DeviceEvent deviceEvent = new DeviceEvent(DeviceEvent.Type.PORT_REMOVED, deviceA, port);
+        aaaManager.deviceListener.event(deviceEvent);
+        AaaSupplicantMachineStats aaaSupplicantObj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+
+        // Check the aaa supplicant stats.
+        assertEquals(aaaSupplicantObj.getSessionTerminateReason(), "PORT_REMOVED");
+        assertEquals(aaaSupplicantObj.getEapolType(), "EAPOL_PACKET");
+        assertNotEquals(aaaSupplicantObj.getSessionDuration(), 0);
+        assertEquals(aaaSupplicantObj.getSessionName(), "testuser");
+        assertEquals(aaaSupplicantObj.getSessionId(), SESSION_ID);
+        assertEquals(aaaSupplicantObj.getSrcMacAddress(), serverMac.toString());
+        assertEquals(aaaSupplicantObj.getTotalFramesReceived(), 0);
+        assertEquals(aaaSupplicantObj.getTotalFramesSent(), 0);
+        assertEquals(aaaSupplicantObj.getTotalPacketsRecieved(), 0);
+        assertEquals(aaaSupplicantObj.getTotalPacketsSent(), 0);
     }
 
     // Calculates the AAA statistics count.

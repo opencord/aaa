@@ -144,7 +144,7 @@ public class AaaManager
 
     protected AuthenticationStatisticsEventPublisher authenticationStatisticsPublisher;
     protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
-    private final DeviceListener deviceListener = new InternalDeviceListener();
+    protected final DeviceListener deviceListener = new InternalDeviceListener();
 
     private static final int DEFAULT_REPEAT_DELAY = 20;
     @Property(name = "statisticsGenerationPeriodInSeconds", intValue = DEFAULT_REPEAT_DELAY,
@@ -578,7 +578,8 @@ public class AaaManager
                 //pushing machine stats to kafka
                 AaaSupplicantMachineStats machineObj = aaaSupplicantStatsManager.getSupplicantStats(machineStats);
                 aaaSupplicantStatsManager.getMachineStatsDelegate()
-                        .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, machineObj));
+                        .notify(new AaaMachineStatisticsEvent(
+                                AaaMachineStatisticsEvent.Type.STATS_UPDATE, machineObj));
                 break;
             default:
                 log.warn("Unknown RADIUS message received with code: {}", radiusPacket.getCode());
@@ -756,7 +757,8 @@ public class AaaManager
                     }
                     AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
                     aaaSupplicantStatsManager.getMachineStatsDelegate()
-                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+                            .notify(new AaaMachineStatisticsEvent(
+                                    AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
                     if (stateMachine.state() == StateMachine.STATE_AUTHORIZED) {
                         stateMachine.logoff();
                         aaaStatisticsManager.getAaaStats().incrementEapolLogoffRx();
@@ -957,41 +959,41 @@ public class AaaManager
         @Override
         public void event(DeviceEvent event) {
 
-            switch (event.type()) {
-                case PORT_REMOVED:
-                    DeviceId devId = event.subject().id();
-                    PortNumber portNumber = event.port().number();
-                    String sessionId = devId.toString() + portNumber.toString();
+             switch (event.type()) {
+                 case PORT_REMOVED:
+                     DeviceId devId = event.subject().id();
+                     PortNumber portNumber = event.port().number();
+                     String sessionId = devId.toString() + portNumber.toString();
 
-                    log.info("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
-                    flushStateMachineSession(sessionId,
-                            StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
+                     log.info("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
+                     flushStateMachineSession(sessionId,
+                             StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 
-                    break;
+                     break;
 
-                case DEVICE_REMOVED:
-                    DeviceId deviceId = event.subject().id();
-                    log.info("Received DEVICE_REMOVED event for {}", deviceId);
+                 case DEVICE_REMOVED:
+                     DeviceId deviceId = event.subject().id();
+                     log.info("Received DEVICE_REMOVED event for {}", deviceId);
 
-                    Set<String> associatedSessions = Sets.newHashSet();
-                    for (Entry<String, StateMachine> stateMachineEntry : StateMachine.sessionIdMap().entrySet()) {
-                        ConnectPoint cp = stateMachineEntry.getValue().supplicantConnectpoint();
-                        if (cp != null && cp.deviceId().toString().equals(deviceId.toString())) {
-                            associatedSessions.add(stateMachineEntry.getKey());
-                        }
-                    }
+                     Set<String> associatedSessions = Sets.newHashSet();
+                     for (Entry<String, StateMachine> stateMachineEntry : StateMachine.sessionIdMap().entrySet()) {
+                         ConnectPoint cp = stateMachineEntry.getValue().supplicantConnectpoint();
+                         if (cp != null && cp.deviceId().toString().equals(deviceId.toString())) {
+                             associatedSessions.add(stateMachineEntry.getKey());
+                         }
+                     }
 
-                    for (String session : associatedSessions) {
-                        log.info("Clearing AAA Session {} associated with Removed Device", session);
-                        flushStateMachineSession(session,
-                               StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
-                    }
+                     for (String session : associatedSessions) {
+                         log.info("Clearing AAA Session {} associated with Removed Device", session);
+                         flushStateMachineSession(session,
+                                 StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
+                     }
 
-                    break;
+                     break;
 
-                default:
-                    return;
-            }
+                 default:
+                     return;
+             }
         }
 
         private void flushStateMachineSession(String sessionId, String terminationReason) {

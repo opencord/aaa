@@ -68,6 +68,40 @@
       "revId": "85a9469504d8c0469c8dc8b08e6a734c50f190ec",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53758f6a_9187d856",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-03T21:20:19Z",
+      "side": 1,
+      "message": "I think this will create a new task each time the app is reconfigured and the old task will still be running. You should check if scheduledFutureProvision is running or is not null to guard against creating a second task.",
+      "revId": "85a9469504d8c0469c8dc8b08e6a734c50f190ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ef32adf_9f20ab82",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1111,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-03T21:20:19Z",
+      "side": 1,
+      "message": "I would not push this functionality into the stateMachine. All you need to provision is the connect point, so you can just store the connect point in your needProvision set rather than the session ID. Then you can directly call the accessDevice service here and you don\u0027t need to worry if the stateMachine was cleaned up in the meantime.",
+      "revId": "85a9469504d8c0469c8dc8b08e6a734c50f190ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

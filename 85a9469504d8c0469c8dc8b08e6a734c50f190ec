@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45eabe73_bebd6f77",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1000381
+      },
+      "writtenOn": "2020-02-03T20:49:29Z",
+      "side": 1,
+      "message": "If the reference to AccessDeviceService is optional, then you should not make the olt app a requirement in pom.xml. Using optional references gives you the benefit of installing and activating apps in any given order, but by specifying the app requirement in pom.xml you require the olt app to be installed first, which does not justify the complexity of maintaining an optional reference here.",
+      "range": {
+        "startLine": 150,
+        "startChar": 23,
+        "endLine": 150,
+        "endChar": 42
+      },
+      "revId": "85a9469504d8c0469c8dc8b08e6a734c50f190ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24e44508_f1d40459",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1000381
+      },
+      "writtenOn": "2020-02-03T20:49:29Z",
+      "side": 1,
+      "message": "Have you considered using a concurrent/thread-safe data structure here? I might be wrong, but it seems this list is accessed by multiple threads without any explicit locking.",
+      "range": {
+        "startLine": 237,
+        "startChar": 33,
+        "endLine": 237,
+        "endChar": 51
+      },
+      "revId": "85a9469504d8c0469c8dc8b08e6a734c50f190ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdaa8396_305ec4e2",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 1000381
+      },
+      "writtenOn": "2020-02-03T20:49:29Z",
+      "side": 1,
+      "message": "It looks like needProvision should contain the same string only once -- have you considered using a Set instead of a List? A Set would be much more efficient, as contains() here does a linear scan of the whole list, while a common implementation like HashSet takes constant time. Moreover, you could simplify this snippet by removing the if check, and always add, since the set implementation here guarantees that a given string will be present at most once.",
+      "range": {
+        "startLine": 585,
+        "startChar": 16,
+        "endLine": 587,
+        "endChar": 17
+      },
+      "revId": "85a9469504d8c0469c8dc8b08e6a734c50f190ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

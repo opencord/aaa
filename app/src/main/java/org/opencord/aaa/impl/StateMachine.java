@@ -27,6 +27,8 @@ import org.onlab.packet.MacAddress;
 import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.StateMachineDelegate;
+import org.opencord.aaa.AaaSupplicantMachineStats;
+import org.opencord.aaa.AaaMachineStatisticsEvent;
 import org.slf4j.Logger;
 
 import com.google.common.collect.Maps;
@@ -789,6 +791,14 @@ class StateMachine {
                             if (stateMachine.state() == STATE_PENDING && stateMachine.isWaitingForRadiusResponse()) {
                                 aaaManager.aaaStatisticsManager.getAaaStats().increaseTimedOutPackets();
                             }
+                            //pushing captured machine stats to kafka
+                            stateMachine.setSessionTerminateReason("Time out");
+                            AaaSupplicantMachineStats obj = aaaManager.aaaSupplicantStatsManager
+                                    .getSupplicantStats(stateMachine);
+                            aaaManager.aaaSupplicantStatsManager.getMachineStatsDelegate()
+                                    .notify(new AaaMachineStatisticsEvent(
+                                              AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+
                             deleteStateMachineId(sessionId);
                             deleteStateMachineMapping(stateMachine);
 

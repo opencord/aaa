@@ -951,6 +951,14 @@ public class AaaManager
     private void handleStateMachineTimeout(ConnectPoint supplicantConnectPoint) {
         StateMachine stateMachine = stateMachines.remove(sessionId(supplicantConnectPoint));
 
+        //pushing captured machine stats to kafka
+        stateMachine.setSessionTerminateReason("Time out");
+        AaaSupplicantMachineStats obj = aaaSupplicantStatsManager
+                .getSupplicantStats(stateMachine);
+        aaaSupplicantStatsManager.getMachineStatsDelegate()
+                .notify(new AaaMachineStatisticsEvent(
+                        AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+
         if (stateMachine.state() == StateMachine.STATE_PENDING && stateMachine.isWaitingForRadiusResponse()) {
             aaaStatisticsManager.getAaaStats().increaseTimedOutPackets();
         }

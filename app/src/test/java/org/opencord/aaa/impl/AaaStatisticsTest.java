@@ -509,6 +509,55 @@ public class AaaStatisticsTest extends AaaTestBase {
 
     }
 
+
+    /** Tests the authentication path through the AAA application.
+     *  And counts the aaa Stats for timeout.
+     *   @throws DeserializationException
+     *  if packed deserialization fails.
+     */
+    @Test
+    public void testAaaStatisticsForTimeoutPackets() throws Exception {
+
+        // (1) Supplicant start up
+        Ethernet startPacket = constructSupplicantStartPacket();
+        sendPacket(startPacket);
+
+        Ethernet responsePacket = (Ethernet) fetchPacket(0);
+        checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+
+        // (2) Supplicant identify
+
+        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 1, null);
+        sendPacket(identifyPacket);
+
+        RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+        checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+
+        assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+        assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
+                is("testuser"));
+        IpAddress nasIp = IpAddress.valueOf(IpAddress.Version.INET,
+                  radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP).getValue());
+        assertThat(nasIp.toString(), is(aaaManager.nasIpAddress.getHostAddress()));
+
+        // State machine should have been created by now
+
+        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+        assertThat(stateMachine, notNullValue());
+        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+        Thread.sleep((aaaManager.cleanupTimerTimeOutInMins / 2) + 1);
+
+        // State machine should be in timeout state
+        assertThat(stateMachine, notNullValue());
+        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+
+        //Check for increase in stats
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
+        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+       countAaaStatistics();
+
+    }
+
     // Calculates the AAA statistics count.
     public void countAaaStatistics() {
         assertThat(aaaStatisticsManager.getAaaStats().getAcceptResponsesRx(), notNullValue());

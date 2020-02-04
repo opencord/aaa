@@ -17,6 +17,20 @@ package org.opencord.aaa.impl;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import com.google.common.collect.Sets;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
@@ -87,14 +101,7 @@ import org.slf4j.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
@@ -102,7 +109,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_EVENT_GENERATION;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_EVENT_GENERATION_DEFAULT;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.OPERATIONAL_STATUS_SERVER_TIMEOUT;
@@ -111,7 +117,6 @@ import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_
 import static org.opencord.aaa.impl.OsgiPropertyConstants.STATISTICS_GENERATION_PERIOD_DEFAULT;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE;
 import static org.opencord.aaa.impl.OsgiPropertyConstants.STATUS_SERVER_MODE_DEFAULT;
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * AAA application for ONOS.
@@ -1050,27 +1055,55 @@ public class AaaManager
                     PortNumber portNumber = event.port().number();
                     String sessionId = devId.toString() + portNumber.toString();
 
-                    StateMachine stateMachine = stateMachines.get(sessionId);
-                    if (stateMachine != null) {
-                        stateMachine.setSessionTerminateReason(
-                                StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
-                    }
-                    //pushing captured machine stats to kafka
-                    AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
-                    aaaSupplicantStatsManager.getMachineStatsDelegate()
-                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+                    log.debug("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
+                    flushStateMachineSession(sessionId,
+                            StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 
-                    StateMachine removed = stateMachines.remove(sessionId);
-                    if (removed != null) {
-                        StateMachine.deleteStateMachineMapping(removed);
+                    break;
+
+                case DEVICE_REMOVED:
+                    DeviceId deviceId = event.subject().id();
+                    log.debug("Received DEVICE_REMOVED event for {}", deviceId);
+
+                    Set<String> associatedSessions = Sets.newHashSet();
+                    for (Entry<String, StateMachine> stateMachineEntry : stateMachines.entrySet()) {
+                        ConnectPoint cp = stateMachineEntry.getValue().supplicantConnectpoint();
+                        if (cp != null && cp.deviceId().toString().equals(deviceId.toString())) {
+                            associatedSessions.add(stateMachineEntry.getKey());
+                        }
+                    }
+
+                    for (String session : associatedSessions) {
+                        log.debug("Clearing AAA Session {} associated with Removed Device", session);
+                        flushStateMachineSession(session,
+                               StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
                     }
 
                     break;
+
                 default:
                     return;
             }
         }
+
+        private void flushStateMachineSession(String sessionId, String terminationReason) {
+            StateMachine stateMachine = stateMachines.get(sessionId);
+            if (stateMachine != null) {
+                stateMachine.setSessionTerminateReason(terminationReason);
+            }
+
+            //pushing captured machine stats to kafka
+            AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+            aaaSupplicantStatsManager.getMachineStatsDelegate()
+                   .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+
+            StateMachine removed = stateMachines.remove(sessionId);
+            if (removed != null) {
+                StateMachine.deleteStateMachineMapping(removed);
+            }
+        }
     }
+
     private class AuthenticationStatisticsEventPublisher implements Runnable {
         private final Logger log = getLogger(getClass());
         public void run() {

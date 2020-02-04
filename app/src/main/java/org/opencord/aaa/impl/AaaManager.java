@@ -18,6 +18,7 @@ package org.opencord.aaa.impl;
 import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FACTORY;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.common.collect.Sets;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -26,6 +27,8 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.felix.scr.annotations.Component;
@@ -960,28 +963,56 @@ public class AaaManager
                     PortNumber portNumber = event.port().number();
                     String sessionId = devId.toString() + portNumber.toString();
 
-                    StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
-                    if (stateMachine != null) {
-                        stateMachine.setSessionTerminateReason(
-                                StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
-                    }
-                    //pushing captured machine stats to kafka
-                    AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
-                    aaaSupplicantStatsManager.getMachineStatsDelegate()
-                            .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+                    log.info("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
+                    flushStateMachineSession(sessionId,
+                            StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 
-                    Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
-                    StateMachine removed = sessionIdMap.remove(sessionId);
-                    if (removed != null) {
-                        StateMachine.deleteStateMachineMapping(removed);
+                    break;
+
+                case DEVICE_REMOVED:
+                    DeviceId deviceId = event.subject().id();
+                    log.info("Received DEVICE_REMOVED event for {}", deviceId);
+
+                    Set<String> associatedSessions = Sets.newHashSet();
+                    for (Entry<String, StateMachine> stateMachineEntry : StateMachine.sessionIdMap().entrySet()) {
+                        ConnectPoint cp = stateMachineEntry.getValue().supplicantConnectpoint();
+                        if (cp != null && cp.deviceId().toString().equals(deviceId.toString())) {
+                            associatedSessions.add(stateMachineEntry.getKey());
+                        }
+                    }
+
+                    for (String session : associatedSessions) {
+                        log.info("Clearing AAA Session {} associated with Removed Device", session);
+                        flushStateMachineSession(session,
+                               StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
                     }
 
                     break;
+
                 default:
                     return;
             }
         }
+
+        private void flushStateMachineSession(String sessionId, String terminationReason) {
+            StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
+            if (stateMachine != null) {
+                stateMachine.setSessionTerminateReason(terminationReason);
+            }
+
+            //pushing captured machine stats to kafka
+            AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
+            aaaSupplicantStatsManager.getMachineStatsDelegate()
+                   .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
+
+            Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
+            StateMachine removed = sessionIdMap.remove(sessionId);
+            if (removed != null) {
+                StateMachine.deleteStateMachineMapping(removed);
+            }
+        }
     }
+
     private class AuthenticationStatisticsEventPublisher implements Runnable {
         private final Logger log = getLogger(getClass());
         public void run() {

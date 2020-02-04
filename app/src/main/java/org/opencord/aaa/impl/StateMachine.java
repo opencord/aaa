@@ -89,7 +89,8 @@ class StateMachine {
     public enum SessionTerminationReasons {
         SUPPLICANT_LOGOFF("SUPPLICANT_LOGOFF"),
         TIME_OUT("TIME_OUT"),
-        PORT_REMOVED("PORT_REMOVED");
+        PORT_REMOVED("PORT_REMOVED"),
+        DEVICE_REMOVED("DEVICE_REMOVED");
 
         private final String reason;
 

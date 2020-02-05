@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e276ed85_2c48e734",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-02-05T18:36:04Z",
+      "side": 1,
+      "message": "This default case is redundant, the method will return anyways.",
+      "revId": "8bc4eb3f069ffc4210d543eea3ede310241a28d6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c19c8241_d4e17e11",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 1

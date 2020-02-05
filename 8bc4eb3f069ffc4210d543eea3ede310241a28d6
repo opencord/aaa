@@ -22,6 +22,30 @@
       "revId": "8bc4eb3f069ffc4210d543eea3ede310241a28d6",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3bcef0f1_574674cd",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-02-05T05:55:31Z",
+      "side": 1,
+      "message": "As these AAA sessions can be cleaned up in other paths as well, this check is there to skip further cleanup if the StateMachine for this session has already been cleared. So, removed can be null if the supplicant has logged off or timeout (after a long period of no response) just a moment earlier.\n\nNothing needs to be logged when removed \u003d\u003d null",
+      "parentUuid": "c19c8241_d4e17e11",
+      "range": {
+        "startLine": 1010,
+        "startChar": 12,
+        "endLine": 1010,
+        "endChar": 32
+      },
+      "revId": "8bc4eb3f069ffc4210d543eea3ede310241a28d6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

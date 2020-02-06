@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fd52e010_71416626",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-02-06T04:55:13Z",
+      "side": 1,
+      "message": "Yeah. It is redundant; probably just improving the readability a bit. But I guess the Java compiler would be intelligent enough to not add any bytecode for this part\n\nPlease let me know if you feel it is better to remove it.",
+      "parentUuid": "e276ed85_2c48e734",
+      "revId": "8bc4eb3f069ffc4210d543eea3ede310241a28d6",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c19c8241_d4e17e11",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 1

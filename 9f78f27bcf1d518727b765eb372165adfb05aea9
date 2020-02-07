@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9236dbec_9f83e315",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-07T08:12:39Z",
+      "side": 1,
+      "message": "to have better consistency can we sleep for the exact amount that the State Machine has as TIMEOUT + 1 second ? it woudl be nice to use the same constant here so people understand why this sleep.",
+      "range": {
+        "startLine": 592,
+        "startChar": 21,
+        "endLine": 592,
+        "endChar": 27
+      },
+      "revId": "9f78f27bcf1d518727b765eb372165adfb05aea9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

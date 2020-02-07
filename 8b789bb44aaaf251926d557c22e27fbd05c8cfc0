@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8a7d620_e07388c2",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-02-07T12:07:24Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "247c9281_930841b5",
+      "range": {
+        "startLine": 1058,
+        "startChar": 24,
+        "endLine": 1058,
+        "endChar": 28
+      },
+      "revId": "8b789bb44aaaf251926d557c22e27fbd05c8cfc0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7db9dea2_fee32e9f",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "567bb225_d7d0a085",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-02-07T12:07:24Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "7db9dea2_fee32e9f",
+      "range": {
+        "startLine": 1066,
+        "startChar": 24,
+        "endLine": 1066,
+        "endChar": 28
+      },
+      "revId": "8b789bb44aaaf251926d557c22e27fbd05c8cfc0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85724476_cec40b26",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2020-02-07T10:31:37Z",
       "side": 1,
       "message": "debug",
+      "range": {
+        "startLine": 1077,
+        "startChar": 28,
+        "endLine": 1077,
+        "endChar": 32
+      },
+      "revId": "8b789bb44aaaf251926d557c22e27fbd05c8cfc0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9d3d1a1_a326d10c",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-02-07T12:07:24Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "85724476_cec40b26",
       "range": {
         "startLine": 1077,
         "startChar": 28,

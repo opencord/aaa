@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e9f164f_72c48474",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-11T15:56:47Z",
+      "side": 1,
+      "message": "This should say DEVICE_AVAILABILTY_CHANGED otherwise it is misleading.",
+      "range": {
+        "startLine": 1070,
+        "startChar": 40,
+        "endLine": 1070,
+        "endChar": 54
+      },
+      "revId": "ff7ad009ac1bede4fcb2bc2a6a35d392240a118f",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

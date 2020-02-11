@@ -1056,41 +1056,45 @@ public class AaaManager
     private class InternalDeviceListener implements DeviceListener {
         @Override
         public void event(DeviceEvent event) {
-
+            DeviceId deviceId = event.subject().id();
             switch (event.type()) {
                 case PORT_REMOVED:
-                    DeviceId devId = event.subject().id();
                     PortNumber portNumber = event.port().number();
-                    String sessionId = devId.toString() + portNumber.toString();
-
+                    String sessionId = deviceId.toString() + portNumber.toString();
                     log.debug("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
                     flushStateMachineSession(sessionId,
                             StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 
                     break;
-
-                case DEVICE_REMOVED:
-                    DeviceId deviceId = event.subject().id();
+                case DEVICE_AVAILABILITY_CHANGED:
                     log.debug("Received DEVICE_REMOVED event for {}", deviceId);
-
-                    Set<String> associatedSessions = Sets.newHashSet();
-                    for (Entry<String, StateMachine> stateMachineEntry : stateMachines.entrySet()) {
-                        ConnectPoint cp = stateMachineEntry.getValue().supplicantConnectpoint();
-                        if (cp != null && cp.deviceId().toString().equals(deviceId.toString())) {
-                            associatedSessions.add(stateMachineEntry.getKey());
-                        }
+                    if (!deviceService.isAvailable(deviceId)) {
+                        clearSessionState(deviceId);
                     }
-
-                    for (String session : associatedSessions) {
-                        log.debug("Clearing AAA Session {} associated with Removed Device", session);
-                        flushStateMachineSession(session,
-                               StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
-                    }
-
+                    break;
+                case DEVICE_REMOVED:
+                    log.debug("Received DEVICE_REMOVED event for {}", deviceId);
+                    clearSessionState(deviceId);
                     break;
 
                 default:
                     return;
+            }
+        }
+
+        private void clearSessionState(DeviceId deviceId) {
+            Set<String> associatedSessions = Sets.newHashSet();
+            for (Entry<String, StateMachine> stateMachineEntry : stateMachines.entrySet()) {
+                ConnectPoint cp = stateMachineEntry.getValue().supplicantConnectpoint();
+                if (cp != null && cp.deviceId().toString().equals(deviceId.toString())) {
+                    associatedSessions.add(stateMachineEntry.getKey());
+                }
+            }
+
+            for (String session : associatedSessions) {
+                log.debug("Clearing AAA Session {} associated with Removed Device", session);
+                flushStateMachineSession(session,
+                       StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
             }
         }
 

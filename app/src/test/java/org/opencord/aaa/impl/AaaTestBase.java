@@ -221,11 +221,9 @@ public class AaaTestBase {
                                            VlanId stag, String nasPortId,
                                            String circuitId, MacAddress hardId,
                                            Ip4Address ipAddress) {
-            this.setCTag(ctag);
             this.setHardwareIdentifier(hardId);
             this.setId(id);
             this.setIPAddress(ipAddress);
-            this.setSTag(stag);
             this.setNasPortId(nasPortId);
             this.setCircuitId(circuitId);
         }

@@ -1011,11 +1011,11 @@ public class AaaManager
             aaaSupplicantStatsManager.getMachineStatsDelegate()
                    .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
 
-            Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
-            StateMachine removed = sessionIdMap.remove(sessionId);
-            if (removed != null) {
-                StateMachine.deleteStateMachineMapping(removed);
-            }
+                Map<String, StateMachine> sessionIdMap = StateMachine.sessionIdMap();
+                StateMachine removed = sessionIdMap.remove(sessionId);
+                if (removed != null) {
+                    StateMachine.deleteStateMachineMapping(removed);
+                }
         }
     }
 

@@ -66,6 +66,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.onosproject.net.NetTestTools.connectPoint;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -765,6 +766,11 @@ private BasePacket fetchPacket(int index) {
     }
 
 
+    /** Tests the authentication path through the AAA application.
+     *  And counts the aaa supplicant Stats for uthenticated onu (Port removed)
+     *   @throws DeserializationException
+     *  if packed deserialization fails.
+     */
     @Test
     public void testAaaSuplicantStatsForPortRemoved() throws Exception {
 
@@ -785,7 +791,6 @@ private BasePacket fetchPacket(int index) {
 
         // State machine should have been created by now
         StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(SESSION_ID);
-
         // Device configuration
         DeviceId deviceId = DeviceId.deviceId("of:1");
         // Source ip address of two different device.
@@ -812,6 +817,33 @@ private BasePacket fetchPacket(int index) {
         assertEquals(aaaSupplicantObj.getTotalFramesSent(), 0);
         assertEquals(aaaSupplicantObj.getTotalPacketsRecieved(), 0);
         assertEquals(aaaSupplicantObj.getTotalPacketsSent(), 0);
+    }
+
+    /** Tests the authentication path through the AAA application.
+     *  And counts the aaa supplicant Stats for unauthenticated onu (Port removed)
+     *   @throws DeserializationException
+     *  if packed deserialization fails.
+     */
+    @Test
+    public void testAaaSuplicantStatsForUnauthenticatedOnu() throws Exception {
+
+        // Device configuration
+        DeviceId deviceId = DeviceId.deviceId("of:1");
+        // Source ip address of two different device.
+        Ip4Address sourceIp = Ip4Address.valueOf("10.177.125.4");
+        DefaultAnnotations.Builder annotationsBuilder = DefaultAnnotations.builder()
+                .set(AnnotationKeys.MANAGEMENT_ADDRESS, sourceIp.toString());
+        SparseAnnotations annotations = annotationsBuilder.build();
+        Annotations[] deviceAnnotations = {annotations };
+        Device deviceA = new DefaultDevice(null, deviceId, Device.Type.OTHER, "", "", "", "", null, deviceAnnotations);
+        Port port =
+             new DefaultPort(null, PortNumber.portNumber(1), true, Type.COPPER, DefaultPort.DEFAULT_SPEED, annotations);
+        DeviceEvent deviceEvent = new DeviceEvent(DeviceEvent.Type.PORT_REMOVED, deviceA, port);
+        aaaManager.deviceListener.event(deviceEvent);
+        // State machine should have been created by now
+        StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(SESSION_ID);
+        // Check the state machine is null. As state machine is null aaaSuplicantObj is null.
+        assertNull(stateMachine);
     }
 
     // Calculates the AAA statistics count.

@@ -24,7 +24,6 @@ import org.onlab.packet.BasePacket;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EAP;
 import org.onlab.packet.Ethernet;
-import org.onlab.packet.Ip4Address;
 import org.onlab.packet.IpAddress;
 import org.onlab.packet.RADIUS;
 import org.onlab.packet.RADIUSAttribute;
@@ -40,11 +39,9 @@ import org.onosproject.net.DefaultAnnotations;
 import org.onosproject.net.DefaultDevice;
 import org.onosproject.net.DefaultPort;
 import org.onosproject.net.Device;
-import org.onosproject.net.DeviceId;
 import org.onosproject.net.Port;
 import org.onosproject.net.SparseAnnotations;
 import org.onosproject.net.Port.Type;
-import org.onosproject.net.PortNumber;
 import org.onosproject.net.config.Config;
 import org.onosproject.net.config.NetworkConfigRegistryAdapter;
 import org.onosproject.net.device.DeviceEvent;
@@ -66,6 +63,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.onosproject.net.NetTestTools.connectPoint;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -765,6 +763,10 @@ private BasePacket fetchPacket(int index) {
     }
 
 
+    /** Tests the aaa supplicant stats through the AAA application.
+     *  For authenticated onu (Port removed)
+     *   @throws Exception
+     */
     @Test
     public void testAaaSuplicantStatsForPortRemoved() throws Exception {
 
@@ -785,18 +787,13 @@ private BasePacket fetchPacket(int index) {
 
         // State machine should have been created by now
         StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(SESSION_ID);
-
-        // Device configuration
-        DeviceId deviceId = DeviceId.deviceId("of:1");
-        // Source ip address of two different device.
-        Ip4Address sourceIp = Ip4Address.valueOf("10.177.125.4");
         DefaultAnnotations.Builder annotationsBuilder = DefaultAnnotations.builder()
-                .set(AnnotationKeys.MANAGEMENT_ADDRESS, sourceIp.toString());
+                .set(AnnotationKeys.MANAGEMENT_ADDRESS, SOURCE_IP.toString());
         SparseAnnotations annotations = annotationsBuilder.build();
         Annotations[] deviceAnnotations = {annotations };
-        Device deviceA = new DefaultDevice(null, deviceId, Device.Type.OTHER, "", "", "", "", null, deviceAnnotations);
+        Device deviceA = new DefaultDevice(null, DEVICE_ID, Device.Type.OTHER, "", "", "", "", null, deviceAnnotations);
         Port port =
-             new DefaultPort(null, PortNumber.portNumber(1), true, Type.COPPER, DefaultPort.DEFAULT_SPEED, annotations);
+             new DefaultPort(null, PORT_A, true, Type.COPPER, DefaultPort.DEFAULT_SPEED, annotations);
         DeviceEvent deviceEvent = new DeviceEvent(DeviceEvent.Type.PORT_REMOVED, deviceA, port);
         aaaManager.deviceListener.event(deviceEvent);
         AaaSupplicantMachineStats aaaSupplicantObj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
@@ -812,6 +809,25 @@ private BasePacket fetchPacket(int index) {
         assertEquals(aaaSupplicantObj.getTotalFramesSent(), 0);
         assertEquals(aaaSupplicantObj.getTotalPacketsRecieved(), 0);
         assertEquals(aaaSupplicantObj.getTotalPacketsSent(), 0);
+    }
+
+    // Test AAA supplicant Stats for unauthenticated onu (Port removed)
+    @Test
+    public void testAaaSuplicantStatsForUnauthenticatedOnu() throws Exception {
+
+        DefaultAnnotations.Builder annotationsBuilder = DefaultAnnotations.builder()
+                .set(AnnotationKeys.MANAGEMENT_ADDRESS, SOURCE_IP.toString());
+        SparseAnnotations annotations = annotationsBuilder.build();
+        Annotations[] deviceAnnotations = {annotations };
+        Device deviceA = new DefaultDevice(null, DEVICE_ID, Device.Type.OTHER, "", "", "", "", null, deviceAnnotations);
+        Port port =
+             new DefaultPort(null, PORT_A, true, Type.COPPER, DefaultPort.DEFAULT_SPEED, annotations);
+        DeviceEvent deviceEvent = new DeviceEvent(DeviceEvent.Type.PORT_REMOVED, deviceA, port);
+        aaaManager.deviceListener.event(deviceEvent);
+        // State machine will not be created.
+        StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(SESSION_ID);
+        // Check the state machine is null. As state machine is null aaaSuplicantObj is null.
+        assertNull(stateMachine);
     }
 
     // Calculates the AAA statistics count.

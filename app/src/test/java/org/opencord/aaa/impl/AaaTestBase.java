@@ -29,6 +29,7 @@ import org.onosproject.cfg.ConfigProperty;
 import org.onosproject.net.Annotations;
 import org.onosproject.net.device.DeviceServiceAdapter;
 import org.onosproject.net.ConnectPoint;
+import org.onosproject.net.DeviceId;
 import org.onosproject.net.Element;
 import org.onosproject.net.Port;
 import org.onosproject.net.PortNumber;
@@ -76,7 +77,12 @@ public class AaaTestBase {
 
     // Our session id will be the device ID ("of:1") with the port ("1") concatenated
     static final String SESSION_ID = "of:11";
-
+    // Device configuration
+    static final DeviceId DEVICE_ID = DeviceId.deviceId("of:1");
+    // Source ip address of a device.
+    static final Ip4Address SOURCE_IP = Ip4Address.valueOf("10.177.125.4");
+    // Port number
+    static final PortNumber PORT_A = PortNumber.portNumber(1);
     List<BasePacket> savedPackets = new LinkedList<>();
     PacketProcessor packetProcessor;
 

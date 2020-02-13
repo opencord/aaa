@@ -138,4 +138,14 @@ public class AaaSupplicantMachineStats {
                 this.sessionTerminateReason = sessionTerminateReason;
         }
 
+        public void showMachineCounters() {
+            System.out.format("%30s %10d\n", "SessionDuration", getSessionDuration());
+            System.out.format("%30s %10d\n", "TotalOctetRecieved", getTotalOctetRecieved());
+            System.out.format("%30s %10d\n", "TotalFramesReceived", getTotalFramesReceived());
+            System.out.format("%30s %10d\n", "TotalFramesSent", getTotalFramesSent());
+            System.out.format("%30s %10d\n", "TotalOctetSent", getTotalOctetSent());
+            System.out.format("%30s %10d\n", "TotalPacketsRecieved", getTotalPacketsRecieved());
+            System.out.format("%30s %10d\n", "TotalPacketsSent", getTotalPacketsSent());
+        }
+
 }

@@ -924,7 +924,7 @@ public class AaaManager
 
     private void handleStateMachineTimeout(ConnectPoint supplicantConnectPoint) {
         StateMachine stateMachine = stateMachines.remove(sessionId(supplicantConnectPoint));
-
+        StateMachine.getStateMachineSessionIdMap().remove(sessionId(supplicantConnectPoint));
         //pushing captured machine stats to kafka
         stateMachine.setSessionTerminateReason("Time out");
         AaaSupplicantMachineStats obj = aaaSupplicantStatsManager
@@ -1082,8 +1082,8 @@ public class AaaManager
             AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);
             aaaSupplicantStatsManager.getMachineStatsDelegate()
                    .notify(new AaaMachineStatisticsEvent(AaaMachineStatisticsEvent.Type.STATS_UPDATE, obj));
-
             StateMachine removed = stateMachines.remove(sessionId);
+            StateMachine.getStateMachineSessionIdMap().remove(sessionId);
             if (removed != null) {
                 StateMachine.deleteStateMachineMapping(removed);
             }

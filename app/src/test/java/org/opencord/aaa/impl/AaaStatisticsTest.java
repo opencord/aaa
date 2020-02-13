@@ -832,21 +832,33 @@ private BasePacket fetchPacket(int index) {
     }
 
     /*
-     * Mock implementation of SocketBasedRadiusCommunicator class.
-     *
-     */
+    * Mock implementation of SocketBasedRadiusCommunicator class.
+    *
+    */
     class TestSocketBasedRadiusCommunicator extends SocketBasedRadiusCommunicator {
 
-      TestSocketBasedRadiusCommunicator(ApplicationId appId, PacketService pktService, AaaManager aaaManager) {
-          super(appId, pktService, aaaManager);
-      }
+        TestSocketBasedRadiusCommunicator(ApplicationId appId, PacketService pktService, AaaManager aaaManager) {
+            super(appId, pktService, aaaManager);
+        }
+
+        /**
+        * Wait 10 millis to simulate a non 0 rtt.
+        *
+        * @throws InterruptedException
+        */
+        private void waitPacket() throws InterruptedException {
+            synchronized (this) {
+                this.wait(10);
+            }
+        }
 
         // Implementation of socketBasedRadiusCommunicator--> run() method
         public void handlePacketFromServer(PacketContext context) {
-
-           RADIUS incomingPkt = (RADIUS) fetchPacket(savedPackets.size() - 1);
-           try {
-                 if (context == null) {
+            RADIUS incomingPkt = (RADIUS) fetchPacket(savedPackets.size() - 1);
+            try {
+                // wait a couple of millis to avoid rtt being 0
+                waitPacket();
+                if (context == null) {
                     aaaStatisticsManager.handleRoundtripTime(incomingPkt.getIdentifier());
                     aaaManager.handleRadiusPacket(incomingPkt);
                 } else if (null != context) {
@@ -856,14 +868,15 @@ private BasePacket fetchPacket(int index) {
                     incomingPkt =
                             RADIUS.deserializer().deserialize(incomingPkt.generateAuthCode(), 0, 1);
                 }
-                } catch (DeserializationException dex) {
-                    aaaManager.aaaStatisticsManager.getAaaStats().increaseMalformedResponsesRx();
-                    aaaStatisticsManager.getAaaStats().countDroppedResponsesRx();
-                    log.error("Cannot deserialize packet", dex);
-                } catch (StateMachineException sme) {
-                    log.error("Illegal state machine operation", sme);
-        }
-
+            } catch (DeserializationException dex) {
+                aaaManager.aaaStatisticsManager.getAaaStats().increaseMalformedResponsesRx();
+                aaaStatisticsManager.getAaaStats().countDroppedResponsesRx();
+                log.error("Cannot deserialize packet", dex);
+            } catch (StateMachineException sme) {
+                log.error("Illegal state machine operation", sme);
+            } catch (InterruptedException inte) {
+                Thread.currentThread().interrupt();
+            }
         }
 
     }

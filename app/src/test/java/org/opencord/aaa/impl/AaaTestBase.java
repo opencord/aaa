@@ -15,6 +15,7 @@
  */
 package org.opencord.aaa.impl;
 
+import com.google.common.collect.Lists;
 import org.onlab.packet.BasePacket;
 import org.onlab.packet.EAP;
 import org.onlab.packet.EAPOL;
@@ -43,6 +44,7 @@ import org.opencord.sadis.BandwidthProfileInformation;
 import org.opencord.sadis.BaseInformationService;
 import org.opencord.sadis.SadisService;
 import org.opencord.sadis.SubscriberAndDeviceInformation;
+import org.opencord.sadis.UniTagInformation;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -215,17 +217,29 @@ public class AaaTestBase {
 
     private class MockSubscriberAndDeviceInformation extends SubscriberAndDeviceInformation {
 
-        MockSubscriberAndDeviceInformation(String id, VlanId ctag,
-                                           VlanId stag, String nasPortId,
-                                           String circuitId, MacAddress hardId,
+        MockSubscriberAndDeviceInformation(String id, VlanId uniTagMatch, VlanId ctag,
+                                           VlanId stag, int dsPonPrio, int upPonPrio,
+                                           int techProfileId, String dsBpId, String usBpId,
+                                           String nasPortId, String circuitId, MacAddress hardId,
                                            Ip4Address ipAddress) {
-            this.setCTag(ctag);
+            // Builds UniTagInformation
+            UniTagInformation.Builder tagInfoBuilder = new UniTagInformation.Builder();
+            UniTagInformation uniTagInfo = tagInfoBuilder.setUniTagMatch(uniTagMatch)
+                    .setPonCTag(ctag)
+                    .setPonSTag(stag)
+                    .setDsPonCTagPriority(dsPonPrio)
+                    .setUsPonSTagPriority(upPonPrio)
+                    .setTechnologyProfileId(techProfileId)
+                    .setDownstreamBandwidthProfile(dsBpId)
+                    .setUpstreamBandwidthProfile(usBpId)
+                    .build();
+
             this.setHardwareIdentifier(hardId);
             this.setId(id);
             this.setIPAddress(ipAddress);
-            this.setSTag(stag);
             this.setNasPortId(nasPortId);
             this.setCircuitId(circuitId);
+            this.setUniTagList(Lists.newArrayList(uniTagInfo));
         }
     }
 
@@ -292,14 +306,24 @@ public class AaaTestBase {
 }
 
     final class MockSubService implements BaseInformationService<SubscriberAndDeviceInformation> {
+        private final VlanId uniTagMatch = VlanId.vlanId((short) 35);
         private final VlanId clientCtag = VlanId.vlanId((short) 999);
         private final VlanId clientStag = VlanId.vlanId((short) 111);
+        private final int dsPrio = 0;
+        private final int usPrio = 0;
+        private final int techProfileId = 64;
+        private final String usBpId = "HSIA-US";
+        private final String dsBpId = "HSIA-DS";
         private final String clientNasPortId = "PON 1/1";
         private final String clientCircuitId = "CIR-PON 1/1";
 
+
         MockSubscriberAndDeviceInformation sub =
-                new MockSubscriberAndDeviceInformation(clientNasPortId, clientCtag,
-                        clientStag, clientNasPortId, clientCircuitId, null, null);
+                new MockSubscriberAndDeviceInformation(clientNasPortId, uniTagMatch, clientCtag,
+                                                       clientStag, dsPrio, usPrio,
+                                                       techProfileId, dsBpId, usBpId,
+                                                       clientNasPortId, clientCircuitId, null,
+                                                       null);
         @Override
         public SubscriberAndDeviceInformation get(String id) {
 

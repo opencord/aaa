@@ -40,4 +40,6 @@ public interface AuthenticationService extends
      */
     boolean removeAuthenticationStateByMac(MacAddress mac);
 
+     AaaSupplicantMachineStats getSupplicantMachineStats(String sessionID);
+
 }

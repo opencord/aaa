@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebb63f4c_66995320",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-13T22:35:16Z",
+      "side": 1,
+      "message": "I don\u0027t think you should store this here just for the purposes of verifying it during unit tests - instead the unit tests can get the StateMachine from aaaManager then get the stats from the aaaSupplicantStatsManager.",
+      "revId": "b8d160ed98f305baa2d5ec9d5e82fbc56cc93aa8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

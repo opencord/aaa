@@ -40,4 +40,12 @@ public interface AuthenticationService extends
      */
     boolean removeAuthenticationStateByMac(MacAddress mac);
 
+    /**
+     * Gets the machine stats based on machine session id.
+     *
+     * @param sessionID SessionID of machine
+     * @return AaaSupplicantMachineStats object
+     */
+    AaaSupplicantMachineStats getSupplicantMachineStats(String sessionID);
+
 }

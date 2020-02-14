@@ -963,7 +963,7 @@ public class AaaManager
                     PortNumber portNumber = event.port().number();
                     String sessionId = devId.toString() + portNumber.toString();
 
-                    log.info("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
+                    log.debug("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
                     flushStateMachineSession(sessionId,
                             StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 
@@ -971,7 +971,7 @@ public class AaaManager
 
                 case DEVICE_REMOVED:
                     DeviceId deviceId = event.subject().id();
-                    log.info("Received DEVICE_REMOVED event for {}", deviceId);
+                    log.debug("Received DEVICE_REMOVED event for {}", deviceId);
 
                     Set<String> associatedSessions = Sets.newHashSet();
                     for (Entry<String, StateMachine> stateMachineEntry : StateMachine.sessionIdMap().entrySet()) {
@@ -982,7 +982,7 @@ public class AaaManager
                     }
 
                     for (String session : associatedSessions) {
-                        log.info("Clearing AAA Session {} associated with Removed Device", session);
+                        log.debug("Clearing AAA Session {} associated with Removed Device", session);
                         flushStateMachineSession(session,
                                StateMachine.SessionTerminationReasons.DEVICE_REMOVED.getReason());
                     }
@@ -996,9 +996,12 @@ public class AaaManager
 
         private void flushStateMachineSession(String sessionId, String terminationReason) {
             StateMachine stateMachine = StateMachine.lookupStateMachineBySessionId(sessionId);
-            if (stateMachine != null) {
-                stateMachine.setSessionTerminateReason(terminationReason);
+            if (stateMachine == null) {
+                // No active AAA sessions for this UNI port
+                return;
             }
+
+            stateMachine.setSessionTerminateReason(terminationReason);
 
             //pushing captured machine stats to kafka
             AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);

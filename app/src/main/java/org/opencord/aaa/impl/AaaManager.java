@@ -1101,9 +1101,12 @@ public class AaaManager
 
         private void flushStateMachineSession(String sessionId, String terminationReason) {
             StateMachine stateMachine = stateMachines.get(sessionId);
-            if (stateMachine != null) {
-                stateMachine.setSessionTerminateReason(terminationReason);
+            if (stateMachine == null) {
+                // No active AAA sessions for this UNI port
+                return;
             }
+
+            stateMachine.setSessionTerminateReason(terminationReason);
 
             //pushing captured machine stats to kafka
             AaaSupplicantMachineStats obj = aaaSupplicantStatsManager.getSupplicantStats(stateMachine);

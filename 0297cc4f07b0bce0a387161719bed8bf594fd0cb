@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "feb050b1_508c2607",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaStatisticsManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1000381
+      },
+      "writtenOn": "2020-02-18T19:54:22Z",
+      "side": 1,
+      "message": "Minor: assuming leadershipService.getLeader() can return null, this will produce a NPE. I suggest you use Objects.equal() or call equal() from clusterService.getLocalNode().id()",
+      "range": {
+        "startLine": 237,
+        "startChar": 13,
+        "endLine": 237,
+        "endChar": 67
+      },
+      "revId": "0297cc4f07b0bce0a387161719bed8bf594fd0cb",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

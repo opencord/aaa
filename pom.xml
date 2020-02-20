@@ -28,7 +28,7 @@
 
     <groupId>org.opencord</groupId>
     <artifactId>aaa</artifactId>
-    <version>1.10.1</version>
+    <version>1.10.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>

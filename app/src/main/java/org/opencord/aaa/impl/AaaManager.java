@@ -1036,6 +1036,16 @@ public class AaaManager
                     PortNumber portNumber = event.port().number();
                     String sessionId = deviceId.toString() + portNumber.toString();
                     log.debug("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
+
+                    StateMachine stateMachine = stateMachines.get(sessionId);
+                    if (stateMachine == null) {
+                        // No active AAA sessions for this UNI port
+                        log.debug("No Active AAA Session found with Id {}", sessionId);
+                        return;
+                    }
+
+                    authentications.remove(stateMachine.supplicantConnectpoint());
+
                     flushStateMachineSession(sessionId,
                             StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 

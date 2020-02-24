@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5f32b41_39540184",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-24T09:13:24Z",
+      "side": 1,
+      "message": "please extract as constants in AAATestBase for easiness of reuse.",
+      "range": {
+        "startLine": 826,
+        "startChar": 46,
+        "endLine": 826,
+        "endChar": 52
+      },
+      "revId": "189a80fe8a3e819fed866c5ee77892623077b46b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa7a2cfd_346be045",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-24T09:13:24Z",
+      "side": 1,
+      "message": "please extract as constants in AAATestBase for easiness of reuse. (see SESSION_ID)",
+      "range": {
+        "startLine": 828,
+        "startChar": 49,
+        "endLine": 828,
+        "endChar": 63
+      },
+      "revId": "189a80fe8a3e819fed866c5ee77892623077b46b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c389d26f_97ef75ba",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-24T09:13:24Z",
+      "side": 1,
+      "message": "please extract as constants in AAATestBase for easiness of reuse.",
+      "range": {
+        "startLine": 835,
+        "startChar": 34,
+        "endLine": 835,
+        "endChar": 59
+      },
+      "revId": "189a80fe8a3e819fed866c5ee77892623077b46b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

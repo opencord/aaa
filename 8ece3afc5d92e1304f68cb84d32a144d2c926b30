@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f1e61bb9_2ef90a1d",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 1000653
+      },
+      "writtenOn": "2020-02-24T08:38:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "837c5ab8_3df0724d",
+      "range": {
+        "startLine": 1014,
+        "startChar": 0,
+        "endLine": 1014,
+        "endChar": 16
+      },
+      "revId": "8ece3afc5d92e1304f68cb84d32a144d2c926b30",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b58c4dd2_76c9d4bf",
         "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-24T07:42:32Z",
       "side": 1,
       "message": "Please update the commit message",
+      "range": {
+        "startLine": 822,
+        "startChar": 0,
+        "endLine": 825,
+        "endChar": 40
+      },
+      "revId": "8ece3afc5d92e1304f68cb84d32a144d2c926b30",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a04570e_a264b72f",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 1000653
+      },
+      "writtenOn": "2020-02-24T08:38:04Z",
+      "side": 1,
+      "message": "Updated",
+      "parentUuid": "b58c4dd2_76c9d4bf",
       "range": {
         "startLine": 822,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "20a3d8f8_e8954be6",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 1000653
+      },
+      "writtenOn": "2020-02-24T08:38:04Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "c73c39b8_953273fe",
+      "range": {
+        "startLine": 832,
+        "startChar": 0,
+        "endLine": 832,
+        "endChar": 53
+      },
+      "revId": "8ece3afc5d92e1304f68cb84d32a144d2c926b30",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20b007f5_691528df",
         "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2020-02-24T07:42:32Z",
       "side": 1,
       "message": "?",
+      "range": {
+        "startLine": 843,
+        "startChar": 0,
+        "endLine": 843,
+        "endChar": 56
+      },
+      "revId": "8ece3afc5d92e1304f68cb84d32a144d2c926b30",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7a77c0c_59b8a009",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 1000653
+      },
+      "writtenOn": "2020-02-24T08:38:04Z",
+      "side": 1,
+      "message": "State machine will not be created",
+      "parentUuid": "20b007f5_691528df",
       "range": {
         "startLine": 843,
         "startChar": 0,

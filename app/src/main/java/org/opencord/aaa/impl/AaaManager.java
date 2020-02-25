@@ -1037,25 +1037,9 @@ public class AaaManager
                     String sessionId = deviceId.toString() + portNumber.toString();
                     log.debug("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
 
-                    StateMachine stateMachine = stateMachines.get(sessionId);
-                    if (stateMachine == null) {
-                        // No active AAA sessions for this UNI port
-                        log.debug("No Active AAA Session found with Id {}", sessionId);
-                        return;
-                    }
-
-                    authentications.remove(stateMachine.supplicantConnectpoint());
-
                     flushStateMachineSession(sessionId,
                             StateMachine.SessionTerminationReasons.PORT_REMOVED.getReason());
 
-                    break;
-                case DEVICE_AVAILABILITY_CHANGED:
-                    if (!deviceService.isAvailable(deviceId)) {
-                        log.debug("Received DEVICE_AVAILABILITY_CHANGED event for {}, " +
-                                          "went available to un-available", deviceId);
-                        clearAllSessionStateForDevice(deviceId);
-                    }
                     break;
                 case DEVICE_REMOVED:
                     log.debug("Received DEVICE_REMOVED event for {}", deviceId);
@@ -1091,6 +1075,7 @@ public class AaaManager
                 return;
             }
 
+            authentications.remove(stateMachine.supplicantConnectpoint());
             stateMachine.setSessionTerminateReason(terminationReason);
 
             //pushing captured machine stats to kafka

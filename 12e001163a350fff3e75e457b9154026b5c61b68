@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e7a37c5_a66fb69d",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-25T17:51:18Z",
+      "side": 1,
+      "message": "This map has been removed, we don\u0027t want to bring it back. There should be other ways to get hold of the StateMachine through the AaaManager class if you need to.",
+      "revId": "12e001163a350fff3e75e457b9154026b5c61b68",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

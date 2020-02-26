@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f5bb37b_80c28a6a",
+        "filename": "api/src/main/java/org/opencord/aaa/AaaSupplicantMachineStats.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-26T18:40:25Z",
+      "side": 1,
+      "message": "Move the print statements to the CLI handler and use the cli print(...) method rather than System.out.",
+      "revId": "14f4828918f48f003cb85f09e515fa4d56e3f23e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ace7e767_701003ad",
+        "filename": "app/src/main/java/org/opencord/aaa/cli/AaaShowPerMachineCountersCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-26T18:40:25Z",
+      "side": 1,
+      "message": "I would suggest you create an API in the AuthenticationService called getSupplicantMachineStats() that returns an object containing just the statistics that you need to print. That is much better than exposing internal details like the StateMachine object here.",
+      "revId": "14f4828918f48f003cb85f09e515fa4d56e3f23e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d1255e6_37378b4e",
+        "filename": "app/src/main/java/org/opencord/aaa/cli/AaaShowPerMachineCountersCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-26T18:40:25Z",
+      "side": 1,
+      "message": "Use print(...) rather than System.out.print. Look at one of the existing commands for an example of this.",
+      "revId": "14f4828918f48f003cb85f09e515fa4d56e3f23e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f58b0875_53393c53",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/StateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1000005
+      },
+      "writtenOn": "2020-02-26T18:40:25Z",
+      "side": 1,
+      "message": "Again we don\u0027t want to bring this static map back.",
+      "revId": "14f4828918f48f003cb85f09e515fa4d56e3f23e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}

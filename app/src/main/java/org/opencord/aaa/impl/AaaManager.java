@@ -28,6 +28,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -71,7 +72,6 @@ import org.onosproject.store.service.MapEvent;
 import org.onosproject.store.service.MapEventListener;
 import org.onosproject.store.service.Serializer;
 import org.onosproject.store.service.StorageService;
-import org.onosproject.store.service.Versioned;
 import org.opencord.aaa.AaaConfig;
 import org.opencord.aaa.AaaMachineStatisticsEvent;
 import org.opencord.aaa.AaaMachineStatisticsService;
@@ -175,7 +175,8 @@ public class AaaManager
 
     private ConcurrentMap<String, StateMachine> stateMachines;
 
-    private ConsistentMap<ConnectPoint, AuthenticationRecord> authentications;
+    private ConsistentMap<ConnectPoint, AuthenticationRecord> authenticationsConsistentMap;
+    private Map<ConnectPoint, AuthenticationRecord> authentications;
 
     // NAS IP address
     protected InetAddress nasIpAddress;
@@ -291,12 +292,13 @@ public class AaaManager
                 .register(AuthenticationRecord.class)
                 .build();
 
-        authentications = storageService.<ConnectPoint, AuthenticationRecord>consistentMapBuilder()
+        authenticationsConsistentMap = storageService.<ConnectPoint, AuthenticationRecord>consistentMapBuilder()
                 .withApplicationId(appId)
                 .withName("authentications")
                 .withSerializer(Serializer.using(authSerializer))
                 .build();
-        authentications.addListener(mapListener);
+        authenticationsConsistentMap.addListener(mapListener);
+        authentications = authenticationsConsistentMap.asJavaMap();
 
         eventDispatcher.addSink(AuthenticationEvent.class, listenerRegistry);
         netCfgService.addListener(cfgListener);
@@ -339,7 +341,7 @@ public class AaaManager
         scheduledStatusServerChecker.cancel(true);
         executor.shutdown();
 
-        authentications.removeListener(mapListener);
+        authenticationsConsistentMap.removeListener(mapListener);
 
         log.info("Stopped");
     }
@@ -633,22 +635,22 @@ public class AaaManager
 
     @Override
     public Iterable<AuthenticationRecord> getAuthenticationRecords() {
-        return authentications.asJavaMap().values();
+        return authentications.values();
     }
 
     @Override
     public boolean removeAuthenticationStateByMac(MacAddress mac) {
 
-        Optional<Versioned<AuthenticationRecord>> r = authentications.values().stream()
-                .filter(v -> v.value().supplicantAddress().equals(mac))
+        Optional<AuthenticationRecord> r = authentications.values().stream()
+                .filter(v -> v.supplicantAddress().equals(mac))
                 .findFirst();
 
         if (r.isEmpty()) {
             return false;
         }
 
-        Versioned<AuthenticationRecord> removed =
-                authentications.remove(r.get().value().supplicantConnectPoint());
+        AuthenticationRecord removed =
+                authentications.remove(r.get().supplicantConnectPoint());
 
         return removed != null;
     }

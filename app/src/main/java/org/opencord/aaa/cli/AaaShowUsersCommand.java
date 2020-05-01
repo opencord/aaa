@@ -20,6 +20,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onlab.util.Tools;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.net.AnnotationKeys;
+import org.onosproject.net.Port;
 import org.onosproject.net.device.DeviceService;
 import org.onosproject.utils.Comparators;
 import org.opencord.aaa.AuthenticationRecord;
@@ -39,6 +40,9 @@ import static com.google.common.collect.Lists.newArrayList;
 @Command(scope = "onos", name = "aaa-users",
         description = "Shows the aaa users")
 public class AaaShowUsersCommand extends AbstractShellCommand {
+
+    static final String UNKNOWN = "UNKNOWN";
+
     @Override
     protected void doExecute() {
 
@@ -55,19 +59,26 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
         authentications.sort(authenticationRecordComparator);
 
         for (AuthenticationRecord auth : authentications) {
-            String username = "UNKNOWN";
+            String username = UNKNOWN;
             if (auth.username() != null) {
                 username = new String(auth.username());
             }
-            String mac = "UNKNOWN";
+            String mac = UNKNOWN;
             if (auth.supplicantAddress() != null) {
                 mac = auth.supplicantAddress().toString();
             }
 
-            String nasPortId = devService.getPort(auth.supplicantConnectPoint()).
-                    annotations().value(AnnotationKeys.PORT_NAME);
+            Port port = devService.getPort(auth.supplicantConnectPoint());
 
-            String subsId = "UNKNOWN";
+            String nasPortId = UNKNOWN;
+
+            if (port != null) {
+                nasPortId = devService.getPort(auth.supplicantConnectPoint()).
+                        annotations().value(AnnotationKeys.PORT_NAME);
+            }
+
+
+            String subsId = UNKNOWN;
             SubscriberAndDeviceInformation subscriber = sadisService.getSubscriberInfoService().get(nasPortId);
             if (subscriber != null) {
                 subsId = subscriber.nasPortId();

@@ -40,15 +40,20 @@ import org.onosproject.net.packet.InboundPacket;
 import org.onosproject.store.cluster.messaging.ClusterCommunicationServiceAdapter;
 import org.onosproject.store.service.TestStorageService;
 import org.opencord.aaa.AaaConfig;
+import org.slf4j.Logger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.onosproject.net.intent.TestTools.assertAfter;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Set of tests of the ONOS application component.
@@ -56,6 +61,8 @@ import static org.junit.Assert.assertThat;
 public class AaaManagerTest extends AaaTestBase {
 
     static final String BAD_IP_ADDRESS = "198.51.100.0";
+
+    private final Logger log = getLogger(getClass());
 
     private AaaManager aaaManager;
     private AaaStatisticsManager aaaStatisticsManager;
@@ -144,6 +151,8 @@ public class AaaManagerTest extends AaaTestBase {
         aaaStatisticsManager.activate(new MockComponentContext());
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
+
+
         aaaManager.activate(new AaaTestBase.MockComponentContext());
     }
 
@@ -206,7 +215,7 @@ public class AaaManagerTest extends AaaTestBase {
         sendPacket(identifyPacket);
 
         RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
-        byte reqId = radiusIdentifyPacket.getIdentifier();
+        AtomicReference<Byte> reqId = new AtomicReference<>(radiusIdentifyPacket.getIdentifier());
 
         checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
 
@@ -230,47 +239,61 @@ public class AaaManagerTest extends AaaTestBase {
 
         RADIUS radiusCodeAccessChallengePacket =
                 constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5,
-                reqId, aaaManager.radiusSecret.getBytes());
+                                                         reqId.get(), aaaManager.radiusSecret.getBytes());
         aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
 
-        Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
-        checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
+            checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
 
-        // (4) Supplicant MD5 response
+            // (4) Supplicant MD5 response
+            try {
+                Ethernet md5RadiusPacket =
+                        constructSupplicantIdentifyPacket(stateMachine,
+                                                          EAP.ATTR_MD5,
+                                                          stateMachine.challengeIdentifier(),
+                                                          radiusChallengeMD5Packet);
+                sendPacket(md5RadiusPacket);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+        });
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
+            try {
+                checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            //assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
+            reqId.set(responseMd5RadiusPacket.getIdentifier());
+            assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
-        Ethernet md5RadiusPacket =
-                constructSupplicantIdentifyPacket(stateMachine,
-                                                  EAP.ATTR_MD5,
-                                                  stateMachine.challengeIdentifier(),
-                                                  radiusChallengeMD5Packet);
-        sendPacket(md5RadiusPacket);
+            //  State machine should be in pending state
 
-        RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
 
-        checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        //assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
-        reqId = responseMd5RadiusPacket.getIdentifier();
-        assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+            // (5) RADIUS Success
 
-        //  State machine should be in pending state
+            RADIUS successPacket =
+                    constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT,
+                                                             EAP.SUCCESS, reqId.get(),
+                                                             aaaManager.radiusSecret.getBytes());
+            aaaManager.handleRadiusPacket((successPacket));
+        });
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
 
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+            checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
 
-        // (5) RADIUS Success
+            //  State machine should be in authorized state
 
-        RADIUS successPacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT,
-                EAP.SUCCESS, reqId, aaaManager.radiusSecret.getBytes());
-        aaaManager.handleRadiusPacket((successPacket));
-        Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
-
-        checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
-
-        //  State machine should be in authorized state
-
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
+        });
     }
 
     @Test

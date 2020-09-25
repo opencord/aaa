@@ -49,12 +49,14 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 import static com.google.common.base.Preconditions.checkState;
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.onosproject.net.NetTestTools.connectPoint;
+import static org.onosproject.net.intent.TestTools.assertAfter;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -64,6 +66,7 @@ public class AaaStatisticsTest extends AaaTestBase {
 
     static final String BAD_IP_ADDRESS = "198.51.100.0";
     static final Long ZERO = (long) 0;
+
 
     private final Logger log = getLogger(getClass());
     private AaaManager aaaManager;
@@ -159,6 +162,7 @@ public class AaaStatisticsTest extends AaaTestBase {
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
         aaaManager.aaaSupplicantStatsManager = this.aaaSupplicantStatsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
+
         aaaManager.activate(new AaaTestBase.MockComponentContext());
     }
 
@@ -239,56 +243,74 @@ public class AaaStatisticsTest extends AaaTestBase {
                 aaaManager.radiusSecret.getBytes());
         aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
 
-        Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
-        checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
+            checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
+            // (4) Supplicant MD5 response
 
-        // (4) Supplicant MD5 response
+            Ethernet md5RadiusPacket = null;
+            try {
+                md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
+                                      stateMachine.challengeIdentifier(), radiusChallengeMD5Packet);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            sendPacket(md5RadiusPacket);
+        });
 
-        Ethernet md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
-                stateMachine.challengeIdentifier(), radiusChallengeMD5Packet);
-        sendPacket(md5RadiusPacket);
 
-        RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
-        checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        //assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
-        assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+            try {
+                checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
+            } catch (DeserializationException e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            //assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
+            assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
-        // State machine should be in pending state
+            // State machine should be in pending state
 
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
 
-        // (5) RADIUS Success
+            // (5) RADIUS Success
 
-        RADIUS successPacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS,
-                        responseMd5RadiusPacket.getIdentifier(), aaaManager.radiusSecret.getBytes());
-        aaaManager.handleRadiusPacket((successPacket));
-        Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
+            RADIUS successPacket =
+                    constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS,
+                                                             responseMd5RadiusPacket.getIdentifier(),
+                                                             aaaManager.radiusSecret.getBytes());
+            aaaManager.handleRadiusPacket((successPacket));
+        });
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
 
-        checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
+            checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
 
-        // State machine should be in authorized state
+            // State machine should be in authorized state
 
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
 
-        //Check for increase of Stats
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getValidEapolFramesRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolFramesTx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getReqEapFramesTx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestIdFramesTx(), ZERO);
-        assertEquals(aaaStatisticsManager.getAaaStats().getInvalidBodyLength(), ZERO);
-        assertEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
-        assertEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
-       // Counts the aaa Statistics count and displays in the log
-       countAaaStatistics();
+            //Check for increase of Stats
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getValidEapolFramesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolFramesTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getReqEapFramesTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestIdFramesTx(), ZERO);
+            assertEquals(aaaStatisticsManager.getAaaStats().getInvalidBodyLength(), ZERO);
+            assertEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
+            assertEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
+            // Counts the aaa Statistics count and displays in the log
+            countAaaStatistics();
+        });
 
     }
 
@@ -304,62 +326,85 @@ public class AaaStatisticsTest extends AaaTestBase {
         // (1) Supplicant start up
         Ethernet startPacket = constructSupplicantStartPacket();
         sendPacket(startPacket);
-
-        Ethernet responsePacket = (Ethernet) fetchPacket(0);
-        checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet responsePacket = (Ethernet) fetchPacket(0);
+            checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+        });
 
         // (2) Supplicant identify
 
         Ethernet identifyPacket = constructSupplicantIdentifyPacket(null, EAP.ATTR_IDENTITY, (byte) 1, null);
         sendPacket(identifyPacket);
 
-        RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
-        checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+            try {
+                checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+            } catch (DeserializationException e) {
+                log.error(e.getMessage());
+                fail();
+            }
 
-        assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
-        assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
-                is("testuser"));
-        IpAddress nasIp = IpAddress.valueOf(IpAddress.Version.INET,
-                  radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP).getValue());
-        assertThat(nasIp.toString(), is(aaaManager.nasIpAddress.getHostAddress()));
+            assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+            assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
+                       is("testuser"));
+            IpAddress nasIp = IpAddress.valueOf(IpAddress.Version.INET,
+                                                radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP)
+                                                        .getValue());
+            assertThat(nasIp.toString(), is(aaaManager.nasIpAddress.getHostAddress()));
 
-        // State machine should have been created by now
+            // State machine should have been created by now
 
-        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+            StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
 
-        // (3) RADIUS NAK challenge
+            // (3) RADIUS NAK challenge
 
-       RADIUS radiusCodeAccessChallengePacket = constructRadiusCodeAccessChallengePacket(
-                  RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_NAK, radiusIdentifyPacket.getIdentifier(),
-                  aaaManager.radiusSecret.getBytes());
-        aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
+            RADIUS radiusCodeAccessChallengePacket = constructRadiusCodeAccessChallengePacket(
+                    RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_NAK, radiusIdentifyPacket.getIdentifier(),
+                    aaaManager.radiusSecret.getBytes());
+            aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
+        });
 
-        Ethernet radiusChallengeNakPacket = (Ethernet) fetchPacket(2);
-        checkRadiusPacket(aaaManager, radiusChallengeNakPacket, EAP.ATTR_NAK);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet radiusChallengeNakPacket = (Ethernet) fetchPacket(2);
+            checkRadiusPacket(aaaManager, radiusChallengeNakPacket, EAP.ATTR_NAK);
 
-        // (4) Supplicant NAK response
+            // (4) Supplicant NAK response
+            StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+            assertThat(stateMachine, notNullValue());
+            Ethernet nakRadiusPacket = null;
+            try {
+                nakRadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_NAK,
+                                                                    stateMachine.challengeIdentifier(),
+                                                                    radiusChallengeNakPacket);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            sendPacket(nakRadiusPacket);
+        });
 
-       Ethernet nakRadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_NAK,
-           stateMachine.challengeIdentifier(), radiusChallengeNakPacket);
-       sendPacket(nakRadiusPacket);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            //Statistic Should be increased.
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
 
-       //Statistic Should be increased.
-       assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
-
-       //Test if packet with invalid eapol type recieved.
-       // Supplicant ASF Packet
-       Ethernet invalidPacket = constructSupplicantAsfPacket();
-       sendPacket(invalidPacket);
-       //Statistic Should be increased.
-       assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
-       assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
-       assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
-       assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
-       assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
-       // Counts the aaa Statistics count and displays in the log
-       countAaaStatistics();
+            //Test if packet with invalid eapol type recieved.
+            // Supplicant ASF Packet
+            Ethernet invalidPacket = constructSupplicantAsfPacket();
+            sendPacket(invalidPacket);
+        });
+        //Statistic Should be increased.
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
+            // Counts the aaa Statistics count and displays in the log
+            countAaaStatistics();
+        });
     }
 
 
@@ -393,48 +438,64 @@ public class AaaStatisticsTest extends AaaTestBase {
                 aaaManager.radiusSecret.getBytes());
         aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
 
-        Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
 
-        // (4) Supplicant MD5 response
+            // (4) Supplicant MD5 response
 
-        Ethernet md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
-                stateMachine.challengeIdentifier(), radiusChallengeMD5Packet);
-        sendPacket(md5RadiusPacket);
-        aaaManager.aaaStatisticsManager.calculatePacketRoundtripTime();
+            Ethernet md5RadiusPacket = null;
+            try {
+                md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
+                                                                    stateMachine.challengeIdentifier(),
+                                                                    radiusChallengeMD5Packet);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            sendPacket(md5RadiusPacket);
+        });
 
-        RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            aaaManager.aaaStatisticsManager.calculatePacketRoundtripTime();
 
-        // (5) RADIUS Rejected
+            RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
-        RADIUS rejectedPacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_REJECT, EAP.FAILURE,
-                        responseMd5RadiusPacket.getIdentifier(), aaaManager.radiusSecret.getBytes());
-        aaaManager.handleRadiusPacket((rejectedPacket));
-        Ethernet supplicantRejectedPacket = (Ethernet) fetchPacket(4);
+            // (5) RADIUS Rejected
 
-        checkRadiusPacket(aaaManager, supplicantRejectedPacket, EAP.FAILURE);
+            RADIUS rejectedPacket =
+                    constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_REJECT, EAP.FAILURE,
+                                                             responseMd5RadiusPacket.getIdentifier(),
+                                                             aaaManager.radiusSecret.getBytes());
+            aaaManager.handleRadiusPacket((rejectedPacket));
+        });
 
-        // State machine should be in unauthorized state
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_UNAUTHORIZED));
-        // Calculated the total round trip time
-        aaaManager.aaaStatisticsManager.calculatePacketRoundtripTime();
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet supplicantRejectedPacket = (Ethernet) fetchPacket(4);
 
-        //Check for increase of Stats
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthFailureTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
+            checkRadiusPacket(aaaManager, supplicantRejectedPacket, EAP.FAILURE);
 
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getRejectResponsesRx(), ZERO);
+            // State machine should be in unauthorized state
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_UNAUTHORIZED));
+            // Calculated the total round trip time
+            aaaManager.aaaStatisticsManager.calculatePacketRoundtripTime();
 
-        // Counts the aaa Statistics count
-        countAaaStatistics();
+            //Check for increase of Stats
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthFailureTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
+
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRejectResponsesRx(), ZERO);
+
+            // Counts the aaa Statistics count
+            countAaaStatistics();
+        });
 
     }
 
@@ -532,59 +593,79 @@ public class AaaStatisticsTest extends AaaTestBase {
                 RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5,
                 radiusIdentifyPacket.getIdentifier(), aaaManager.radiusSecret.getBytes());
         aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
+            checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
 
-        Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
-        checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
+            // (4) Supplicant MD5 response
 
-        // (4) Supplicant MD5 response
+            Ethernet md5RadiusPacket = null;
+            try {
+                md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
+                                                                    stateMachine.challengeIdentifier(),
+                                                                    radiusChallengeMD5Packet);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            sendPacket(md5RadiusPacket);
+        });
 
-        Ethernet md5RadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_MD5,
-                stateMachine.challengeIdentifier(), radiusChallengeMD5Packet);
-        sendPacket(md5RadiusPacket);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
 
-        RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
+            try {
+                checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
+            } catch (DeserializationException e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
-        checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
-        assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+            // State machine should be in pending state
 
-        // State machine should be in pending state
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
 
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+            // (5) RADIUS Success
 
-        // (5) RADIUS Success
+            RADIUS successPacket =
+                    constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS,
+                                                             responseMd5RadiusPacket.getIdentifier(),
+                                                             aaaManager.radiusSecret.getBytes());
+            aaaManager.handleRadiusPacket((successPacket));
+        });
 
-        RADIUS successPacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_ACCEPT, EAP.SUCCESS,
-                        responseMd5RadiusPacket.getIdentifier(), aaaManager.radiusSecret.getBytes());
-        aaaManager.handleRadiusPacket((successPacket));
-        Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet supplicantSuccessPacket = (Ethernet) fetchPacket(4);
 
-        checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
+            checkRadiusPacket(aaaManager, supplicantSuccessPacket, EAP.SUCCESS);
 
-        // State machine should be in authorized state
+            // State machine should be in authorized state
 
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_AUTHORIZED));
 
-        // Supplicant trigger EAP Logoff
-        Ethernet logoffPacket = constructSupplicantLogoffPacket();
-        sendPacket(logoffPacket);
+            // Supplicant trigger EAP Logoff
+            Ethernet logoffPacket = constructSupplicantLogoffPacket();
+            sendPacket(logoffPacket);
+        });
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            // State machine should be in logoff state
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_IDLE));
 
-        // State machine should be in logoff state
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_IDLE));
-
-        //Check for increase in stats
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolLogoffRx(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
-        assertNotEquals(aaaStatisticsManager.getAaaStats().getAuthStateIdle(), ZERO);
-        // Counts the aaa Statistics count
-        countAaaStatistics();
+            //Check for increase in stats
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolLogoffRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getAuthStateIdle(), ZERO);
+            // Counts the aaa Statistics count
+            countAaaStatistics();
+        });
 
     }
 

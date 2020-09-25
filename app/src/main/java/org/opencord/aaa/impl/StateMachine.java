@@ -121,7 +121,7 @@ public class StateMachine {
     private State[] states = {new Idle(), new Started(), new Pending(), new Authorized(), new Unauthorized() };
 
     // Cleanup Timer instance created for this session
-    private ScheduledExecutorService executor;
+    private ScheduledExecutorService timeoutExecutor;
     private java.util.concurrent.ScheduledFuture<?> cleanupTimer = null;
 
     // TimeStamp of last EAPOL or RADIUS message received.
@@ -171,7 +171,7 @@ public class StateMachine {
     }
 
     private void scheduleTimeout() {
-        cleanupTimer = executor.schedule(this::timeout, cleanupTimerTimeOutInMins, TimeUnit.MINUTES);
+        cleanupTimer = timeoutExecutor.schedule(this::timeout, cleanupTimerTimeOutInMins, TimeUnit.MINUTES);
     }
 
     public static void unsetDelegate(StateMachineDelegate delegate) {
@@ -210,7 +210,7 @@ public class StateMachine {
     public StateMachine(String sessionId, ScheduledExecutorService executor) {
         log.info("Creating a new state machine for {}", sessionId);
         this.sessionId = sessionId;
-        this.executor = executor;
+        this.timeoutExecutor = executor;
     }
 
     /**

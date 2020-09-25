@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.Matchers.is;
@@ -316,6 +317,8 @@ public class AaaStatisticsTest extends AaaTestBase {
         RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
         checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
 
+        TimeUnit.SECONDS.sleep(1);
+
         assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
         assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
                 is("testuser"));
@@ -344,6 +347,8 @@ public class AaaStatisticsTest extends AaaTestBase {
        Ethernet nakRadiusPacket = constructSupplicantIdentifyPacket(stateMachine, EAP.ATTR_NAK,
            stateMachine.challengeIdentifier(), radiusChallengeNakPacket);
        sendPacket(nakRadiusPacket);
+
+        TimeUnit.SECONDS.sleep(1);
 
        //Statistic Should be increased.
        assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);

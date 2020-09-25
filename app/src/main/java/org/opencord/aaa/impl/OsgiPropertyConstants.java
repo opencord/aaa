@@ -39,4 +39,7 @@ public final class OsgiPropertyConstants {
 
     public static final String STATUS_SERVER_MODE = "operationalStatusEvaluationMode";
     public static final String STATUS_SERVER_MODE_DEFAULT = "AUTO";
+
+    public static final String PACKET_PROCESSOR_THREADS = "packetProcessorThreads";
+    public static final int PACKET_PROCESSOR_THREADS_DEFAULT = 10;
 }

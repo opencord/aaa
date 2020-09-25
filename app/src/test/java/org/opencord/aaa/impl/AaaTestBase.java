@@ -73,6 +73,11 @@ import static org.onosproject.net.NetTestTools.connectPoint;
  */
 public class AaaTestBase {
 
+    //Time in ms to wait before checking packets
+    static final int ASSERTION_DELAY = 250;
+    //Duration in ms of the assertion for packets
+    static final int ASSERTION_LENGTH = 500;
+
     MacAddress clientMac = MacAddress.valueOf("1a:1a:1a:1a:1a:1a");
     MacAddress serverMac = MacAddress.valueOf("2a:2a:2a:2a:2a:2a");
 

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99f85209_3e2d6ead",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-02T12:02:48Z",
+      "side": 1,
+      "message": "I would pass the ThreadFactory groupedThreads with name, pattern and logger. You have also the handling  of the uncaught exceptions",
+      "revId": "852bfef6555f02c44f9a4195543e42410e609669",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32298728_2ff683b9",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaTestBase.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-02T12:02:48Z",
+      "side": 1,
+      "message": "Maybe drop a comment about these two values",
+      "revId": "852bfef6555f02c44f9a4195543e42410e609669",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

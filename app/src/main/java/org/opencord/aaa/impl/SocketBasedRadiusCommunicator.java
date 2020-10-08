@@ -130,31 +130,40 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
 
     @Override
     public void sendRadiusPacket(RADIUS radiusPacket, InboundPacket inPkt) {
-        try {
-            final byte[] data = radiusPacket.serialize();
-            final DatagramSocket socket = radiusSocket;
-
-            try {
-                InetAddress address;
-                if (radiusHost != null) {
-                    address = InetAddress.getByName(radiusHost);
-                } else {
-                    address = radiusIpAddress;
-                }
-                DatagramPacket packet =
-                        new DatagramPacket(data, data.length, address, radiusServerPort);
-                if (log.isTraceEnabled()) {
-                    log.trace("Sending packet {} to Radius Server {}:{} using socket",
-                              radiusPacket, address, radiusServerPort);
-                }
-                socket.send(packet);
-                aaaManager.radiusOperationalStatusService.setStatusServerReqSent(true);
-            } catch (UnknownHostException uhe) {
-                log.warn("Unable to resolve host {}", radiusHost);
-                aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
+        if (aaaManager.mastershipService.isLocalMaster(inPkt.receivedFrom().deviceId())) {
+            if (log.isTraceEnabled()) {
+                log.trace("Master for {}, emitting RADIUS packet {}",
+                          inPkt.receivedFrom().deviceId(), radiusPacket);
             }
-        } catch (IOException e) {
-            log.info("Cannot send packet to RADIUS server", e);
+            try {
+                final byte[] data = radiusPacket.serialize();
+                final DatagramSocket socket = radiusSocket;
+
+                try {
+                    InetAddress address;
+                    if (radiusHost != null) {
+                        address = InetAddress.getByName(radiusHost);
+                    } else {
+                        address = radiusIpAddress;
+                    }
+                    DatagramPacket packet =
+                            new DatagramPacket(data, data.length, address, radiusServerPort);
+                    if (log.isTraceEnabled()) {
+                        log.trace("Sending packet {} to Radius Server {}:{} using socket",
+                                  radiusPacket, address, radiusServerPort);
+                    }
+                    socket.send(packet);
+                    aaaManager.radiusOperationalStatusService.setStatusServerReqSent(true);
+                } catch (UnknownHostException uhe) {
+                    log.warn("Unable to resolve host {}", radiusHost);
+                    aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
+                }
+            } catch (IOException e) {
+                log.info("Cannot send packet to RADIUS server", e);
+            }
+        } else {
+            log.trace("Not master for {}, not emitting RADIUS packet {}",
+                      inPkt.receivedFrom().deviceId(), radiusPacket);
         }
     }
 

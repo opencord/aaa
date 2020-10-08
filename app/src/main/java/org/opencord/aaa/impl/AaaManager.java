@@ -722,23 +722,24 @@ public class AaaManager
     private class ReactivePacketProcessor implements PacketProcessor {
         @Override
         public void process(PacketContext context) {
+            packetProcessorExecutor.execute(() -> {
+                // Extract the original Ethernet frame from the packet information
+                InboundPacket pkt = context.inPacket();
+                Ethernet ethPkt = pkt.parsed();
+                if (ethPkt == null) {
+                    return;
+                }
 
-            // Extract the original Ethernet frame from the packet information
-            InboundPacket pkt = context.inPacket();
-            Ethernet ethPkt = pkt.parsed();
-            if (ethPkt == null) {
-                return;
-            }
-
-            // identify if incoming packet comes from supplicant (EAP) or RADIUS
-            switch (EthType.EtherType.lookup(ethPkt.getEtherType())) {
-                case EAPOL:
-                    handleSupplicantPacket(context.inPacket());
-                    break;
-                default:
-                    // any other packets let the specific implementation handle
-                    impl.handlePacketFromServer(context);
-            }
+                // identify if incoming packet comes from supplicant (EAP) or RADIUS
+                switch (EthType.EtherType.lookup(ethPkt.getEtherType())) {
+                    case EAPOL:
+                        handleSupplicantPacket(context.inPacket());
+                        break;
+                    default:
+                        // any other packets let the specific implementation handle
+                        impl.handlePacketFromServer(context);
+                }
+            });
         }
 
         /**

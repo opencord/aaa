@@ -204,45 +204,58 @@ public class AaaManagerTest extends AaaTestBase {
 
         Ethernet startPacket = constructSupplicantStartPacket();
         sendPacket(startPacket);
-
-        Ethernet responsePacket = (Ethernet) fetchPacket(0);
-        checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
-
-        //  (2) Supplicant identify
-
-        Ethernet identifyPacket = constructSupplicantIdentifyPacket(null,
-                EAP.ATTR_IDENTITY, (byte) 3, null);
-        sendPacket(identifyPacket);
-
-        RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
-        AtomicReference<Byte> reqId = new AtomicReference<>(radiusIdentifyPacket.getIdentifier());
-
-        checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
-
-        assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
-        assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
-                   is("testuser"));
-
-        IpAddress nasIp =
-                IpAddress.valueOf(IpAddress.Version.INET,
-                                  radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP)
-                                          .getValue());
-        assertThat(nasIp.toString(), is(aaaManager.nasIpAddress.getHostAddress()));
-
-        //  State machine should have been created by now
-
-        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
-
-        // (3) RADIUS MD5 challenge
-
-        RADIUS radiusCodeAccessChallengePacket =
-                constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5,
-                                                         reqId.get(), aaaManager.radiusSecret.getBytes());
-        aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
-
         assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            Ethernet responsePacket = (Ethernet) fetchPacket(0);
+            checkRadiusPacket(aaaManager, responsePacket, EAP.ATTR_IDENTITY);
+
+            //  (2) Supplicant identify
+
+            Ethernet identifyPacket = null;
+            try {
+                identifyPacket = constructSupplicantIdentifyPacket(null,
+                                                                   EAP.ATTR_IDENTITY, (byte) 3, null);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                fail();
+            }
+            sendPacket(identifyPacket);
+        });
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            RADIUS radiusIdentifyPacket = (RADIUS) fetchPacket(1);
+            AtomicReference<Byte> reqId = new AtomicReference<>(radiusIdentifyPacket.getIdentifier());
+
+            try {
+                checkRadiusPacketFromSupplicant(radiusIdentifyPacket);
+            } catch (DeserializationException e) {
+                log.error(e.getMessage());
+                fail();
+            }
+
+            assertThat(radiusIdentifyPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
+            assertThat(new String(radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_USERNAME).getValue()),
+                       is("testuser"));
+
+            IpAddress nasIp =
+                    IpAddress.valueOf(IpAddress.Version.INET,
+                                      radiusIdentifyPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_NAS_IP)
+                                              .getValue());
+            assertThat(nasIp.toString(), is(aaaManager.nasIpAddress.getHostAddress()));
+
+            // (3) RADIUS MD5 challenge
+
+            RADIUS radiusCodeAccessChallengePacket =
+                    constructRadiusCodeAccessChallengePacket(RADIUS.RADIUS_CODE_ACCESS_CHALLENGE, EAP.ATTR_MD5,
+                                                             reqId.get(), aaaManager.radiusSecret.getBytes());
+            aaaManager.handleRadiusPacket(radiusCodeAccessChallengePacket);
+        });
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+
+            //  State machine should have been created by now
+
+            StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_PENDING));
+
             Ethernet radiusChallengeMD5Packet = (Ethernet) fetchPacket(2);
             checkRadiusPacket(aaaManager, radiusChallengeMD5Packet, EAP.ATTR_MD5);
 
@@ -259,7 +272,14 @@ public class AaaManagerTest extends AaaTestBase {
                 fail();
             }
         });
+
+        //  State machine should have been created by now
+
+        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+
         assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+
+
             RADIUS responseMd5RadiusPacket = (RADIUS) fetchPacket(3);
             try {
                 checkRadiusPacketFromSupplicant(responseMd5RadiusPacket);
@@ -268,7 +288,7 @@ public class AaaManagerTest extends AaaTestBase {
                 fail();
             }
             //assertThat(responseMd5RadiusPacket.getIdentifier(), is((byte) 9));
-            reqId.set(responseMd5RadiusPacket.getIdentifier());
+            AtomicReference<Byte> reqId = new AtomicReference<>(responseMd5RadiusPacket.getIdentifier());
             assertThat(responseMd5RadiusPacket.getCode(), is(RADIUS.RADIUS_CODE_ACCESS_REQUEST));
 
             //  State machine should be in pending state
@@ -300,15 +320,16 @@ public class AaaManagerTest extends AaaTestBase {
     public void testRemoveAuthentication() {
         Ethernet startPacket = constructSupplicantStartPacket();
         sendPacket(startPacket);
+        assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
+            StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
 
-        StateMachine stateMachine = aaaManager.getStateMachine(SESSION_ID);
+            assertThat(stateMachine, notNullValue());
+            assertThat(stateMachine.state(), is(StateMachine.STATE_STARTED));
 
-        assertThat(stateMachine, notNullValue());
-        assertThat(stateMachine.state(), is(StateMachine.STATE_STARTED));
+            aaaManager.removeAuthenticationStateByMac(stateMachine.supplicantAddress());
 
-        aaaManager.removeAuthenticationStateByMac(stateMachine.supplicantAddress());
-
-        assertThat(aaaManager.getStateMachine(SESSION_ID), nullValue());
+            assertThat(aaaManager.getStateMachine(SESSION_ID), nullValue());
+        });
     }
 
     /**

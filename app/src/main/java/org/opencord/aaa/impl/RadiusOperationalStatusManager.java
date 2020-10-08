@@ -56,7 +56,8 @@ public class RadiusOperationalStatusManager
 
     private RadiusOperationalStatusEvaluationMode radiusOperationalStatusEvaluationMode;
 
-    private static final String DUMMY_USER = new String("dummy-user");
+    // FIXME the DUMMY_USER should be read from config (or netcfg)
+    private static final String DUMMY_USER = new String("user");
     private static final byte RADIUS_CODE_STATUS_REQUEST = (byte) 12;
     private long lastRadiusPacketInTimeInMillis;
 

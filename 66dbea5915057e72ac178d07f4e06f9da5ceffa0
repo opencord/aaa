@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22b878c4_e8b46f9f",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-08T12:45:42Z",
+      "side": 1,
+      "message": "I believe we need to remove this: I don\u0027t know very well the app but let me explain my understanding after this patch. \n\nIf we use the SocketBased implementation we don\u0027t need to offload because the packet is already processed by the executorService handling the socket.\n\nIf we are using the PortBased implementation we don\u0027t need this because we have already offloaded the packet processing to the executor service and now we are doing it a second time.\n\ndispatcher -\u003e (PacketProcessor) executor -\u003e (PortBasedCommunicator) executor\n\nThis creates an unnecessary overhead.",
+      "revId": "66dbea5915057e72ac178d07f4e06f9da5ceffa0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

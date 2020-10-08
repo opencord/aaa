@@ -29,8 +29,10 @@ import org.onlab.packet.RADIUSAttribute;
 import org.onlab.packet.VlanId;
 import org.onosproject.cfg.ComponentConfigService;
 import org.onosproject.cfg.ConfigProperty;
+import org.onosproject.mastership.MastershipServiceAdapter;
 import org.onosproject.net.Annotations;
 import org.onosproject.net.ConnectPoint;
+import org.onosproject.net.DeviceId;
 import org.onosproject.net.Element;
 import org.onosproject.net.Port;
 import org.onosproject.net.PortNumber;
@@ -117,66 +119,67 @@ public class AaaTestBase {
             }
         }
     }
+
     class MockComponentContext implements ComponentContext {
 
-                @Override
-                public Dictionary<String, Object> getProperties() {
-                        Dictionary<String, Object> cfgDict = new Hashtable<String, Object>();
-                        cfgDict.put("statisticsGenerationEvent", 20);
-                        return cfgDict;
-                }
+        @Override
+        public Dictionary<String, Object> getProperties() {
+            Dictionary<String, Object> cfgDict = new Hashtable<String, Object>();
+            cfgDict.put("statisticsGenerationEvent", 20);
+            return cfgDict;
+        }
 
-                @Override
-                public Object locateService(String name) {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
+        @Override
+        public Object locateService(String name) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-                @Override
-                public Object locateService(String name, ServiceReference reference) {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
+        @Override
+        public Object locateService(String name, ServiceReference reference) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-                @Override
-                public Object[] locateServices(String name) {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
+        @Override
+        public Object[] locateServices(String name) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-                @Override
-                public BundleContext getBundleContext() {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
+        @Override
+        public BundleContext getBundleContext() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-                @Override
-                public Bundle getUsingBundle() {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
+        @Override
+        public Bundle getUsingBundle() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-                @Override
-                public ComponentInstance getComponentInstance() {
-                        // TODO Auto-generated method stub
-                        return null;
-                }
+        @Override
+        public ComponentInstance getComponentInstance() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-                @Override
-                public void enableComponent(String name) {
-                        // TODO Auto-generated method stub
-                }
+        @Override
+        public void enableComponent(String name) {
+            // TODO Auto-generated method stub
+        }
 
-                @Override
-                public void disableComponent(String name) {
-                       // TODO Auto-generated method stub
-                }
+        @Override
+        public void disableComponent(String name) {
+            // TODO Auto-generated method stub
+        }
 
-                @Override
-                public ServiceReference getServiceReference() {
-                       // TODO Auto-generated method stub
-                       return null;
-                }
+        @Override
+        public ServiceReference getServiceReference() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     /**
@@ -188,24 +191,30 @@ public class AaaTestBase {
             return new MockPort();
         }
     }
-    private class  MockPort implements Port {
+
+    private class MockPort implements Port {
 
         @Override
         public boolean isEnabled() {
             return true;
         }
+
         public long portSpeed() {
             return 1000;
         }
+
         public Element element() {
             return null;
         }
+
         public PortNumber number() {
             return null;
         }
+
         public Annotations annotations() {
             return new MockAnnotations();
         }
+
         public Type type() {
             return Port.Type.FIBER;
         }
@@ -216,6 +225,7 @@ public class AaaTestBase {
             public String value(String val) {
                 return "PON 1/1";
             }
+
             public Set<String> keys() {
                 return null;
             }
@@ -282,7 +292,7 @@ public class AaaTestBase {
 
         @Override
         public Set<ConfigProperty> getProperties(String componentName) {
-           return null;
+            return null;
         }
 
         @Override
@@ -307,10 +317,17 @@ public class AaaTestBase {
 
         @Override
         public ConfigProperty getProperty(String componentName, String attribute) {
-           return null;
+            return null;
         }
 
-}
+    }
+
+    final class MockMastershipService extends MastershipServiceAdapter {
+        @Override
+        public boolean isLocalMaster(DeviceId deviceId) {
+            return true;
+        }
+    }
 
     final class MockSubService implements BaseInformationService<SubscriberAndDeviceInformation> {
         private final VlanId uniTagMatch = VlanId.vlanId((short) 35);
@@ -331,27 +348,33 @@ public class AaaTestBase {
                                                        techProfileId, dsBpId, usBpId,
                                                        clientNasPortId, clientCircuitId, null,
                                                        null);
+
         @Override
         public SubscriberAndDeviceInformation get(String id) {
 
-                return  sub;
+            return sub;
 
         }
 
         @Override
-        public void invalidateAll() {}
-        public void invalidateId(String id) {}
+        public void invalidateAll() {
+        }
+
+        public void invalidateId(String id) {
+        }
+
         public SubscriberAndDeviceInformation getfromCache(String id) {
             return null;
         }
     }
+
     /**
      * Mocks the DefaultPacketContext.
      */
     final class TestPacketContext extends DefaultPacketContext {
 
         TestPacketContext(long time, InboundPacket inPkt,
-                                  OutboundPacket outPkt, boolean block) {
+                          OutboundPacket outPkt, boolean block) {
             super(time, inPkt, outPkt, block);
         }
 
@@ -382,9 +405,9 @@ public class AaaTestBase {
      * @return Ethernet packet
      */
     Ethernet constructSupplicantIdentifyPacket(StateMachine stateMachine,
-                                                       byte type,
-                                                       byte id,
-                                                       Ethernet radiusChallenge)
+                                               byte type,
+                                               byte id,
+                                               Ethernet radiusChallenge)
             throws Exception {
         Ethernet eth = new Ethernet();
         eth.setDestinationMACAddress(clientMac.toBytes());
@@ -488,7 +511,7 @@ public class AaaTestBase {
      * Checks the contents of a RADIUS packet being sent to the RADIUS server.
      *
      * @param radiusPacket packet to check
-     * @param code expected code
+     * @param code         expected code
      */
     void checkRadiusPacket(AaaManager aaaManager, Ethernet radiusPacket, byte code) {
 
@@ -544,12 +567,12 @@ public class AaaTestBase {
      * @return Ethernet packet
      */
     RADIUS constructRadiusCodeAccessChallengePacket(byte challengeCode, byte challengeType,
-            byte identifier, byte[] messageAuth) {
+                                                    byte identifier, byte[] messageAuth) {
 
         String challenge = "12345678901234567";
 
         EAP eap = new EAP(challengeType, (byte) 4, challengeType,
-                challenge.getBytes(Charsets.US_ASCII));
+                          challenge.getBytes(Charsets.US_ASCII));
         //eap.setIdentifier((byte) 4);
         eap.setIdentifier(identifier);
 
@@ -558,7 +581,7 @@ public class AaaTestBase {
         //radius.setIdentifier((byte) 4);
         radius.setIdentifier(identifier);
         radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
-                challenge.getBytes(Charsets.US_ASCII));
+                            challenge.getBytes(Charsets.US_ASCII));
 
         radius.setPayload(eap);
         radius.setAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE, eap.serialize());

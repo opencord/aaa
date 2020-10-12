@@ -16,6 +16,24 @@
       "revId": "e9f60d04d62a0a067cdf0c73eeb4ce56ea5faeb4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ae2224d_a22318db",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-10-12T16:22:53Z",
+      "side": 1,
+      "message": "YEs I need to protect against the NPE\nThis make the check only happen from the Master instance of a given device. this method is called also from 2 other methods checkServerStatusUsingFakeAccessRequest and checkServerStatusUsingStatusServerRequest. These are the ones sending the \nThe issue seen was\nFri Oct  9 01:05:44 2020 : Info: Dropping packet without response because of error: Received packet from 10.42.2.243 with invalid Message-Authenticator!  (Shared secret is incorrect.)\nFri Oct  9 01:05:45 2020 : Info: Dropping packet without response because of error: Received packet from 10.42.1.27 with invalid Message-Authenticator!  (Shared secret is incorrect.)",
+      "parentUuid": "00ec6585_bdc6e589",
+      "revId": "e9f60d04d62a0a067cdf0c73eeb4ce56ea5faeb4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }

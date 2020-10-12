@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00ec6585_bdc6e589",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-12T16:10:10Z",
+      "side": 1,
+      "message": "does\u0027t this throw a npe periodically ? It seems to me that this patch breaks the keep alives sent from the ONOS instances. Also we are doing this check for the packet-out generated from the packet-ins and this is not needed.\nLastly why do we need this check ? What was the issue ?",
+      "revId": "e9f60d04d62a0a067cdf0c73eeb4ce56ea5faeb4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

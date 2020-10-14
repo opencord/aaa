@@ -193,6 +193,10 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
+                        if (log.isTraceEnabled()) {
+                            log.trace("Received RADIUS packet with Identifier {}",
+                                      inboundRadiusPacket.getIdentifier() & 0xff);
+                        }
                         aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {

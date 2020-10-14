@@ -28,6 +28,9 @@ import com.google.common.collect.Sets;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Arrays;
@@ -544,8 +547,9 @@ public class AaaManager
         ConnectPoint supplicantCp = stateMachine.supplicantConnectpoint();
         switch (radiusPacket.getCode()) {
             case RADIUS.RADIUS_CODE_ACCESS_CHALLENGE:
-                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE for dev/port: {}/{} with MacAddress {}",
-                          supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_CHALLENGE for dev/port: {}/{} " +
+                          "with MacAddress {} and Identifier {}",
+                          supplicantCp.deviceId(), supplicantCp.port(), dstMac, radiusPacket.getIdentifier() & 0xff);
                 RADIUSAttribute radiusAttrState = radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_STATE);
                 byte[] challengeState = null;
                 if (radiusAttrState != null) {
@@ -563,8 +567,9 @@ public class AaaManager
                     log.error(e.getMessage());
                     break;
                 }
-                log.debug("Send EAP challenge response to supplicant {} on dev/port: {}/{} with MacAddress {}",
-                          supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.debug("Send EAP challenge response to supplicant on dev/port: {}/{}" +
+                          " with MacAddress {} and Identifier {}",
+                          supplicantCp.deviceId(), supplicantCp.port(), dstMac, radiusPacket.getIdentifier() & 0xff);
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), true);
                 aaaStatisticsManager.getAaaStats().increaseChallengeResponsesRx();
                 outPacketSupp.add(eapPayload.getIdentifier());
@@ -574,8 +579,9 @@ public class AaaManager
                 machineStats.incrementTotalOctetSent(eapPayload.getLength());
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_ACCEPT:
-                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT for dev/port: {}/{} with MacAddress {}",
-                          supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_ACCEPT for dev/port: {}/{}" +
+                          " with MacAddress {} and Identifier {}",
+                          supplicantCp.deviceId(), supplicantCp.port(), dstMac, radiusPacket.getIdentifier() & 0xff);
                 //send an EAPOL - Success to the supplicant.
                 byte[] eapMessageSuccess =
                         radiusPacket.getAttribute(RADIUSAttribute.RADIUS_ATTR_EAP_MESSAGE).getValue();
@@ -592,8 +598,9 @@ public class AaaManager
                                          stateMachine.vlanId(),
                                          EAPOL.EAPOL_PACKET,
                                          eapPayload, stateMachine.priorityCode());
-                log.info("Send EAP success message to supplicant {} on dev/port: {}/{} with MacAddress {}",
-                         supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.info("Send EAP success message to supplicant on dev/port: {}/{}" +
+                         " with MacAddress {} and Identifier {}",
+                         supplicantCp.deviceId(), supplicantCp.port(), dstMac, radiusPacket.getIdentifier() & 0xff);
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
                 aaaStatisticsManager.getAaaStats().incrementEapolAuthSuccessTrans();
 
@@ -604,8 +611,9 @@ public class AaaManager
                 machineStats.incrementTotalOctetSent(eapPayload.getLength());
                 break;
             case RADIUS.RADIUS_CODE_ACCESS_REJECT:
-                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT for dev/port: {}/{} with MacAddress {}",
-                          supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.debug("RADIUS packet: RADIUS_CODE_ACCESS_REJECT for dev/port: {}/{}" +
+                          " with MacAddress {} and Identifier {}",
+                          supplicantCp.deviceId(), supplicantCp.port(), dstMac, radiusPacket.getIdentifier() & 0xff);
                 //send an EAPOL - Failure to the supplicant.
                 byte[] eapMessageFailure;
                 eapPayload = new EAP();
@@ -629,8 +637,9 @@ public class AaaManager
                                          stateMachine.vlanId(),
                                          EAPOL.EAPOL_PACKET,
                                          eapPayload, stateMachine.priorityCode());
-                log.warn("Send EAP failure message to supplicant {} on dev/port: {}/{} with MacAddress {}",
-                         supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.warn("Send EAP failure message to supplicant {} on dev/port: {}/{}" +
+                         " with MacAddress {} and Identifier {}", supplicantCp.deviceId(), supplicantCp.port(),
+                         dstMac, stateMachine.challengeIdentifier() & 0xff);
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
                 aaaStatisticsManager.getAaaStats().incrementEapolauthFailureTrans();
 
@@ -646,8 +655,10 @@ public class AaaManager
                                                               machineObj));
                 break;
             default:
-                log.warn("Unknown RADIUS message received with code: {} for dev/port: {}/{} with MacAddress {}",
-                         radiusPacket.getCode(), supplicantCp.deviceId(), supplicantCp.port(), dstMac);
+                log.warn("Unknown RADIUS message received with code: {} for dev/port: {}/{}" +
+                         " with MacAddress {} and Identifier {}",
+                         radiusPacket.getCode(), supplicantCp.deviceId(), supplicantCp.port(), dstMac,
+                         radiusPacket.getIdentifier() & 0xff);
                 aaaStatisticsManager.getAaaStats().increaseUnknownTypeRx();
                 //increasing packets received to server
                 machineStats.incrementTotalPacketsReceived();
@@ -730,17 +741,34 @@ public class AaaManager
             packetProcessorExecutor.execute(() -> {
                 // Extract the original Ethernet frame from the packet information
                 InboundPacket pkt = context.inPacket();
+                if (pkt == null) {
+                    log.error("InboundPacket is null when parsed from {}", context);
+                    return;
+                }
                 Ethernet ethPkt = pkt.parsed();
                 if (ethPkt == null) {
+                    log.error("EthPkt is null when parsed from {}", pkt);
                     return;
                 }
 
                 // identify if incoming packet comes from supplicant (EAP) or RADIUS
                 switch (EthType.EtherType.lookup(ethPkt.getEtherType())) {
                     case EAPOL:
+                        if (log.isTraceEnabled()) {
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+                            log.trace("Received EAPOL supplicant packet from "
+                                              + "dev/port: {} with MacAddress {}, Input time in ONOS {}",
+                                      context.inPacket().receivedFrom(), ethPkt.getSourceMAC(),
+                                      dateFormat.format(new Date(context.time())));
+                        }
                         handleSupplicantPacket(context.inPacket());
                         break;
                     default:
+                        if (log.isTraceEnabled()) {
+                            log.trace("Received packet-in from RADIUS server {} in enclosing packet {} from "
+                                              + "dev/port: {} with MacAddress {}", ethPkt, context.inPacket(),
+                                      context.inPacket().receivedFrom(), ethPkt.getSourceMAC());
+                        }
                         // any other packets let the specific implementation handle
                         impl.handlePacketFromServer(context);
                 }
@@ -780,19 +808,29 @@ public class AaaManager
          * @param inPacket Ethernet packet coming from the supplicant
          */
         private void handleSupplicantPacket(InboundPacket inPacket) {
-            Ethernet ethPkt = inPacket.parsed();
-            // Where does it come from?
-            MacAddress srcMac = ethPkt.getSourceMAC();
+            Ethernet ethPkt;
+            MacAddress srcMac;
+            DeviceId deviceId;
+            PortNumber portNumber;
+            String sessionId;
+            EAPOL eapol;
+            try {
+                ethPkt = inPacket.parsed();
+                // Where does it come from?
+                srcMac = ethPkt.getSourceMAC();
 
-            DeviceId deviceId = inPacket.receivedFrom().deviceId();
-            PortNumber portNumber = inPacket.receivedFrom().port();
-            String sessionId = sessionId(inPacket.receivedFrom());
-            EAPOL eapol = (EAPOL) ethPkt.getPayload();
+                deviceId = inPacket.receivedFrom().deviceId();
+                portNumber = inPacket.receivedFrom().port();
+                sessionId = sessionId(inPacket.receivedFrom());
+                eapol = (EAPOL) ethPkt.getPayload();
+            } catch (Exception e) {
+                log.error("Can't get information out of packet {} due to", inPacket, e);
+                return;
+            }
             if (log.isTraceEnabled()) {
                 log.trace("Received EAPOL packet {} in enclosing packet {} from "
                         + "dev/port: {}/{} with MacAddress {}",
-                          eapol, ethPkt, deviceId,
-                          portNumber, srcMac);
+                          eapol, ethPkt, deviceId, portNumber, srcMac);
             }
 
             short pktlen = eapol.getPacketLength();
@@ -829,14 +867,13 @@ public class AaaManager
                        stateMachine.setPriorityCode(ethPkt.getPriorityCode());
                     }
                     Ethernet eth = buildEapolResponse(srcMac, MacAddress.valueOf(nasMacAddress),
-                                                      ethPkt.getVlanID(), EAPOL.EAPOL_PACKET,
-                                                      eapPayload, stateMachine.priorityCode());
+                                  ethPkt.getVlanID(), EAPOL.EAPOL_PACKET, eapPayload, stateMachine.priorityCode());
 
                     stateMachine.setVlanId(ethPkt.getVlanID());
-                    log.debug("Getting EAP identity from supplicant {}", stateMachine.supplicantAddress().toString());
+                    log.debug("Getting EAP identity from supplicant {} and Identifier {}",
+                              stateMachine.supplicantAddress().toString(), stateMachine.identifier() & 0xff);
                     sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), false);
                     aaaStatisticsManager.getAaaStats().incrementRequestIdFramesTx();
-
                     break;
                 case EAPOL.EAPOL_LOGOFF:
                     log.debug("EAP packet: EAPOL_LOGOFF from dev/port: {}/{} with MacAddress {}",
@@ -857,7 +894,6 @@ public class AaaManager
                     if (stateMachine.state() == StateMachine.STATE_IDLE) {
                         aaaStatisticsManager.getAaaStats().incrementAuthStateIdle();
                     }
-
                     break;
                 case EAPOL.EAPOL_PACKET:
                     RADIUS radiusPayload;
@@ -867,107 +903,30 @@ public class AaaManager
 
                     // get identifier for request and store mapping to session ID
                     RequestIdentifier radiusIdentifier = idManager.getNewIdentifier(sessionId);
+                    if (radiusIdentifier == null) {
+                        log.error("Cannot get RADIUS Identifier, dropping packet");
+                        return;
+                    }
 
                     byte dataType = eapPacket.getDataType();
                     switch (dataType) {
 
                         case EAP.ATTR_IDENTITY:
-                            log.debug("EAP packet: EAPOL_PACKET ATTR_IDENTITY from dev/port: {}/{} with MacAddress {}",
-                                      deviceId, portNumber, srcMac);
-                            //Setting the time of this response from RG, only when its not a re-transmission.
-                            if (stateMachine.getLastPacketReceivedTime() == 0) {
-                               stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
-                            }
-                            // request id access to RADIUS
-                            stateMachine.setUsername(eapPacket.getData());
-
-                            radiusPayload = getRadiusPayload(stateMachine, radiusIdentifier.identifier(), eapPacket);
-                            radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
-                            radiusPayload.addMessageAuthenticator(radiusSecret);
-
-                            if (log.isTraceEnabled()) {
-                                log.trace("Sending ATTR_IDENTITY packet to RADIUS for supplicant at dev/port: " +
-                                                  "{}/{} with MacAddress {}", deviceId, portNumber, srcMac);
-                            }
-
-                            sendRadiusPacket(radiusPayload, inPacket);
-                            stateMachine.setWaitingForRadiusResponse(true);
-                            aaaStatisticsManager.getAaaStats().incrementRadiusReqIdTx();
-                            aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
-                            // change the state to "PENDING"
-                            if (stateMachine.state() == StateMachine.STATE_PENDING) {
-                                aaaStatisticsManager.getAaaStats().increaseRequestReTx();
-                                stateMachine.incrementTotalPacketsSent();
-                                stateMachine.incrementTotalOctetSent(eapol.getPacketLength());
-                            }
-                            stateMachine.requestAccess();
+                            handleAttrIdentity(inPacket, srcMac, deviceId, portNumber,
+                                               eapol, stateMachine, eapPacket, radiusIdentifier);
                             break;
                         case EAP.ATTR_MD5:
-                            log.debug("EAP packet: EAPOL_PACKET ATTR_MD5 from dev/port: {}/{} with MacAddress {}",
-                                      deviceId, portNumber, srcMac);
-                            // verify if the EAP identifier corresponds to the
-                            // challenge identifier from the client state
-                            // machine.
-                            stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
-                            if (eapPacket.getIdentifier() == stateMachine.challengeIdentifier()) {
-                                //send the RADIUS challenge response
-                                radiusPayload = getRadiusPayload(stateMachine,
-                                        radiusIdentifier.identifier(), eapPacket);
-                                radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
-
-                                if (stateMachine.challengeState() != null) {
-                                    radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
-                                            stateMachine.challengeState());
-                                }
-                                radiusPayload.addMessageAuthenticator(radiusSecret);
-                                if (outPacketSupp.contains(eapPacket.getIdentifier())) {
-                                    aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
-                                    outPacketSupp.remove(identifier);
-                                }
-                                if (log.isTraceEnabled()) {
-                                    log.trace("Sending ATTR_MD5 packet to RADIUS for supplicant at dev/port: " +
-                                                      "{}/{} with MacAddress {}", deviceId, portNumber, srcMac);
-                                }
-                                sendRadiusPacket(radiusPayload, inPacket);
-                                stateMachine.setWaitingForRadiusResponse(true);
-                                aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
-                                aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
-                            }
+                            handleMD5(inPacket, srcMac, deviceId, portNumber, stateMachine,
+                                      eapPacket, identifier, radiusIdentifier);
                             break;
                         case EAP.ATTR_TLS:
-                            log.debug("EAP packet: EAPOL_PACKET ATTR_TLS from dev/port: {}/{} with MacAddress {}",
-                                      deviceId, portNumber, srcMac);
-                            // request id access to RADIUS
-                            radiusPayload = getRadiusPayload(stateMachine, radiusIdentifier.identifier(), eapPacket);
-                            radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
-
-                            if (stateMachine.challengeState() != null) {
-                                radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
-                                        stateMachine.challengeState());
-                            }
-                            stateMachine.setRequestAuthenticator(radiusPayload.generateAuthCode());
-                            radiusPayload.addMessageAuthenticator(radiusSecret);
-                            if (outPacketSupp.contains(eapPacket.getIdentifier())) {
-                                aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
-                                outPacketSupp.remove(identifier);
-                            }
-                            if (log.isTraceEnabled()) {
-                                log.trace("Sending ATTR_TLS packet to RADIUS for supplicant at dev/port: " +
-                                                  "{}/{} with MacAddress {}", deviceId, portNumber, srcMac);
-                            }
-                            sendRadiusPacket(radiusPayload, inPacket);
-                            stateMachine.setWaitingForRadiusResponse(true);
-                            aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
-                            aaaStatisticsManager.getAaaStats().incrementEapolTlsRespChall();
-
-                            if (stateMachine.state() != StateMachine.STATE_PENDING) {
-                                stateMachine.requestAccess();
-                            }
+                            handleTls(inPacket, srcMac, deviceId, portNumber, stateMachine,
+                                      eapPacket, identifier, radiusIdentifier);
 
                             break;
                         default:
-                            log.warn("Unknown EAP packet type from dev/port: {}/{} with MacAddress {}",
-                                     deviceId, portNumber, srcMac);
+                            log.warn("Unknown EAP packet type from dev/port: {}/{} with MacAddress {} and " +
+                                     "Identifier {}", deviceId, portNumber, srcMac, eapPacket.getIdentifier() & 0xff);
                             return;
                     }
                     break;
@@ -977,6 +936,124 @@ public class AaaManager
             }
             aaaStatisticsManager.getAaaStats().countTransRespNotNak();
             aaaStatisticsManager.getAaaStats().countEapolResIdentityMsgTrans();
+        }
+
+        private void handleAttrIdentity(InboundPacket inPacket, MacAddress srcMac, DeviceId deviceId,
+                                        PortNumber portNumber, EAPOL eapol, StateMachine stateMachine,
+                                        EAP eapPacket, RequestIdentifier radiusIdentifier) {
+            RADIUS radiusPayload;
+            log.debug("EAP packet: EAPOL_PACKET ATTR_IDENTITY from dev/port: {}/{} with MacAddress {}" +
+                  " and Identifier {}", deviceId, portNumber, srcMac, eapPacket.getIdentifier() & 0xff);
+            //Setting the time of this response from RG, only when its not a re-transmission.
+            if (stateMachine.getLastPacketReceivedTime() == 0) {
+               stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
+            }
+            // request id access to RADIUS
+            stateMachine.setUsername(eapPacket.getData());
+
+            radiusPayload = getRadiusPayload(stateMachine, radiusIdentifier.identifier(), eapPacket);
+            radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
+            radiusPayload.addMessageAuthenticator(radiusSecret);
+
+            if (log.isTraceEnabled()) {
+                log.trace("Sending ATTR_IDENTITY packet to RADIUS for supplicant at dev/port: " +
+                          "{}/{} with MacAddress {} and Identifier {}", deviceId, portNumber,
+                          srcMac, radiusIdentifier.identifier() & 0xff);
+            }
+
+            sendRadiusPacket(radiusPayload, inPacket);
+            stateMachine.setWaitingForRadiusResponse(true);
+            aaaStatisticsManager.getAaaStats().incrementRadiusReqIdTx();
+            aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
+            // change the state to "PENDING"
+            if (stateMachine.state() == StateMachine.STATE_PENDING) {
+                aaaStatisticsManager.getAaaStats().increaseRequestReTx();
+                stateMachine.incrementTotalPacketsSent();
+                stateMachine.incrementTotalOctetSent(eapol.getPacketLength());
+            }
+            stateMachine.requestAccess();
+        }
+
+        private void handleMD5(InboundPacket inPacket, MacAddress srcMac, DeviceId deviceId,
+                               PortNumber portNumber, StateMachine stateMachine, EAP eapPacket,
+                               Byte identifier, RequestIdentifier radiusIdentifier) {
+            RADIUS radiusPayload;
+            log.debug("EAP packet: EAPOL_PACKET ATTR_MD5 from dev/port: {}/{} with MacAddress {}" +
+                  " and Identifier {}", deviceId, portNumber, srcMac, eapPacket.getIdentifier() & 0xff);
+            // verify if the EAP identifier corresponds to the
+            // challenge identifier from the client state
+            // machine.
+            stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
+            if (eapPacket.getIdentifier() == stateMachine.challengeIdentifier()) {
+                //send the RADIUS challenge response
+                radiusPayload = getRadiusPayload(stateMachine,
+                        radiusIdentifier.identifier(), eapPacket);
+                radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
+
+                if (stateMachine.challengeState() != null) {
+                    radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
+                                               stateMachine.challengeState());
+                }
+                radiusPayload.addMessageAuthenticator(radiusSecret);
+                if (outPacketSupp.contains(eapPacket.getIdentifier())) {
+                    aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
+                    outPacketSupp.remove(identifier);
+                }
+                if (log.isTraceEnabled()) {
+                    log.trace("Sending ATTR_MD5 packet to RADIUS for supplicant at dev/port: {}/{}" +
+                              " with MacAddress {} and Identifier {}", deviceId, portNumber, srcMac,
+                              radiusIdentifier.identifier() & 0xff);
+                }
+                sendRadiusPacket(radiusPayload, inPacket);
+                stateMachine.setWaitingForRadiusResponse(true);
+                aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
+                aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
+            } else {
+                log.error("eapolIdentifier {} and stateMachine Identifier {} do not " +
+                                  "correspond for packet from dev/port: {}/{} with MacAddress {}",
+                          eapPacket.getIdentifier() & 0xff, stateMachine.challengeIdentifier() & 0xff,
+                          deviceId, portNumber, srcMac);
+                aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
+                if (outPacketSupp.contains(eapPacket.getIdentifier())) {
+                    aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
+                    outPacketSupp.remove(identifier);
+                }
+                aaaStatisticsManager.getAaaStats().incrementEapolauthFailureTrans();
+            }
+        }
+
+
+        private void handleTls(InboundPacket inPacket, MacAddress srcMac, DeviceId deviceId,
+                               PortNumber portNumber, StateMachine stateMachine, EAP eapPacket,
+                               Byte identifier, RequestIdentifier radiusIdentifier) {
+            RADIUS radiusPayload;
+            log.debug("EAP packet: EAPOL_PACKET ATTR_TLS from dev/port: {}/{} with MacAddress {} " +
+                              "and Identifier {}", deviceId, portNumber, srcMac, eapPacket.getIdentifier() & 0xff);
+            // request id access to RADIUS
+            radiusPayload = getRadiusPayload(stateMachine, radiusIdentifier.identifier(), eapPacket);
+            radiusPayload = pktCustomizer.customizePacket(radiusPayload, inPacket);
+            if (stateMachine.challengeState() != null) {
+                radiusPayload.setAttribute(RADIUSAttribute.RADIUS_ATTR_STATE,
+                                           stateMachine.challengeState());
+            }
+            stateMachine.setRequestAuthenticator(radiusPayload.generateAuthCode());
+            radiusPayload.addMessageAuthenticator(radiusSecret);
+            if (outPacketSupp.contains(eapPacket.getIdentifier())) {
+                aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
+                outPacketSupp.remove(identifier);
+            }
+            if (log.isTraceEnabled()) {
+                log.trace("Sending ATTR_TLS packet to RADIUS for supplicant at dev/port: {}/{} with " +
+                                  "MacAddress {} and Identifier {}", deviceId, portNumber, srcMac,
+                          radiusIdentifier.identifier() & 0xff);
+            }
+            sendRadiusPacket(radiusPayload, inPacket);
+            stateMachine.setWaitingForRadiusResponse(true);
+            aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
+            aaaStatisticsManager.getAaaStats().incrementEapolTlsRespChall();
+            if (stateMachine.state() != StateMachine.STATE_PENDING) {
+                stateMachine.requestAccess();
+            }
         }
     }
 

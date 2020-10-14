@@ -317,17 +317,17 @@ public class AaaStatisticsTest extends AaaTestBase {
 
             //Check for increase of Stats
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getValidEapolFramesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolChallengeReqTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolValidFramesRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolFramesTx(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getReqEapFramesTx(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestIdFramesTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolReqFramesTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolIdRequestFramesTx(), ZERO);
             assertEquals(aaaStatisticsManager.getAaaStats().getInvalidBodyLength(), ZERO);
             assertEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
-            assertEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
+            assertEquals(aaaStatisticsManager.getAaaStats().getEapolPendingReq(), ZERO);
             // Counts the aaa Statistics count and displays in the log
             countAaaStatistics();
         });
@@ -408,7 +408,7 @@ public class AaaStatisticsTest extends AaaTestBase {
 
         assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
             //Statistic Should be increased.
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingResSupp(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolPendingReq(), ZERO);
 
             //Test if packet with invalid eapol type recieved.
             // Supplicant ASF Packet
@@ -418,8 +418,8 @@ public class AaaStatisticsTest extends AaaTestBase {
         //Statistic Should be increased.
         assertAfter(ASSERTION_DELAY, ASSERTION_LENGTH, () -> {
             assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidPktType(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusAccessRequestsTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusChallengeResponsesRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
             // Counts the aaa Statistics count and displays in the log
@@ -516,16 +516,16 @@ public class AaaStatisticsTest extends AaaTestBase {
 
             //Check for increase of Stats
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthFailureTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthFailureTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolChallengeReqTx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
 
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusAccessRequestsTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusChallengeResponsesRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getRejectResponsesRx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusRejectResponsesRx(), ZERO);
 
             // Counts the aaa Statistics count
             countAaaStatistics();
@@ -578,11 +578,11 @@ public class AaaStatisticsTest extends AaaTestBase {
 
             // Check for increase of Stats
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqRx(), ZERO);
 
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusAccessRequestsTx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getPendingRequests(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getRadiusPendingRequests(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getMalformedResponsesRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getRequestReTx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getUnknownTypeRx(), ZERO);
@@ -723,10 +723,10 @@ public class AaaStatisticsTest extends AaaTestBase {
             //Check for increase in stats
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolLogoffRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTrans(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolAuthSuccessTx(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqRx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolTransRespNotNak(), ZERO);
-            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapPktTxauthChooseEap(), ZERO);
+            assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolChallengeReqTx(), ZERO);
             assertNotEquals(aaaStatisticsManager.getAaaStats().getAuthStateIdle(), ZERO);
             // Counts the aaa Statistics count
             countAaaStatistics();
@@ -791,7 +791,7 @@ public class AaaStatisticsTest extends AaaTestBase {
 
                 //Check for increase in stats
                 assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolResIdentityMsgTrans(), ZERO);
-                assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqTrans(), ZERO);
+                assertNotEquals(aaaStatisticsManager.getAaaStats().getEapolStartReqRx(), ZERO);
                 countAaaStatistics();
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -803,14 +803,14 @@ public class AaaStatisticsTest extends AaaTestBase {
 
     // Calculates the AAA statistics count.
     public void countAaaStatistics() {
-        assertThat(aaaStatisticsManager.getAaaStats().getAcceptResponsesRx(), notNullValue());
-        assertThat(aaaStatisticsManager.getAaaStats().getAccessRequestsTx(), notNullValue());
-        assertThat(aaaStatisticsManager.getAaaStats().getChallengeResponsesRx(), notNullValue());
+        assertThat(aaaStatisticsManager.getAaaStats().getRadiusAcceptResponsesRx(), notNullValue());
+        assertThat(aaaStatisticsManager.getAaaStats().getRadiusAccessRequestsTx(), notNullValue());
+        assertThat(aaaStatisticsManager.getAaaStats().getRadiusChallengeResponsesRx(), notNullValue());
         assertThat(aaaStatisticsManager.getAaaStats().getDroppedResponsesRx(), notNullValue());
         assertThat(aaaStatisticsManager.getAaaStats().getInvalidValidatorsRx(), notNullValue());
         assertThat(aaaStatisticsManager.getAaaStats().getMalformedResponsesRx(), notNullValue());
-        assertThat(aaaStatisticsManager.getAaaStats().getPendingRequests(), notNullValue());
-        assertThat(aaaStatisticsManager.getAaaStats().getRejectResponsesRx(), notNullValue());
+        assertThat(aaaStatisticsManager.getAaaStats().getRadiusPendingRequests(), notNullValue());
+        assertThat(aaaStatisticsManager.getAaaStats().getRadiusRejectResponsesRx(), notNullValue());
         assertThat(aaaStatisticsManager.getAaaStats().getRequestReTx(), notNullValue());
         assertThat(aaaStatisticsManager.getAaaStats().getRequestRttMilis(), notNullValue());
         assertThat(aaaStatisticsManager.getAaaStats().getUnknownServerRx(), notNullValue());

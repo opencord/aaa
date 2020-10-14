@@ -26,11 +26,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * Records metrics for the AAA application.
  */
 public class AaaStatistics {
-    public static final String ACCEPT_RESPONSES_RX = "acceptResponsesRx";
-    public static final String REJECT_RESPONSES_RX = "rejectResponsesRx";
-    public static final String CHALLENGE_RESPONSES_RX = "challengeResponsesRx";
-    public static final String ACCESS_REQUESTS_TX = "accessRequestsTx";
-    public static final String PENDING_REQUESTS = "pendingRequests";
+    public static final String RADIUS_ACCEPT_RESPONSES_RX = "radiusAccessAcceptRx";
+    public static final String RADIUS_REJECT_RESPONSES_RX = "radiusRejectResponsesRx";
+    public static final String RADIUS_CHALLENGE_RESPONSES_RX = "radiusAccessChallengeRx";
+    public static final String RADIUS_ACCESS_REQUESTS_TX = "radiusAccessRequestTx";
+    public static final String RADIUS_ACCESS_REQUESTS_IDENTITY_TX = "radiusAccessRequestIdentityTx";
+    public static final String RADIUS_ACCESS_REQUESTS_CHALLENGE_TX = "radiusAccessRequestChallengeTx";
+    public static final String RADIUS_PENDING_REQUESTS = "radiusPendingRequests";
     public static final String TIMED_OUT_PACKETS = "timedOutPackets";
     public static final String UNKNOWN_TYPE_RX = "unknownTypeRx";
     public static final String INVALID_VALIDATORS_RX = "invalidValidatorsRx";
@@ -41,30 +43,32 @@ public class AaaStatistics {
     public static final String REQUEST_RE_TX = "requestReTx";
     public static final String NUM_SESSIONS_EXPIRED = "numSessionsExpired";
     public static final String EAPOL_LOGOFF_RX = "eapolLogoffRx";
-    public static final String EAPOL_AUTH_SUCCESS_TRANS = "eapolAuthSuccessTrans";
-    public static final String EAPOL_AUTH_FAILURE_TRANS = "eapolAuthFailureTrans";
-    public static final String EAPOL_START_REQ_TRANS = "eapolStartReqTrans";
-    public static final String EAPOL_MD5_RESP_CHALLENGE = "eapolMd5RespChallenge";
-    public static final String EAPOL_TLS_RESP_CHALLENGE = "eapolTlsRespChallenge";
+    public static final String EAPOL_AUTH_SUCCESS_TX = "eapolAuthSuccessTx";
+    public static final String EAPOL_AUTH_FAILURE_TX = "eapolAuthFailureTrans";
+    public static final String EAPOL_START_REQ_RX = "eapolStartRequestRx";
+    public static final String EAPOL_MD5_CHALLENGE_RESP_RX = "eapolMd5ChallengeResponseRx";
+    public static final String EAPOL_TLS_CHALLENGE_RESP = "eapolTlsRespChallenge";
     public static final String EAPOL_TRANS_RESP_NOT_NAK = "eapolTransRespNotNak";
-    public static final String EAP_PKT_TX_AUTH_CHOOSE_EAP = "eapPktTxauthChooseEap";
-    public static final String RES_ID_EAP_FRAMES_RX = "resIdEapFramesRx";
-    public static final String EAPOL_RES_IDENTITY_MSG_TRANS = "eapolResIdentityMsgTrans";
+    public static final String EAPOL_CHALLENGE_REQ_TX = "eapolChallengeRequestTx";
+    public static final String EAPOL_ID_RESP_FRAMES_RX = "eapolIdentityResponseRx";
+    public static final String EAPOL_ID_MSG_RESP_TX = "eapolIdentityMsgResponseTx";
     public static final String EAPOL_FRAMES_TX = "eapolFramesTx";
     public static final String AUTH_STATE_IDLE = "authStateIdle";
-    public static final String REQUEST_ID_FRAMES_TX = "requestIdFramesTx";
-    public static final String REQUEST_EAP_FRAMES_TX = "requestEapFramesTx";
+    public static final String EAPOL_ID_REQUEST_FRAMES_TX = "eapolIdentityRequestTx";
+    public static final String EAPOL_REQUEST_FRAMES_TX = "eapolRequestFramesTx"; //TODO check
     public static final String INVALID_PKT_TYPE = "invalidPktType";
     public static final String INVALID_BODY_LENGTH = "invalidBodyLength";
-    public static final String VALID_EAPOL_FRAMES_RX = "validEapolFramesRx";
-    public static final String PENDING_RES_SUPPLICANT = "pendingResSupplicant";
+    public static final String EAPOL_VALID_FRAMES_RX = "eapolValidFramesRx";
+    public static final String EAPOL_PENDING_REQUESTS = "eapolPendingRequests";
 
     public static final String[] COUNTER_NAMES = new String[]{
-            ACCEPT_RESPONSES_RX,
-            REJECT_RESPONSES_RX,
-            CHALLENGE_RESPONSES_RX,
-            ACCESS_REQUESTS_TX,
-            PENDING_REQUESTS,
+            RADIUS_ACCEPT_RESPONSES_RX,
+            RADIUS_REJECT_RESPONSES_RX,
+            RADIUS_CHALLENGE_RESPONSES_RX,
+            RADIUS_ACCESS_REQUESTS_TX,
+            RADIUS_ACCESS_REQUESTS_IDENTITY_TX,
+            RADIUS_ACCESS_REQUESTS_CHALLENGE_TX,
+            RADIUS_PENDING_REQUESTS,
             TIMED_OUT_PACKETS,
             UNKNOWN_TYPE_RX,
             INVALID_VALIDATORS_RX,
@@ -75,35 +79,39 @@ public class AaaStatistics {
             REQUEST_RE_TX,
             NUM_SESSIONS_EXPIRED,
             EAPOL_LOGOFF_RX,
-            EAPOL_AUTH_SUCCESS_TRANS,
-            EAPOL_AUTH_FAILURE_TRANS,
-            EAPOL_START_REQ_TRANS,
-            EAPOL_MD5_RESP_CHALLENGE,
-            EAPOL_TLS_RESP_CHALLENGE,
+            EAPOL_AUTH_SUCCESS_TX,
+            EAPOL_AUTH_FAILURE_TX,
+            EAPOL_START_REQ_RX,
+            EAPOL_MD5_CHALLENGE_RESP_RX,
+            EAPOL_TLS_CHALLENGE_RESP,
             EAPOL_TRANS_RESP_NOT_NAK,
-            EAP_PKT_TX_AUTH_CHOOSE_EAP,
-            RES_ID_EAP_FRAMES_RX,
-            EAPOL_RES_IDENTITY_MSG_TRANS,
+            EAPOL_CHALLENGE_REQ_TX,
+            EAPOL_ID_RESP_FRAMES_RX,
+            EAPOL_ID_MSG_RESP_TX,
             EAPOL_FRAMES_TX,
             AUTH_STATE_IDLE,
-            REQUEST_ID_FRAMES_TX,
-            REQUEST_EAP_FRAMES_TX,
+            EAPOL_ID_REQUEST_FRAMES_TX,
+            EAPOL_REQUEST_FRAMES_TX,
             INVALID_PKT_TYPE,
             INVALID_BODY_LENGTH,
-            VALID_EAPOL_FRAMES_RX,
-            PENDING_RES_SUPPLICANT,
+            EAPOL_VALID_FRAMES_RX,
+            EAPOL_PENDING_REQUESTS,
     };
 
     // Number of access accept packets sent to the server
-    private AtomicLong acceptResponsesRx = new AtomicLong();
+    private AtomicLong radiusAcceptResponsesRx = new AtomicLong();
     // Number of access reject packets sent to the server
-    private AtomicLong rejectResponsesRx = new AtomicLong();
+    private AtomicLong radiusRejectResponsesRx = new AtomicLong();
     // Number of access challenge packets sent to the server
-    private AtomicLong challengeResponsesRx = new AtomicLong();
+    private AtomicLong radiusChallengeResponsesRx = new AtomicLong();
     // Number of access request packets sent to the server
-    private AtomicLong accessRequestsTx = new AtomicLong();
+    private AtomicLong radiusAccessRequestsTx = new AtomicLong();
+    // Number of identity request packets sent to the server
+    private AtomicLong radiusAccessRequestsIdentityTx = new AtomicLong();
+    // Number of challenge request packets sent to the server
+    private AtomicLong radiusAccessRequestsChallengeTx = new AtomicLong();
     // Number of access request packets pending a response from the server
-    private AtomicLong pendingRequests = new AtomicLong();
+    private AtomicLong radiusPendingRequests = new AtomicLong();
     // Number of packets send to the server which timed out.
     private AtomicLong timedOutPackets = new AtomicLong();
     // Number of packets of an unknown RADIUS type received from the accounting
@@ -127,19 +135,19 @@ public class AaaStatistics {
     //Number of EAPOL logoff messages received resulting in disconnected state
     private AtomicLong eapolLogoffRx = new AtomicLong();
     //Number of authenticated transitions due to successful authentication
-    private AtomicLong eapolAuthSuccessTrans = new AtomicLong();
+    private AtomicLong eapolAuthSuccessTx = new AtomicLong();
     //Number of transitions to held due to authentication failure
-    private AtomicLong eapolAuthFailureTrans = new AtomicLong();
+    private AtomicLong eapolAuthFailureTx = new AtomicLong();
     //Number of transitions to connecting due to start request
-    private AtomicLong eapolStartReqTrans = new AtomicLong();
+    private AtomicLong eapolStartReqRx = new AtomicLong();
     //MD5 Response Challenge
-    private AtomicLong eapolMd5RspChall = new AtomicLong();
+    private AtomicLong eapolMd5ChallRespRx = new AtomicLong();
     //Tls Response Challenge
-    private AtomicLong eapolTlsRespChall = new AtomicLong();
+    private AtomicLong eapolTlsChallResp = new AtomicLong();
     //Number of transitions to response (received response other that NAK)
     private AtomicLong eapolTransRespNotNak = new AtomicLong();
     //Number of EAP request packets sent due to the authenticator choosing the EAP method
-    private AtomicLong eapPktTxauthChooseEap = new AtomicLong();
+    private AtomicLong eapolChallengeReqTx = new AtomicLong();
     //Attr Identity
     private AtomicLong eapolAttrIdentity = new AtomicLong();
     //Number of authenticating transitions due to EAP response or identity message
@@ -149,17 +157,17 @@ public class AaaStatistics {
     //Authenticator state when idle
     private AtomicLong authStateIdle = new AtomicLong();
     //Number of request ID EAP frames transmitted
-    private AtomicLong requestIdFramesTx = new AtomicLong();
+    private AtomicLong eapolIdRequestFramesTx = new AtomicLong();
     //Current number of request EAP frames transmitted
-    private AtomicLong reqEapFramesTx = new AtomicLong();
+    private AtomicLong eapolReqFramesTx = new AtomicLong();
     //Number of EAPOL frames received with invalid packet type
     private AtomicLong invalidPktType = new AtomicLong();
     //Number of EAPOL frames received with invalid body length
     private AtomicLong invalidBodyLength = new AtomicLong();
     //number of valid EAPOL frames received
-    private AtomicLong validEapolFramesRx = new AtomicLong();
+    private AtomicLong eapolValidFramesRx = new AtomicLong();
     //Number of request pending response from supplicant
-    private AtomicLong pendingResSupp = new AtomicLong();
+    private AtomicLong eapolPendingReq = new AtomicLong();
 
     public Long getEapolResIdentityMsgTrans() {
         return eapolResIdentityMsgTrans.get();
@@ -169,46 +177,46 @@ public class AaaStatistics {
         return eapolAttrIdentity.get();
     }
 
-    public Long getEapPktTxauthChooseEap() {
-        return eapPktTxauthChooseEap.get();
+    public Long getEapolChallengeReqTx() {
+        return eapolChallengeReqTx.get();
     }
 
     public Long getEapolTransRespNotNak() {
         return eapolTransRespNotNak.get();
     }
 
-    public Long getEapolMd5RspChall() {
-        return eapolMd5RspChall.get();
+    public Long getEapolMd5ChallRespRx() {
+        return eapolMd5ChallRespRx.get();
     }
 
-    public Long getEapolTlsRespChall() {
-        return eapolTlsRespChall.get();
+    public Long getEapolTlsChallResp() {
+        return eapolTlsChallResp.get();
     }
 
     public Long getEapolLogoffRx() {
         return eapolLogoffRx.get();
     }
 
-    public Long getEapolAuthSuccessTrans() {
-        return eapolAuthSuccessTrans.get();
+    public Long getEapolAuthSuccessTx() {
+        return eapolAuthSuccessTx.get();
     }
 
-    public Long getEapolAuthFailureTrans() {
-        return eapolAuthFailureTrans.get();
+    public Long getEapolAuthFailureTx() {
+        return eapolAuthFailureTx.get();
     }
 
-    public Long getEapolStartReqTrans() {
-        return eapolStartReqTrans.get();
+    public Long getEapolStartReqRx() {
+        return eapolStartReqRx.get();
     }
 
     private LinkedList<Long> packetRoundTripTimeList = new LinkedList<Long>();
 
-    public Long getPendingResSupp() {
-        return pendingResSupp.get();
+    public Long getEapolPendingReq() {
+        return eapolPendingReq.get();
     }
 
-    public Long getValidEapolFramesRx() {
-        return validEapolFramesRx.get();
+    public Long getEapolValidFramesRx() {
+        return eapolValidFramesRx.get();
     }
 
     public Long getInvalidBodyLength() {
@@ -219,12 +227,12 @@ public class AaaStatistics {
         return invalidPktType.get();
     }
 
-    public Long getRequestIdFramesTx() {
-        return requestIdFramesTx.get();
+    public Long getEapolIdRequestFramesTx() {
+        return eapolIdRequestFramesTx.get();
     }
 
-    public Long getReqEapFramesTx() {
-        return reqEapFramesTx.get();
+    public Long getEapolReqFramesTx() {
+        return eapolReqFramesTx.get();
     }
 
     public Long getAuthStateIdle() {
@@ -283,24 +291,24 @@ public class AaaStatistics {
         return invalidValidatorsRx.get();
     }
 
-    public Long getAcceptResponsesRx() {
-        return acceptResponsesRx.get();
+    public Long getRadiusAcceptResponsesRx() {
+        return radiusAcceptResponsesRx.get();
     }
 
-    public Long getRejectResponsesRx() {
-        return rejectResponsesRx.get();
+    public Long getRadiusRejectResponsesRx() {
+        return radiusRejectResponsesRx.get();
     }
 
-    public Long getChallengeResponsesRx() {
-        return challengeResponsesRx.get();
+    public Long getRadiusChallengeResponsesRx() {
+        return radiusChallengeResponsesRx.get();
     }
 
-    public Long getAccessRequestsTx() {
-        return accessRequestsTx.get();
+    public Long getRadiusAccessRequestsTx() {
+        return radiusAccessRequestsTx.get();
     }
 
-    public Long getPendingRequests() {
-        return pendingRequests.get();
+    public Long getRadiusPendingRequests() {
+        return radiusPendingRequests.get();
     }
 
     public Long getUnknownTypeRx() {
@@ -308,19 +316,19 @@ public class AaaStatistics {
     }
 
     public void increaseAcceptResponsesRx() {
-        acceptResponsesRx.incrementAndGet();
+        radiusAcceptResponsesRx.incrementAndGet();
     }
 
     public void increaseRejectResponsesRx() {
-        rejectResponsesRx.incrementAndGet();
+        radiusRejectResponsesRx.incrementAndGet();
     }
 
     public void increaseChallengeResponsesRx() {
-        challengeResponsesRx.incrementAndGet();
+        radiusChallengeResponsesRx.incrementAndGet();
     }
 
     public void increaseAccessRequestsTx() {
-        accessRequestsTx.incrementAndGet();
+        radiusAccessRequestsTx.incrementAndGet();
     }
 
     public void increaseRequestReTx() {
@@ -333,9 +341,9 @@ public class AaaStatistics {
 
     public void increaseOrDecreasePendingRequests(boolean isIncrement) {
         if (isIncrement) {
-            pendingRequests.incrementAndGet();
+            radiusPendingRequests.incrementAndGet();
         } else {
-            pendingRequests.decrementAndGet();
+            radiusPendingRequests.decrementAndGet();
         }
     }
 
@@ -364,19 +372,19 @@ public class AaaStatistics {
     }
 
     public void incrementEapolAuthSuccessTrans() {
-        eapolAuthSuccessTrans.incrementAndGet();
+        eapolAuthSuccessTx.incrementAndGet();
     }
 
     public void incrementEapolauthFailureTrans() {
-        eapolAuthFailureTrans.incrementAndGet();
+        eapolAuthFailureTx.incrementAndGet();
     }
 
-    public void incrementEapolStartReqTrans() {
-        eapolStartReqTrans.incrementAndGet();
+    public void incrementEapolStartReqRx() {
+        eapolStartReqRx.incrementAndGet();
     }
 
     public void incrementEapolMd5RspChall() {
-        eapolMd5RspChall.incrementAndGet();
+        eapolMd5ChallRespRx.incrementAndGet();
     }
 
     public void incrementEapolAtrrIdentity() {
@@ -384,7 +392,7 @@ public class AaaStatistics {
     }
 
     public void incrementEapolTlsRespChall() {
-        eapolTlsRespChall.incrementAndGet();
+        eapolTlsChallResp.incrementAndGet();
     }
 
     public void incrementEapolFramesTx() {
@@ -396,7 +404,7 @@ public class AaaStatistics {
     }
 
     public void incrementRequestIdFramesTx() {
-        requestIdFramesTx.incrementAndGet();
+        eapolIdRequestFramesTx.incrementAndGet();
     }
 
     public void incrementInvalidBodyLength() {
@@ -404,15 +412,15 @@ public class AaaStatistics {
     }
 
     public void incrementValidEapolFramesRx() {
-        validEapolFramesRx.incrementAndGet();
+        eapolValidFramesRx.incrementAndGet();
     }
 
-    public void incrementPendingResSupp() {
-        pendingResSupp.incrementAndGet();
+    public void incrementPendingReqSupp() {
+        eapolPendingReq.incrementAndGet();
     }
 
-    public void decrementPendingResSupp() {
-        pendingResSupp.decrementAndGet();
+    public void decrementPendingReqSupp() {
+        eapolPendingReq.decrementAndGet();
     }
 
     public void countDroppedResponsesRx() {
@@ -424,62 +432,80 @@ public class AaaStatistics {
     }
 
     public void countReqEapFramesTx() {
-        long noReqEapFramesTx = requestIdFramesTx.get();
-        noReqEapFramesTx += challengeResponsesRx.get();
-        this.reqEapFramesTx = new AtomicLong(noReqEapFramesTx);
+        long noReqEapFramesTx = eapolIdRequestFramesTx.get();
+        noReqEapFramesTx += radiusChallengeResponsesRx.get();
+        this.eapolReqFramesTx = new AtomicLong(noReqEapFramesTx);
     }
 
     public void resetAllCounters() {
         clearPacketRoundTripTimeList();
 
-        accessRequestsTx.set(0);
-        acceptResponsesRx.set(0);
-        challengeResponsesRx.set(0);
+        radiusAccessRequestsTx.set(0);
+        radiusAccessRequestsIdentityTx.set(0);
+        radiusAccessRequestsChallengeTx.set(0);
+        radiusAcceptResponsesRx.set(0);
+        radiusChallengeResponsesRx.set(0);
         droppedResponsesRx.set(0);
         invalidValidatorsRx.set(0);
         malformedResponsesRx.set(0);
-        pendingRequests.set(0);
-        rejectResponsesRx.set(0);
+        radiusPendingRequests.set(0);
+        radiusRejectResponsesRx.set(0);
         requestReTx.set(0);
         requestRttMilis.set(0);
         unknownServerRx.set(0);
         unknownTypeRx.set(0);
         eapolLogoffRx.set(0);
-        eapolAuthSuccessTrans.set(0);
-        eapolAuthFailureTrans.set(0);
-        eapolStartReqTrans.set(0);
+        eapolAuthSuccessTx.set(0);
+        eapolAuthFailureTx.set(0);
+        eapolStartReqRx.set(0);
         eapolTransRespNotNak.set(0);
-        eapPktTxauthChooseEap.set(0);
+        eapolChallengeReqTx.set(0);
         eapolResIdentityMsgTrans.set(0);
         eapolFramesTx.set(0);
         authStateIdle.set(0);
-        requestIdFramesTx.set(0);
-        reqEapFramesTx.set(0);
+        eapolIdRequestFramesTx.set(0);
+        eapolReqFramesTx.set(0);
         invalidPktType.set(0);
         invalidBodyLength.set(0);
-        validEapolFramesRx.set(0);
-        pendingResSupp.set(0);
+        eapolValidFramesRx.set(0);
+        eapolPendingReq.set(0);
         timedOutPackets.set(0);
-        eapolMd5RspChall.set(0);
-        eapolTlsRespChall.set(0);
+        eapolMd5ChallRespRx.set(0);
+        eapolTlsChallResp.set(0);
         eapolAttrIdentity.set(0);
     }
 
     public void countTransRespNotNak() {
-        long eapolTransactionNotNak = eapolMd5RspChall.get();
-        eapolTransactionNotNak += eapolTlsRespChall.get();
+        long eapolTransactionNotNak = eapolMd5ChallRespRx.get();
+        eapolTransactionNotNak += eapolTlsChallResp.get();
         this.eapolTransRespNotNak = new AtomicLong(eapolTransactionNotNak);
     }
 
     public void countEapolResIdentityMsgTrans() {
-        long authTransaction = eapolMd5RspChall.get();
-        authTransaction += eapolTlsRespChall.get();
+        long authTransaction = eapolMd5ChallRespRx.get();
+        authTransaction += eapolTlsChallResp.get();
         authTransaction += eapolAttrIdentity.get();
         this.eapolResIdentityMsgTrans = new AtomicLong(authTransaction);
     }
 
     public void incrementEapPktTxauthEap() {
-        eapPktTxauthChooseEap.incrementAndGet();
+        eapolChallengeReqTx.incrementAndGet();
+    }
+
+    public void incrementRadiusReqIdTx() {
+        radiusAccessRequestsIdentityTx.incrementAndGet();
+    }
+
+    public void incrementRadiusReqChallengeTx() {
+        radiusAccessRequestsChallengeTx.incrementAndGet();
+    }
+
+    public Long getRadiusReqIdTx() {
+        return radiusAccessRequestsIdentityTx.get();
+    }
+
+    public Long getRadiusReqChallengeTx() {
+        return radiusAccessRequestsChallengeTx.get();
     }
 
     public long getTimedOutPackets() {
@@ -497,11 +523,13 @@ public class AaaStatistics {
      */
     public AaaStatisticsSnapshot snapshot() {
         ImmutableMap.Builder<String, Long> builder = ImmutableMap.builder();
-        builder.put(ACCEPT_RESPONSES_RX, acceptResponsesRx.get())
-                .put(REJECT_RESPONSES_RX, rejectResponsesRx.get())
-                .put(CHALLENGE_RESPONSES_RX, challengeResponsesRx.get())
-                .put(ACCESS_REQUESTS_TX, accessRequestsTx.get())
-                .put(PENDING_REQUESTS, pendingRequests.get())
+        builder.put(RADIUS_ACCEPT_RESPONSES_RX, radiusAcceptResponsesRx.get())
+                .put(RADIUS_REJECT_RESPONSES_RX, radiusRejectResponsesRx.get())
+                .put(RADIUS_CHALLENGE_RESPONSES_RX, radiusChallengeResponsesRx.get())
+                .put(RADIUS_ACCESS_REQUESTS_TX, radiusAccessRequestsTx.get())
+                .put(RADIUS_ACCESS_REQUESTS_IDENTITY_TX, radiusAccessRequestsIdentityTx.get())
+                .put(RADIUS_ACCESS_REQUESTS_CHALLENGE_TX, radiusAccessRequestsChallengeTx.get())
+                .put(RADIUS_PENDING_REQUESTS, radiusPendingRequests.get())
                 .put(TIMED_OUT_PACKETS, timedOutPackets.get())
                 .put(UNKNOWN_TYPE_RX, unknownTypeRx.get())
                 .put(INVALID_VALIDATORS_RX, invalidValidatorsRx.get())
@@ -512,23 +540,23 @@ public class AaaStatistics {
                 .put(REQUEST_RE_TX, requestReTx.get())
                 .put(NUM_SESSIONS_EXPIRED, numberOfSessionsExpired.get())
                 .put(EAPOL_LOGOFF_RX, eapolLogoffRx.get())
-                .put(EAPOL_AUTH_SUCCESS_TRANS, eapolAuthSuccessTrans.get())
-                .put(EAPOL_AUTH_FAILURE_TRANS, eapolAuthFailureTrans.get())
-                .put(EAPOL_START_REQ_TRANS, eapolStartReqTrans.get())
-                .put(EAPOL_MD5_RESP_CHALLENGE, eapolMd5RspChall.get())
-                .put(EAPOL_TLS_RESP_CHALLENGE, eapolTlsRespChall.get())
+                .put(EAPOL_AUTH_SUCCESS_TX, eapolAuthSuccessTx.get())
+                .put(EAPOL_AUTH_FAILURE_TX, eapolAuthFailureTx.get())
+                .put(EAPOL_START_REQ_RX, eapolStartReqRx.get())
+                .put(EAPOL_MD5_CHALLENGE_RESP_RX, eapolMd5ChallRespRx.get())
+                .put(EAPOL_TLS_CHALLENGE_RESP, eapolTlsChallResp.get())
                 .put(EAPOL_TRANS_RESP_NOT_NAK, eapolTransRespNotNak.get())
-                .put(EAP_PKT_TX_AUTH_CHOOSE_EAP, eapPktTxauthChooseEap.get())
-                .put(RES_ID_EAP_FRAMES_RX, eapolAttrIdentity.get())
-                .put(EAPOL_RES_IDENTITY_MSG_TRANS, eapolResIdentityMsgTrans.get())
+                .put(EAPOL_CHALLENGE_REQ_TX, eapolChallengeReqTx.get())
+                .put(EAPOL_ID_RESP_FRAMES_RX, eapolAttrIdentity.get())
+                .put(EAPOL_ID_MSG_RESP_TX, eapolResIdentityMsgTrans.get())
                 .put(EAPOL_FRAMES_TX, eapolFramesTx.get())
                 .put(AUTH_STATE_IDLE, authStateIdle.get())
-                .put(REQUEST_ID_FRAMES_TX, requestIdFramesTx.get())
-                .put(REQUEST_EAP_FRAMES_TX, reqEapFramesTx.get())
+                .put(EAPOL_ID_REQUEST_FRAMES_TX, eapolIdRequestFramesTx.get())
+                .put(EAPOL_REQUEST_FRAMES_TX, eapolReqFramesTx.get())
                 .put(INVALID_PKT_TYPE, invalidPktType.get())
                 .put(INVALID_BODY_LENGTH, invalidBodyLength.get())
-                .put(VALID_EAPOL_FRAMES_RX, validEapolFramesRx.get())
-                .put(PENDING_RES_SUPPLICANT, pendingResSupp.get());
+                .put(EAPOL_VALID_FRAMES_RX, eapolValidFramesRx.get())
+                .put(EAPOL_PENDING_REQUESTS, eapolPendingReq.get());
 
         return new AaaStatisticsSnapshot(builder.build());
     }
@@ -536,11 +564,13 @@ public class AaaStatistics {
     public static AaaStatistics fromSnapshot(AaaStatisticsSnapshot snapshot) {
         AaaStatistics stats = new AaaStatistics();
 
-        stats.acceptResponsesRx.set(snapshot.get(ACCEPT_RESPONSES_RX));
-        stats.rejectResponsesRx.set(snapshot.get(REJECT_RESPONSES_RX));
-        stats.challengeResponsesRx.set(snapshot.get(CHALLENGE_RESPONSES_RX));
-        stats.accessRequestsTx.set(snapshot.get(ACCESS_REQUESTS_TX));
-        stats.pendingRequests.set(snapshot.get(PENDING_REQUESTS));
+        stats.radiusAcceptResponsesRx.set(snapshot.get(RADIUS_ACCEPT_RESPONSES_RX));
+        stats.radiusRejectResponsesRx.set(snapshot.get(RADIUS_REJECT_RESPONSES_RX));
+        stats.radiusChallengeResponsesRx.set(snapshot.get(RADIUS_CHALLENGE_RESPONSES_RX));
+        stats.radiusAccessRequestsTx.set(snapshot.get(RADIUS_ACCESS_REQUESTS_TX));
+        stats.radiusAccessRequestsIdentityTx.set(snapshot.get(RADIUS_ACCESS_REQUESTS_IDENTITY_TX));
+        stats.radiusAccessRequestsChallengeTx.set(snapshot.get(RADIUS_ACCESS_REQUESTS_CHALLENGE_TX));
+        stats.radiusPendingRequests.set(snapshot.get(RADIUS_PENDING_REQUESTS));
         stats.timedOutPackets.set(snapshot.get(TIMED_OUT_PACKETS));
         stats.unknownTypeRx.set(snapshot.get(UNKNOWN_TYPE_RX));
         stats.invalidValidatorsRx.set(snapshot.get(INVALID_VALIDATORS_RX));
@@ -551,34 +581,36 @@ public class AaaStatistics {
         stats.requestReTx.set(snapshot.get(REQUEST_RE_TX));
         stats.numberOfSessionsExpired.set(snapshot.get(NUM_SESSIONS_EXPIRED));
         stats.eapolLogoffRx.set(snapshot.get(EAPOL_LOGOFF_RX));
-        stats.eapolAuthSuccessTrans.set(snapshot.get(EAPOL_AUTH_SUCCESS_TRANS));
-        stats.eapolAuthFailureTrans.set(snapshot.get(EAPOL_AUTH_FAILURE_TRANS));
-        stats.eapolStartReqTrans.set(snapshot.get(EAPOL_START_REQ_TRANS));
-        stats.eapolMd5RspChall.set(snapshot.get(EAPOL_MD5_RESP_CHALLENGE));
-        stats.eapolTlsRespChall.set(snapshot.get(EAPOL_TLS_RESP_CHALLENGE));
+        stats.eapolAuthSuccessTx.set(snapshot.get(EAPOL_AUTH_SUCCESS_TX));
+        stats.eapolAuthFailureTx.set(snapshot.get(EAPOL_AUTH_FAILURE_TX));
+        stats.eapolStartReqRx.set(snapshot.get(EAPOL_START_REQ_RX));
+        stats.eapolMd5ChallRespRx.set(snapshot.get(EAPOL_MD5_CHALLENGE_RESP_RX));
+        stats.eapolTlsChallResp.set(snapshot.get(EAPOL_TLS_CHALLENGE_RESP));
         stats.eapolTransRespNotNak.set(snapshot.get(EAPOL_TRANS_RESP_NOT_NAK));
-        stats.eapPktTxauthChooseEap.set(snapshot.get(EAP_PKT_TX_AUTH_CHOOSE_EAP));
-        stats.eapolAttrIdentity.set(snapshot.get(RES_ID_EAP_FRAMES_RX));
-        stats.eapolResIdentityMsgTrans.set(snapshot.get(EAPOL_RES_IDENTITY_MSG_TRANS));
+        stats.eapolChallengeReqTx.set(snapshot.get(EAPOL_CHALLENGE_REQ_TX));
+        stats.eapolAttrIdentity.set(snapshot.get(EAPOL_ID_RESP_FRAMES_RX));
+        stats.eapolResIdentityMsgTrans.set(snapshot.get(EAPOL_ID_MSG_RESP_TX));
         stats.eapolFramesTx.set(snapshot.get(EAPOL_FRAMES_TX));
         stats.authStateIdle.set(snapshot.get(AUTH_STATE_IDLE));
-        stats.requestIdFramesTx.set(snapshot.get(REQUEST_ID_FRAMES_TX));
-        stats.reqEapFramesTx.set(snapshot.get(REQUEST_EAP_FRAMES_TX));
+        stats.eapolIdRequestFramesTx.set(snapshot.get(EAPOL_ID_REQUEST_FRAMES_TX));
+        stats.eapolReqFramesTx.set(snapshot.get(EAPOL_REQUEST_FRAMES_TX));
         stats.invalidPktType.set(snapshot.get(INVALID_PKT_TYPE));
         stats.invalidBodyLength.set(snapshot.get(INVALID_BODY_LENGTH));
-        stats.validEapolFramesRx.set(snapshot.get(VALID_EAPOL_FRAMES_RX));
-        stats.pendingResSupp.set(snapshot.get(PENDING_RES_SUPPLICANT));
+        stats.eapolValidFramesRx.set(snapshot.get(EAPOL_VALID_FRAMES_RX));
+        stats.eapolPendingReq.set(snapshot.get(EAPOL_PENDING_REQUESTS));
 
         return stats;
     }
 
     public String toString() {
         MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this.getClass());
-        helper.add(ACCEPT_RESPONSES_RX, acceptResponsesRx.get())
-                .add(REJECT_RESPONSES_RX, rejectResponsesRx.get())
-                .add(CHALLENGE_RESPONSES_RX, challengeResponsesRx.get())
-                .add(ACCESS_REQUESTS_TX, accessRequestsTx.get())
-                .add(PENDING_REQUESTS, pendingRequests.get())
+        helper.add(RADIUS_ACCEPT_RESPONSES_RX, radiusAcceptResponsesRx.get())
+                .add(RADIUS_REJECT_RESPONSES_RX, radiusRejectResponsesRx.get())
+                .add(RADIUS_CHALLENGE_RESPONSES_RX, radiusChallengeResponsesRx.get())
+                .add(RADIUS_ACCESS_REQUESTS_TX, radiusAccessRequestsTx.get())
+                .add(RADIUS_ACCESS_REQUESTS_IDENTITY_TX, radiusAccessRequestsIdentityTx.get())
+                .add(RADIUS_ACCESS_REQUESTS_CHALLENGE_TX, radiusAccessRequestsChallengeTx.get())
+                .add(RADIUS_PENDING_REQUESTS, radiusPendingRequests.get())
                 .add(TIMED_OUT_PACKETS, timedOutPackets.get())
                 .add(UNKNOWN_TYPE_RX, unknownTypeRx.get())
                 .add(INVALID_VALIDATORS_RX, invalidValidatorsRx.get())
@@ -589,24 +621,23 @@ public class AaaStatistics {
                 .add(REQUEST_RE_TX, requestReTx.get())
                 .add(NUM_SESSIONS_EXPIRED, numberOfSessionsExpired.get())
                 .add(EAPOL_LOGOFF_RX, eapolLogoffRx.get())
-                .add(EAPOL_AUTH_SUCCESS_TRANS, eapolAuthSuccessTrans.get())
-                .add(EAPOL_AUTH_FAILURE_TRANS, eapolAuthFailureTrans.get())
-                .add(EAPOL_START_REQ_TRANS, eapolStartReqTrans.get())
-                .add(EAPOL_MD5_RESP_CHALLENGE, eapolMd5RspChall.get())
-                .add(EAPOL_TLS_RESP_CHALLENGE, eapolTlsRespChall.get())
+                .add(EAPOL_AUTH_SUCCESS_TX, eapolAuthSuccessTx.get())
+                .add(EAPOL_AUTH_FAILURE_TX, eapolAuthFailureTx.get())
+                .add(EAPOL_START_REQ_RX, eapolStartReqRx.get())
+                .add(EAPOL_MD5_CHALLENGE_RESP_RX, eapolMd5ChallRespRx.get())
+                .add(EAPOL_TLS_CHALLENGE_RESP, eapolTlsChallResp.get())
                 .add(EAPOL_TRANS_RESP_NOT_NAK, eapolTransRespNotNak.get())
-                .add(EAP_PKT_TX_AUTH_CHOOSE_EAP, eapPktTxauthChooseEap.get())
-                .add(RES_ID_EAP_FRAMES_RX, eapolAttrIdentity.get())
-                .add(EAPOL_RES_IDENTITY_MSG_TRANS, eapolResIdentityMsgTrans.get())
+                .add(EAPOL_CHALLENGE_REQ_TX, eapolChallengeReqTx.get())
+                .add(EAPOL_ID_RESP_FRAMES_RX, eapolAttrIdentity.get())
+                .add(EAPOL_ID_MSG_RESP_TX, eapolResIdentityMsgTrans.get())
                 .add(EAPOL_FRAMES_TX, eapolFramesTx.get())
                 .add(AUTH_STATE_IDLE, authStateIdle.get())
-                .add(REQUEST_ID_FRAMES_TX, requestIdFramesTx.get())
-                .add(REQUEST_EAP_FRAMES_TX, reqEapFramesTx.get())
+                .add(EAPOL_ID_REQUEST_FRAMES_TX, eapolIdRequestFramesTx.get())
+                .add(EAPOL_REQUEST_FRAMES_TX, eapolReqFramesTx.get())
                 .add(INVALID_PKT_TYPE, invalidPktType.get())
                 .add(INVALID_BODY_LENGTH, invalidBodyLength.get())
-                .add(VALID_EAPOL_FRAMES_RX, validEapolFramesRx.get())
-                .add(PENDING_RES_SUPPLICANT, pendingResSupp.get());
+                .add(EAPOL_VALID_FRAMES_RX, eapolValidFramesRx.get())
+                .add(EAPOL_PENDING_REQUESTS, eapolPendingReq.get());
         return helper.toString();
     }
-
 }

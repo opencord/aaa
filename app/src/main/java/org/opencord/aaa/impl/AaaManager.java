@@ -568,7 +568,7 @@ public class AaaManager
                 sendPacketToSupplicant(eth, stateMachine.supplicantConnectpoint(), true);
                 aaaStatisticsManager.getAaaStats().increaseChallengeResponsesRx();
                 outPacketSupp.add(eapPayload.getIdentifier());
-                aaaStatisticsManager.getAaaStats().incrementPendingResSupp();
+                aaaStatisticsManager.getAaaStats().incrementPendingReqSupp();
                 //increasing packets send to server
                 machineStats.incrementTotalPacketsSent();
                 machineStats.incrementTotalOctetSent(eapPayload.getLength());
@@ -822,7 +822,7 @@ public class AaaManager
                     stateMachine.setSupplicantAddress(srcMac);
                     stateMachine.start();
 
-                    aaaStatisticsManager.getAaaStats().incrementEapolStartReqTrans();
+                    aaaStatisticsManager.getAaaStats().incrementEapolStartReqRx();
                     //send an EAP Request/Identify to the supplicant
                     EAP eapPayload = new EAP(EAP.REQUEST, stateMachine.identifier(), EAP.ATTR_IDENTITY, null);
                     if (ethPkt.getVlanID() != Ethernet.VLAN_UNTAGGED) {
@@ -892,6 +892,7 @@ public class AaaManager
 
                             sendRadiusPacket(radiusPayload, inPacket);
                             stateMachine.setWaitingForRadiusResponse(true);
+                            aaaStatisticsManager.getAaaStats().incrementRadiusReqIdTx();
                             aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
                             // change the state to "PENDING"
                             if (stateMachine.state() == StateMachine.STATE_PENDING) {
@@ -902,12 +903,12 @@ public class AaaManager
                             stateMachine.requestAccess();
                             break;
                         case EAP.ATTR_MD5:
-                            stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
                             log.debug("EAP packet: EAPOL_PACKET ATTR_MD5 from dev/port: {}/{} with MacAddress {}",
                                       deviceId, portNumber, srcMac);
                             // verify if the EAP identifier corresponds to the
                             // challenge identifier from the client state
                             // machine.
+                            stateMachine.setLastPacketReceivedTime(System.currentTimeMillis());
                             if (eapPacket.getIdentifier() == stateMachine.challengeIdentifier()) {
                                 //send the RADIUS challenge response
                                 radiusPayload = getRadiusPayload(stateMachine,
@@ -920,7 +921,7 @@ public class AaaManager
                                 }
                                 radiusPayload.addMessageAuthenticator(radiusSecret);
                                 if (outPacketSupp.contains(eapPacket.getIdentifier())) {
-                                    aaaStatisticsManager.getAaaStats().decrementPendingResSupp();
+                                    aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
                                     outPacketSupp.remove(identifier);
                                 }
                                 if (log.isTraceEnabled()) {
@@ -929,6 +930,7 @@ public class AaaManager
                                 }
                                 sendRadiusPacket(radiusPayload, inPacket);
                                 stateMachine.setWaitingForRadiusResponse(true);
+                                aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
                                 aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
                             }
                             break;
@@ -946,7 +948,7 @@ public class AaaManager
                             stateMachine.setRequestAuthenticator(radiusPayload.generateAuthCode());
                             radiusPayload.addMessageAuthenticator(radiusSecret);
                             if (outPacketSupp.contains(eapPacket.getIdentifier())) {
-                                aaaStatisticsManager.getAaaStats().decrementPendingResSupp();
+                                aaaStatisticsManager.getAaaStats().decrementPendingReqSupp();
                                 outPacketSupp.remove(identifier);
                             }
                             if (log.isTraceEnabled()) {
@@ -955,6 +957,7 @@ public class AaaManager
                             }
                             sendRadiusPacket(radiusPayload, inPacket);
                             stateMachine.setWaitingForRadiusResponse(true);
+                            aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
                             aaaStatisticsManager.getAaaStats().incrementEapolTlsRespChall();
 
                             if (stateMachine.state() != StateMachine.STATE_PENDING) {

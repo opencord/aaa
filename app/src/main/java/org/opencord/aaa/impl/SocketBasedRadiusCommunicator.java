@@ -105,6 +105,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
 
     @Override
     public void clearLocalState() {
+        log.info("Closing RADIUS socket: {}:{}", radiusIpAddress, radiusServerPort);
         radiusSocket.close();
         executor.shutdownNow();
     }
@@ -154,7 +155,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                 aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             }
         } catch (IOException e) {
-            log.info("Cannot send packet to RADIUS server", e);
+            log.warn("Cannot send packet to RADIUS server", e);
         }
     }
 
@@ -193,6 +194,10 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
+                        if (log.isTraceEnabled()) {
+                            log.trace("Received RADIUS packet with Identifier {}",
+                                      inboundRadiusPacket.getIdentifier() & 0xff);
+                        }
                         aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
@@ -200,10 +205,11 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                         log.error("Cannot deserialize packet", dex);
                     }
                 } catch (IOException e) {
-                    log.info("Socket was closed, exiting listener thread");
+                    log.warn("Socket was closed, exiting listener thread");
                     done = true;
                 }
             }
+            log.info("UDP listener thread shutting down");
         }
     }
 

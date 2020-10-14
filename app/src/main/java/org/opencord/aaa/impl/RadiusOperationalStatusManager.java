@@ -51,6 +51,7 @@ public class RadiusOperationalStatusManager
     private long serverStatusOutTimeInMillis;
 
     private OperationalStatus radiusServerOperationalStatus;
+
     public static final byte AAA_REQUEST_ID_STATUS_REQUEST = 0;
     public static final byte AAA_REQUEST_ID_FAKE_ACCESS_REQUEST = 1;
 

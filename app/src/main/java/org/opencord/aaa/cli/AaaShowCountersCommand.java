@@ -37,7 +37,13 @@ public class AaaShowCountersCommand extends AbstractShellCommand {
 
         AaaStatisticsSnapshot stats = aaaStatisticsManager.getClusterStatistics();
 
-        for (String name : AaaStatistics.COUNTER_NAMES) {
+        print("-------------------------- Expected transitions ----------------------------");
+        for (String name : AaaStatistics.EAPOL_SM_NAMES) {
+            print("%30s %10d", name, stats.get(name));
+        }
+
+        print("-------------------------------- Other stats ----------------------------------");
+        for (String name : AaaStatistics.EAPOL_STATS_NAMES) {
             print("%30s %10d", name, stats.get(name));
         }
 

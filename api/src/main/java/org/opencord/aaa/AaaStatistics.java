@@ -19,8 +19,10 @@ package org.opencord.aaa;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 /**
  * Records metrics for the AAA application.
@@ -55,19 +57,36 @@ public class AaaStatistics {
     public static final String EAPOL_FRAMES_TX = "eapolFramesTx";
     public static final String AUTH_STATE_IDLE = "authStateIdle";
     public static final String EAPOL_ID_REQUEST_FRAMES_TX = "eapolIdentityRequestTx";
-    public static final String EAPOL_REQUEST_FRAMES_TX = "eapolRequestFramesTx"; //TODO check
+    public static final String EAPOL_REQUEST_FRAMES_TX = "eapolRequestAuthTx";
     public static final String INVALID_PKT_TYPE = "invalidPktType";
     public static final String INVALID_BODY_LENGTH = "invalidBodyLength";
     public static final String EAPOL_VALID_FRAMES_RX = "eapolValidFramesRx";
     public static final String EAPOL_PENDING_REQUESTS = "eapolPendingRequests";
 
-    public static final String[] COUNTER_NAMES = new String[]{
-            RADIUS_ACCEPT_RESPONSES_RX,
-            RADIUS_REJECT_RESPONSES_RX,
-            RADIUS_CHALLENGE_RESPONSES_RX,
-            RADIUS_ACCESS_REQUESTS_TX,
+    // this are the stats that represent a successful EAPOL exchange
+    public static final String[] EAPOL_SM_NAMES = new String[]{
+            EAPOL_START_REQ_RX,
+
+            EAPOL_ID_REQUEST_FRAMES_TX,
+            EAPOL_ID_RESP_FRAMES_RX,
+
             RADIUS_ACCESS_REQUESTS_IDENTITY_TX,
+            RADIUS_CHALLENGE_RESPONSES_RX,
+
+            EAPOL_CHALLENGE_REQ_TX,
+            EAPOL_MD5_CHALLENGE_RESP_RX,
+
             RADIUS_ACCESS_REQUESTS_CHALLENGE_TX,
+            RADIUS_ACCEPT_RESPONSES_RX,
+
+            EAPOL_AUTH_SUCCESS_TX,
+    };
+
+    // all other EAPOL Stats
+    public static final String[] EAPOL_STATS_NAMES = new String[]{
+            EAPOL_REQUEST_FRAMES_TX,
+            RADIUS_ACCESS_REQUESTS_TX,
+            RADIUS_REJECT_RESPONSES_RX,
             RADIUS_PENDING_REQUESTS,
             TIMED_OUT_PACKETS,
             UNKNOWN_TYPE_RX,
@@ -79,24 +98,21 @@ public class AaaStatistics {
             REQUEST_RE_TX,
             NUM_SESSIONS_EXPIRED,
             EAPOL_LOGOFF_RX,
-            EAPOL_AUTH_SUCCESS_TX,
             EAPOL_AUTH_FAILURE_TX,
-            EAPOL_START_REQ_RX,
-            EAPOL_MD5_CHALLENGE_RESP_RX,
             EAPOL_TLS_CHALLENGE_RESP,
             EAPOL_TRANS_RESP_NOT_NAK,
-            EAPOL_CHALLENGE_REQ_TX,
-            EAPOL_ID_RESP_FRAMES_RX,
             EAPOL_ID_MSG_RESP_TX,
             EAPOL_FRAMES_TX,
             AUTH_STATE_IDLE,
-            EAPOL_ID_REQUEST_FRAMES_TX,
-            EAPOL_REQUEST_FRAMES_TX,
             INVALID_PKT_TYPE,
             INVALID_BODY_LENGTH,
             EAPOL_VALID_FRAMES_RX,
             EAPOL_PENDING_REQUESTS,
     };
+
+    public static final String[] COUNTER_NAMES =
+            Stream.concat(Arrays.stream(EAPOL_SM_NAMES), Arrays.stream(EAPOL_STATS_NAMES))
+            .toArray(String[]::new);
 
     // Number of access accept packets sent to the server
     private AtomicLong radiusAcceptResponsesRx = new AtomicLong();

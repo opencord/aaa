@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class IdentifierManager {
 
-    private static final int MAX_IDENTIFIER = 256;
+    private static final int MAX_IDENTIFIER = 2048;
 
     private BlockingQueue<Integer> freeIdNumbers;
 

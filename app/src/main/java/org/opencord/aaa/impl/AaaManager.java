@@ -822,7 +822,7 @@ public class AaaManager
                     stateMachine.setSupplicantAddress(srcMac);
                     stateMachine.start();
 
-                    aaaStatisticsManager.getAaaStats().incrementEapolStartReqTrans();
+                    aaaStatisticsManager.getAaaStats().incrementEapolStartReqRx();
                     //send an EAP Request/Identify to the supplicant
                     EAP eapPayload = new EAP(EAP.REQUEST, stateMachine.identifier(), EAP.ATTR_IDENTITY, null);
                     if (ethPkt.getVlanID() != Ethernet.VLAN_UNTAGGED) {
@@ -892,6 +892,7 @@ public class AaaManager
 
                             sendRadiusPacket(radiusPayload, inPacket);
                             stateMachine.setWaitingForRadiusResponse(true);
+                            aaaStatisticsManager.getAaaStats().incrementRadiusReqIdTx();
                             aaaStatisticsManager.getAaaStats().incrementEapolAtrrIdentity();
                             // change the state to "PENDING"
                             if (stateMachine.state() == StateMachine.STATE_PENDING) {
@@ -929,6 +930,7 @@ public class AaaManager
                                 }
                                 sendRadiusPacket(radiusPayload, inPacket);
                                 stateMachine.setWaitingForRadiusResponse(true);
+                                aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
                                 aaaStatisticsManager.getAaaStats().incrementEapolMd5RspChall();
                             }
                             break;
@@ -955,6 +957,7 @@ public class AaaManager
                             }
                             sendRadiusPacket(radiusPayload, inPacket);
                             stateMachine.setWaitingForRadiusResponse(true);
+                            aaaStatisticsManager.getAaaStats().incrementRadiusReqChallengeTx();
                             aaaStatisticsManager.getAaaStats().incrementEapolTlsRespChall();
 
                             if (stateMachine.state() != StateMachine.STATE_PENDING) {

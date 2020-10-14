@@ -37,9 +37,26 @@ public class AaaShowCountersCommand extends AbstractShellCommand {
 
         AaaStatisticsSnapshot stats = aaaStatisticsManager.getClusterStatistics();
 
-        for (String name : AaaStatistics.COUNTER_NAMES) {
+        print("-------------------------- Successfull transitions ----------------------------");
+        for (String name : AaaStatistics.EAPOL_SM_NAMES) {
+            print("%30s %10d", name, stats.get(name));
+        }
+
+        print("-------------------------------- Other stats ----------------------------------");
+        for (String name : AaaStatistics.EAPOL_STATS_NAMES) {
             print("%30s %10d", name, stats.get(name));
         }
 
     }
 }
+
+// EAP START
+// EAP IDENTITY REQUEST
+// EAP IDENTITY RESPONSE
+// RADIUS ACCESS REQUEST
+// RADIUS ACCESS CHALLENGE
+// EAPOL AUTH REQUEST
+// EAPOL AUTH RESPONSE
+// RADIUS ACCESS REQUEST (same code, different type)
+// RADIUS ACCESS ACCEPT
+// EAP SUCCESS

@@ -17,21 +17,46 @@
 package org.opencord.aaa.impl;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.onlab.util.Tools.groupedThreads;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Manages allocating request identifiers and mapping them to sessions.
  */
 public class IdentifierManager {
 
+    private final Logger log = getLogger(getClass());
+
     private static final int MAX_IDENTIFIER = 256;
 
     private BlockingQueue<Integer> freeIdNumbers;
 
-    private ConcurrentMap<RequestIdentifier, String> idToSession;
+    private ConcurrentMap<RequestIdentifier, Pair<String, Integer>> idToSession;
+
+    ScheduledFuture<?> scheduledidentifierPruner;
+
+    // TODO read from component config
+    public static int timeout = 10;
+    //TODO make this configurable
+    public static int pruningInterval = 3;
 
     /**
      * Creates and initializes a new identifier manager.
@@ -44,6 +69,13 @@ public class IdentifierManager {
         for (int i = 2; i < MAX_IDENTIFIER; i++) {
             freeIdNumbers.add(i);
         }
+
+        ScheduledExecutorService identifierPruner = Executors.newSingleThreadScheduledExecutor(
+                groupedThreads("onos/aaa", "aaa-idpruner-%d", log));
+
+        scheduledidentifierPruner = identifierPruner.scheduleAtFixedRate(
+                new IdentifierPruner(), 0,
+                pruningInterval, TimeUnit.SECONDS);
     }
 
     /**
@@ -53,16 +85,25 @@ public class IdentifierManager {
      * @return identifier
      */
     public synchronized RequestIdentifier getNewIdentifier(String sessionId) {
+
         int idNum;
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        Callable<Object> task = () -> freeIdNumbers.take();
+        Future<Object> future = executor.submit(task);
         try {
-            idNum = freeIdNumbers.take();
-        } catch (InterruptedException e) {
+            idNum = (int) future.get(timeout, TimeUnit.SECONDS);
+        } catch (TimeoutException | InterruptedException | ExecutionException ex) {
             return null;
+        }
+
+        if (log.isTraceEnabled()) {
+            log.trace("Got identifier {} for session {}", idNum, sessionId);
         }
 
         RequestIdentifier id = RequestIdentifier.of((byte) idNum);
 
-        idToSession.put(id, sessionId);
+        idToSession.put(id, Pair.of(sessionId, 0));
 
         return id;
     }
@@ -73,8 +114,9 @@ public class IdentifierManager {
      * @param id request ID
      * @return session ID
      */
-    public String getSessionId(RequestIdentifier id) {
-        return idToSession.get(id);
+    public synchronized String getSessionId(RequestIdentifier id) {
+        //TODO this has multiple accesses
+        return idToSession.get(id) == null ? null : idToSession.get(id).getKey();
     }
 
     /**
@@ -83,13 +125,74 @@ public class IdentifierManager {
      * @param id request identifier to release
      */
     public synchronized void releaseIdentifier(RequestIdentifier id) {
-        String session = idToSession.remove(id);
+        if (log.isTraceEnabled()) {
+            log.trace("Releasing identifier {}", id.identifier() & 0xff);
+        }
+
+        Pair<String, Integer> session = idToSession.remove(id);
         if (session == null) {
+            if (log.isTraceEnabled()) {
+                log.trace("Unable to released identifier {} for session null", id.identifier() & 0xff);
+            }
             // this id wasn't mapped to a session so is still free
             return;
         }
 
         // add id number back to set of free ids
-        freeIdNumbers.add((int) id.identifier());
+        freeIdNumbers.add(id.identifier() & 0xff);
+
+        if (log.isTraceEnabled()) {
+            log.info("Released identifier {} for session {}", id.identifier() & 0xff, session.getKey());
+        }
+    }
+
+    /**
+     * Returns true if this ID is currently taken.
+     *
+     * @param id request identifier to check
+     * @return boolean
+     */
+    private synchronized boolean isIdentifierTaken(Integer id) {
+        return !freeIdNumbers.contains(id);
+    }
+
+    /**
+     * Returns the count of available identifiers in a given moment.
+     *
+     * @return boolean
+     */
+    public int getAvailableIdentifiers() {
+        return freeIdNumbers.size();
+    }
+
+    private synchronized void pruneIfNeeded() {
+        if (log.isTraceEnabled()) {
+            log.trace("Starting pruning cycle");
+        }
+        Iterator<Map.Entry<RequestIdentifier, Pair<String, Integer>>> itr =
+                idToSession.entrySet().iterator();
+        itr.forEachRemaining((entry) -> {
+            RequestIdentifier id = entry.getKey();
+            Pair<String, Integer> info = entry.getValue();
+            if (info.getValue() >= timeout) {
+                if (log.isTraceEnabled()) {
+                    log.info("Identifier {} for session {} has exceeded timeout {}, releasing",
+                             id.identifier() & 0xff, info.getKey(), timeout);
+                }
+                releaseIdentifier(id);
+            } else {
+                Pair<String, Integer> infoUpdated = Pair.of(entry.getValue().getKey(),
+                                                            entry.getValue().getValue() + pruningInterval);
+                idToSession.put(id, infoUpdated);
+            }
+        });
+    }
+
+    private class IdentifierPruner implements Runnable {
+        @Override
+        public void run() {
+            pruneIfNeeded();
+        }
+
     }
 }

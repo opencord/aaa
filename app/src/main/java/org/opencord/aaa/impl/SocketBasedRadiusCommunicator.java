@@ -35,6 +35,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,6 +92,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
             radiusSocket = new DatagramSocket(null);
             radiusSocket.setReuseAddress(true);
             radiusSocket.bind(new InetSocketAddress(radiusServerPort));
+            //incrementing the socket size to allow for all packets to be buffered
+            radiusSocket.setReceiveBufferSize((106496 * 2));
         } catch (Exception ex) {
             log.error("Can't open RADIUS socket", ex);
         }
@@ -158,6 +161,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
         }
     }
 
+    // in the socket base case we don't care about packets coming from the server as nothing meaningful will be
+    // received from the southbound
     @Override
     public void handlePacketFromServer(PacketContext context) {
         InboundPacket pkt = context.inPacket();
@@ -176,7 +181,12 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
             boolean done = false;
             int packetNumber = 1;
 
-            log.info("UDP listener thread starting up");
+            try {
+                log.info("UDP listener thread starting up, socket buffer size {}",
+                         radiusSocket.getReceiveBufferSize());
+            } catch (SocketException e) {
+                log.error("Socket exception", e);
+            }
             RADIUS inboundRadiusPacket;
             while (!done) {
                 try {
@@ -185,6 +195,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             new DatagramPacket(packetBuffer, packetBuffer.length);
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
+                    log.trace("Handling inboundBasePacket {} from {}", inboundBasePacket,
+                              inboundBasePacket.getAddress().getHostAddress());
                     aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
                     log.debug("Packet #{} received", packetNumber++);
                     try {
@@ -193,6 +205,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
+                        log.trace("Handling inboundRadiusPacket {} with identifier {}", inboundRadiusPacket,
+                                  inboundRadiusPacket.getIdentifier() & 0xff);
                         aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
@@ -202,6 +216,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                 } catch (IOException e) {
                     log.info("Socket was closed, exiting listener thread");
                     done = true;
+                } catch (Exception e) {
+                    log.error("RadiusListener thread thrown an exception: {}", e.getMessage(), e);
                 }
             }
         }

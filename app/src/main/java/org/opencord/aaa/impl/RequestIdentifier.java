@@ -18,6 +18,8 @@ package org.opencord.aaa.impl;
 
 import java.util.Objects;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
+
 /**
  * An identifier for an authentication request.
  */
@@ -30,7 +32,7 @@ public final class RequestIdentifier {
      *
      * @param identifier id number
      */
-    private RequestIdentifier(byte identifier) {
+    public RequestIdentifier(byte identifier) {
         this.identifier = identifier;
     }
 
@@ -53,6 +55,7 @@ public final class RequestIdentifier {
         return new RequestIdentifier(identifier);
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof RequestIdentifier)) {
             return false;
@@ -63,7 +66,15 @@ public final class RequestIdentifier {
         return identifier == that.identifier;
     }
 
+    @Override
     public int hashCode() {
         return Objects.hashCode(identifier);
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(getClass())
+                .add("identifier", Byte.toString(identifier))
+                .toString();
     }
 }

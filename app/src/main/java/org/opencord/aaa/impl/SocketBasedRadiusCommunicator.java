@@ -158,6 +158,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
         }
     }
 
+    // in the socket base case we don't care about packets coming from the server as nothing meaningful will be
+    // received from the southbound
     @Override
     public void handlePacketFromServer(PacketContext context) {
         InboundPacket pkt = context.inPacket();
@@ -202,6 +204,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                 } catch (IOException e) {
                     log.info("Socket was closed, exiting listener thread");
                     done = true;
+                } catch (Exception e) {
+                    log.error("RadiusListener thread thrown an exception: {}", e.getMessage(), e);
                 }
             }
         }

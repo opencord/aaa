@@ -152,8 +152,9 @@ public class AaaManagerTest extends AaaTestBase {
         aaaManager.aaaStatisticsManager = this.aaaStatisticsManager;
         TestUtils.setField(aaaManager, "eventDispatcher", new TestEventDispatcher());
 
-
         aaaManager.activate(new AaaTestBase.MockComponentContext());
+        TestUtils.setField(aaaManager.idManager, "timeout", 100000);
+
     }
 
     /**

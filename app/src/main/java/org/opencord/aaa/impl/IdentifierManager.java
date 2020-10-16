@@ -17,21 +17,41 @@
 package org.opencord.aaa.impl;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.onlab.util.Tools.groupedThreads;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Manages allocating request identifiers and mapping them to sessions.
  */
 public class IdentifierManager {
 
+    private final Logger log = getLogger(getClass());
+
     private static final int MAX_IDENTIFIER = 256;
 
     private BlockingQueue<Integer> freeIdNumbers;
 
-    private ConcurrentMap<RequestIdentifier, String> idToSession;
+    private ConcurrentMap<RequestIdentifier, Pair<String, Long>> idToSession;
+
+    ScheduledFuture<?> scheduledidentifierPruner;
+
+    // TODO read from component config
+    public static int timeout = 10000;
+    //TODO make this configurable
+    public static int pruningInterval = 3;
 
     /**
      * Creates and initializes a new identifier manager.
@@ -44,6 +64,13 @@ public class IdentifierManager {
         for (int i = 2; i < MAX_IDENTIFIER; i++) {
             freeIdNumbers.add(i);
         }
+
+        ScheduledExecutorService identifierPruner = Executors.newSingleThreadScheduledExecutor(
+                groupedThreads("onos/aaa", "aaa-idpruner-%d", log));
+
+        scheduledidentifierPruner = identifierPruner.scheduleAtFixedRate(
+                new IdentifierPruner(), 0,
+                pruningInterval, TimeUnit.SECONDS);
     }
 
     /**
@@ -52,17 +79,25 @@ public class IdentifierManager {
      * @param sessionId session this identifier is associated with
      * @return identifier
      */
-    public synchronized RequestIdentifier getNewIdentifier(String sessionId) {
+    public RequestIdentifier getNewIdentifier(String sessionId) {
+        if (log.isTraceEnabled()) {
+            log.trace("Requesting identifier for session {}", sessionId);
+        }
         int idNum;
+
         try {
             idNum = freeIdNumbers.take();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ex) {
+            log.error("Caught interrupted exception", ex);
             return null;
         }
 
-        RequestIdentifier id = RequestIdentifier.of((byte) idNum);
+        if (log.isTraceEnabled()) {
+            log.trace("Got identifier {} for session {}", idNum, sessionId);
+        }
 
-        idToSession.put(id, sessionId);
+        RequestIdentifier id = RequestIdentifier.of((byte) idNum);
+        idToSession.put(id, Pair.of(sessionId, System.currentTimeMillis()));
 
         return id;
     }
@@ -74,7 +109,8 @@ public class IdentifierManager {
      * @return session ID
      */
     public String getSessionId(RequestIdentifier id) {
-        return idToSession.get(id);
+        Pair<String, Long> info = idToSession.get(id);
+        return info == null ? null : info.getKey();
     }
 
     /**
@@ -82,14 +118,75 @@ public class IdentifierManager {
      *
      * @param id request identifier to release
      */
-    public synchronized void releaseIdentifier(RequestIdentifier id) {
-        String session = idToSession.remove(id);
-        if (session == null) {
+    public void releaseIdentifier(RequestIdentifier id) {
+        if (log.isTraceEnabled()) {
+            log.trace("Releasing identifier {}", id.identifier() & 0xff);
+        }
+        if (freeIdNumbers.contains(id.identifier() & 0xff)) {
+            if (log.isTraceEnabled()) {
+                log.trace("Identifier was already released {}", id.identifier() & 0xff);
+            }
+            // this id wasn't mapped to a session so is still free
+        } else {
+            freeIdNumbers.add(id.identifier() & 0xff);
+        }
+
+        if (!idToSession.containsKey(id)) {
+            if (log.isTraceEnabled()) {
+                log.trace("Session for Identifier was already removed {}", id.identifier() & 0xff);
+            }
             // this id wasn't mapped to a session so is still free
             return;
         }
 
-        // add id number back to set of free ids
-        freeIdNumbers.add((int) id.identifier());
+        Pair<String, Long> session = idToSession.remove(id);
+        if (log.isTraceEnabled()) {
+            log.info("Removed identifier {} for session {}", id.identifier() & 0xff, session.getKey());
+        }
+    }
+
+    /**
+     * Returns true if this ID is currently taken.
+     *
+     * @param id request identifier to check
+     * @return boolean
+     */
+    private boolean isIdentifierTaken(Integer id) {
+        return !freeIdNumbers.contains(id);
+    }
+
+    /**
+     * Returns the count of available identifiers in a given moment.
+     *
+     * @return boolean
+     */
+    public int getAvailableIdentifiers() {
+        return freeIdNumbers.size();
+    }
+
+    private void pruneIfNeeded() {
+        if (log.isTraceEnabled()) {
+            log.trace("Starting pruning cycle");
+        }
+        Iterator<Map.Entry<RequestIdentifier, Pair<String, Long>>> itr =
+                idToSession.entrySet().iterator();
+        itr.forEachRemaining((entry) -> {
+            RequestIdentifier id = entry.getKey();
+            Pair<String, Long> info = entry.getValue();
+            if (System.currentTimeMillis() - info.getValue() >= timeout) {
+                log.info("Identifier {} for session {} has " +
+                                 "exceeded timeout {}, releasing",
+                         id.identifier() & 0xff, info.getKey(), timeout);
+                releaseIdentifier(id);
+            }
+        });
+    }
+
+    private class IdentifierPruner implements Runnable {
+        @Override
+        public void run() {
+            pruneIfNeeded();
+        }
+
     }
 }

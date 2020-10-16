@@ -738,7 +738,7 @@ public class StateMachine {
             this.setSessionTerminateReason(SessionTerminationReasons.TIME_OUT.reason);
 
             delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.TIMEOUT,
-                    this.supplicantConnectpoint));
+                    this.supplicantConnectpoint, toAuthRecord()));
             // If StateMachine is not eligible for cleanup yet, reschedule cleanupTimer further.
         } else {
             this.scheduleTimeout();

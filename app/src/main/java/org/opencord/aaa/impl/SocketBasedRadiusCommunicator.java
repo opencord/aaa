@@ -15,7 +15,6 @@
  */
 package org.opencord.aaa.impl;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.onlab.packet.DeserializationException;
 import org.onlab.packet.EthType;
 import org.onlab.packet.Ethernet;
@@ -35,10 +34,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.onlab.util.Tools.groupedThreads;
 import static org.onosproject.net.packet.PacketPriority.CONTROL;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -70,6 +71,12 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
     // Executor for RADIUS communication thread
     private ExecutorService executor;
 
+    // Worker thread for RADIUS communication
+    private ExecutorService worker;
+
+    // To track the received packets
+    int packetNumber = 1;
+
     AaaManager aaaManager;
 
     SocketBasedRadiusCommunicator(ApplicationId appId, PacketService pktService,
@@ -97,10 +104,9 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
 
         log.info("Remote RADIUS Server: {}:{}", radiusIpAddress, radiusServerPort);
 
-        executor = Executors.newSingleThreadExecutor(
-                new ThreadFactoryBuilder()
-                        .setNameFormat("AAA-radius-%d").build());
+        executor = newSingleThreadExecutor(groupedThreads("onos/aaa", "radius-%d", log));
         executor.execute(radiusListener);
+        worker = newSingleThreadExecutor(groupedThreads("onos/aaa", "radius-packet-%d", log));
     }
 
     @Override
@@ -108,6 +114,7 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
         log.info("Closing RADIUS socket: {}:{}", radiusIpAddress, radiusServerPort);
         radiusSocket.close();
         executor.shutdownNow();
+        worker.shutdownNow();
     }
 
     @Override
@@ -155,10 +162,12 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                 aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
             }
         } catch (IOException e) {
-            log.warn("Cannot send packet to RADIUS server", e);
+            log.error("Cannot send packet to RADIUS server", e);
         }
     }
 
+    // in the socket base case we don't care about packets coming from the server as nothing meaningful will be
+    // received from the southbound
     @Override
     public void handlePacketFromServer(PacketContext context) {
         InboundPacket pkt = context.inPacket();
@@ -170,43 +179,50 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
         }
     }
 
+    // Handle radius packet for further processing
+    private void handleRadiusPacketInternal(DatagramPacket inboundBasePacket) {
+        RADIUS inboundRadiusPacket;
+        aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
+        log.debug("Packet #{} received", packetNumber++);
+        try {
+            inboundRadiusPacket = RADIUS.deserializer().deserialize(inboundBasePacket.getData(),
+                    0, inboundBasePacket.getLength());
+            if (log.isTraceEnabled()) {
+                log.trace("Handling inboundRadiusPacket {} with identifier {}", inboundRadiusPacket,
+                    inboundRadiusPacket.getIdentifier() & 0xff);
+            }
+            aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
+            aaaManager.handleRadiusPacket(inboundRadiusPacket);
+        } catch (DeserializationException dex) {
+            aaaManager.aaaStatisticsManager.getAaaStats().increaseMalformedResponsesRx();
+            log.warn("Cannot deserialize packet", dex);
+        }
+    }
+
     class RadiusListener implements Runnable {
 
         @Override
         public void run() {
             boolean done = false;
-            int packetNumber = 1;
-
-            log.info("UDP listener thread starting up");
-            RADIUS inboundRadiusPacket;
+            try {
+                log.info("UDP listener thread starting up, socket buffer size {}",
+                         radiusSocket.getReceiveBufferSize());
+            } catch (SocketException e) {
+                log.error("Socket exception", e);
+            }
             while (!done) {
                 try {
                     byte[] packetBuffer = new byte[RADIUS.RADIUS_MAX_LENGTH];
-                    DatagramPacket inboundBasePacket =
-                            new DatagramPacket(packetBuffer, packetBuffer.length);
+                    DatagramPacket inboundBasePacket = new DatagramPacket(packetBuffer, packetBuffer.length);
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
-                    aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
-                    log.debug("Packet #{} received", packetNumber++);
-                    try {
-                        inboundRadiusPacket =
-                                RADIUS.deserializer()
-                                        .deserialize(inboundBasePacket.getData(),
-                                                0,
-                                                inboundBasePacket.getLength());
-                        if (log.isTraceEnabled()) {
-                            log.trace("Received RADIUS packet with Identifier {}",
-                                      inboundRadiusPacket.getIdentifier() & 0xff);
-                        }
-                        aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
-                        aaaManager.handleRadiusPacket(inboundRadiusPacket);
-                    } catch (DeserializationException dex) {
-                        aaaManager.aaaStatisticsManager.getAaaStats().increaseMalformedResponsesRx();
-                        log.error("Cannot deserialize packet", dex);
-                    }
+                    worker.execute(() -> handleRadiusPacketInternal(inboundBasePacket));
+
                 } catch (IOException e) {
                     log.warn("Socket was closed, exiting listener thread");
                     done = true;
+                } catch (Exception e) {
+                    log.error("RadiusListener thread thrown an exception: {}", e.getMessage(), e);
                 }
             }
             log.info("UDP listener thread shutting down");

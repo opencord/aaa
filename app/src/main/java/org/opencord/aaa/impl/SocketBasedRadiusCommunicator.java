@@ -158,6 +158,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
         }
     }
 
+    // in the socket base case we don't care about packets coming from the server as nothing meaningful will be
+    // received from the southbound
     @Override
     public void handlePacketFromServer(PacketContext context) {
         InboundPacket pkt = context.inPacket();
@@ -185,6 +187,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                             new DatagramPacket(packetBuffer, packetBuffer.length);
                     DatagramSocket socket = radiusSocket;
                     socket.receive(inboundBasePacket);
+                    log.trace("Handling inboundBasePacket {} from {}", inboundBasePacket,
+                              inboundBasePacket.getAddress().getHostAddress());
                     aaaManager.checkForPacketFromUnknownServer(inboundBasePacket.getAddress().getHostAddress());
                     log.debug("Packet #{} received", packetNumber++);
                     try {
@@ -193,6 +197,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                                         .deserialize(inboundBasePacket.getData(),
                                                 0,
                                                 inboundBasePacket.getLength());
+                        log.trace("Handling inboundRadiusPacket {} with identifier {}", inboundRadiusPacket,
+                                  inboundRadiusPacket.getIdentifier() & 0xff);
                         aaaManager.aaaStatisticsManager.handleRoundtripTime(inboundRadiusPacket.getIdentifier());
                         aaaManager.handleRadiusPacket(inboundRadiusPacket);
                     } catch (DeserializationException dex) {
@@ -202,6 +208,8 @@ public class SocketBasedRadiusCommunicator implements RadiusCommunicator {
                 } catch (IOException e) {
                     log.info("Socket was closed, exiting listener thread");
                     done = true;
+                } catch (Exception e) {
+                    log.error("RadiusListener thread thrown an exception: {}", e.getMessage(), e);
                 }
             }
         }

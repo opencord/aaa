@@ -19,12 +19,22 @@ package org.opencord.aaa.impl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(Parameterized.class)
 public class StateMachineTest {
+
+    // Change this to have more run with mvn
+    @Parameterized.Parameters
+    public static Object[][] data() {
+        return new Object[1][0];
+    }
+
     StateMachine stateMachine = null;
 
     @Before

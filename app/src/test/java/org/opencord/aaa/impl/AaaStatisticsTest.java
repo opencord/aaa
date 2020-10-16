@@ -18,6 +18,8 @@ package org.opencord.aaa.impl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.onlab.junit.TestUtils;
 import org.onlab.packet.BasePacket;
 import org.onlab.packet.DeserializationException;
@@ -62,7 +64,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Set of tests of the ONOS application component for AAA Statistics.
  */
+@RunWith(Parameterized.class)
 public class AaaStatisticsTest extends AaaTestBase {
+
+    // Change this to have more run with mvn
+    @Parameterized.Parameters
+    public static Object[][] data() {
+        return new Object[1][0];
+    }
 
     static final String BAD_IP_ADDRESS = "198.51.100.0";
     static final Long ZERO = (long) 0;

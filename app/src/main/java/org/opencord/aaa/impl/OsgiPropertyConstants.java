@@ -42,4 +42,7 @@ public final class OsgiPropertyConstants {
 
     public static final String PACKET_PROCESSOR_THREADS = "packetProcessorThreads";
     public static final int PACKET_PROCESSOR_THREADS_DEFAULT = 10;
+
+    public static final String FORGE_EAPOL_PACKETS = "forgeEapolPackets";
+    public static final boolean FORGE_EAPOL_PACKETS_DEFAULT = false;
 }

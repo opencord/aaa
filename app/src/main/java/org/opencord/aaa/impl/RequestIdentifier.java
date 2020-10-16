@@ -30,7 +30,7 @@ public final class RequestIdentifier {
      *
      * @param identifier id number
      */
-    private RequestIdentifier(byte identifier) {
+    public RequestIdentifier(byte identifier) {
         this.identifier = identifier;
     }
 

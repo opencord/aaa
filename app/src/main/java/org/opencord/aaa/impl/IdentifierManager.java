@@ -17,21 +17,32 @@
 package org.opencord.aaa.impl;
 
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Manages allocating request identifiers and mapping them to sessions.
  */
 public class IdentifierManager {
 
+    private final Logger log = getLogger(getClass());
+
     private static final int MAX_IDENTIFIER = 256;
 
     private BlockingQueue<Integer> freeIdNumbers;
 
     private ConcurrentMap<RequestIdentifier, String> idToSession;
+
+    // TODO read from component config
+    public int timeout = 10;
 
     /**
      * Creates and initializes a new identifier manager.
@@ -53,16 +64,36 @@ public class IdentifierManager {
      * @return identifier
      */
     public synchronized RequestIdentifier getNewIdentifier(String sessionId) {
+        log.trace("Requesting identifier for session {}", sessionId);
         int idNum;
         try {
             idNum = freeIdNumbers.take();
         } catch (InterruptedException e) {
             return null;
         }
+        log.trace("Got identifier {} for session {}", idNum, sessionId);
 
         RequestIdentifier id = RequestIdentifier.of((byte) idNum);
 
         idToSession.put(id, sessionId);
+
+        // if the identifier is not released within "timeout" then force the release
+        ExecutorService executor
+                = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(timeout);
+                if (this.isIdentifierTaken(idNum)) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("Releasing identifier {} for session {} because of timeout",
+                                  id.identifier() & 0xff, sessionId);
+                    }
+                    this.releaseIdentifier(id);
+                }
+            } catch (Exception e) {
+                log.error("Cannot release identifier {} for session {}", id.identifier() & 0xff, sessionId, e);
+            }
+        });
 
         return id;
     }
@@ -91,5 +122,23 @@ public class IdentifierManager {
 
         // add id number back to set of free ids
         freeIdNumbers.add((int) id.identifier());
+        log.trace("Released identifier {} for session {}", id.identifier() & 0xff, session);
+    }
+
+    /**
+     * Returns true if this ID is currently taken.
+     * @param id request identifier to check
+     * @return boolean
+     */
+    private synchronized boolean isIdentifierTaken(Integer id) {
+        return !freeIdNumbers.contains(id);
+    }
+
+    /**
+     * Returns the count of available identifiers in a given moment.
+     * @return boolean
+     */
+    public int getAvailableIdentifiers() {
+        return freeIdNumbers.size();
     }
 }

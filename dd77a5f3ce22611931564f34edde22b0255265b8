@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70371b6d_122bfea9",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 895,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-20T12:35:56Z",
+      "side": 1,
+      "message": "can we move elsewhere? Maybe we can create a class to encapsulate all this forging logic. Here is very ugly",
+      "revId": "dd77a5f3ce22611931564f34edde22b0255265b8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5ce6d50_fa7073f9",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-20T12:35:56Z",
+      "side": 1,
+      "message": "why not a long ? We can store the currenttimemillis.",
+      "revId": "dd77a5f3ce22611931564f34edde22b0255265b8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f300e0c_505a6ab2",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-20T12:35:56Z",
+      "side": 1,
+      "message": "in case you make the change above - you have to scale this number",
+      "revId": "dd77a5f3ce22611931564f34edde22b0255265b8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4a48969_0cf6e5a4",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-20T12:35:56Z",
+      "side": 1,
+      "message": "this is not really thread safe. You are calling get multiple times",
+      "revId": "dd77a5f3ce22611931564f34edde22b0255265b8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce1ca720_7d3e5ae3",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-20T12:35:56Z",
+      "side": 1,
+      "message": "you should take lock of the IdentifierManager",
+      "revId": "dd77a5f3ce22611931564f34edde22b0255265b8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1b067c5_728a5588",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-20T12:35:56Z",
+      "side": 1,
+      "message": "here we can get the current time and make the difference with the stored ts and so on. \n\nIn this way you can also simplify. You don\u0027t need the \"else\"",
+      "revId": "dd77a5f3ce22611931564f34edde22b0255265b8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

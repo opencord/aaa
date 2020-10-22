@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb472c96_4ca21e7d",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-10-22T09:28:35Z",
+      "side": 1,
+      "message": "debug ? to be consistent with the rest",
+      "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d867efc9_ff265f72",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-10-22T09:28:35Z",
+      "side": 1,
+      "message": "to be consistent either move this to debug or move the other message tracing logs to trace",
+      "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8f1654b_5f71040e",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-10-22T09:28:35Z",
+      "side": 1,
+      "message": "same",
+      "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc8e40df_1b0d8504",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-10-22T09:28:35Z",
+      "side": 1,
+      "message": "same",
+      "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

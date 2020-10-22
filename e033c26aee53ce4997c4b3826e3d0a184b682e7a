@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b68a01d5_6800ab62",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-22T17:01:31Z",
+      "side": 1,
+      "message": "This has always been INFO. Being the success case it would make sense to log it at a higher level. It\u0027s the same reason to have a WARN in case authentication fails (line #641).",
+      "parentUuid": "eb472c96_4ca21e7d",
+      "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d867efc9_ff265f72",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2020-10-22T09:28:35Z",
       "side": 1,
       "message": "to be consistent either move this to debug or move the other message tracing logs to trace",
+      "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad2e8af0_9962b11d",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-22T17:01:31Z",
+      "side": 1,
+      "message": "I believe it make sense to have the two messages at different levels.\nDEBUG - we log when packets arrive from the client\nTRACE - we log more details on how we handle the packet (this log was not there before this patch, that\u0027s why it\u0027s at a different level)",
+      "parentUuid": "d867efc9_ff265f72",
       "revId": "e033c26aee53ce4997c4b3826e3d0a184b682e7a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true

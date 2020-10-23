@@ -206,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "a43b7403_58ecb981",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1234,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-10-23T10:10:48Z",
+      "side": 1,
+      "message": "this is because the subscriber timed out and we still want to see it in the subs that tried auth. possibly we can add another state such as TIMEOUT.",
+      "parentUuid": "e52fcd9d_049f81e0",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c1139fa_35c21764",
         "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
         "patchSetId": 28

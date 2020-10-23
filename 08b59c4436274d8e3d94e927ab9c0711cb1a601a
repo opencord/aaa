@@ -1,0 +1,276 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06bfebcc_ed0d4d19",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "you can remove aaa- near machine.",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f380226f_8119546e",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "same here. Otherwise the names will be onos-aaa-aaa-packet",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63e37996_28168969",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "warn -\u003e we usually use error for the exceptions",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c9971d4_10f3e4c4",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e6de92e_0d06ffe5",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "maybe we should this inside the identifier class and not repeat this everywhere (id \u0026 0xff)",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f288ba23_3d0214be",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "we should move all the forge logic in an external/static object. It is very distracting here and not really useful",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75961d9a_a14fa18a",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "warn",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "931567c4_73535c9d",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c803b593_005800b9",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "warn",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dae7f863_f9bb7cce",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "warn",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4b537a1_666f878c",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "warn",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e52fcd9d_049f81e0",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1234,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "is that ok ?",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c1139fa_35c21764",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "fix name",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cbacd3a_0183e3d3",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "trace",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b438ec4a_0f56c753",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "error. Also I believe this will give you an exception. Only error is allowed without {}",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a03c003_193b6878",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T07:33:55Z",
+      "side": 1,
+      "message": "here we have a lot prints - we should remove some of them and add isTraceEnabled",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

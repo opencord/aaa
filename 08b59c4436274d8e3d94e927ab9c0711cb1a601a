@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1139098e_865ce02a",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06bfebcc_ed0d4d19",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f380226f_8119546e",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 28
@@ -33,6 +51,24 @@
       "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a8bdec7_c6fbf3b8",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f380226f_8119546e",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "a0b3bbaa_606a6201",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Patch here: https://gerrit.onosproject.org/c/onos/+/24111\nonce is merged this will be revisited (https://jira.opencord.org/browse/VOL-3591)",
+      "parentUuid": "5e6de92e_0d06ffe5",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f288ba23_3d0214be",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 28
@@ -101,6 +155,24 @@
       "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd8105e4_ba296c8c",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f288ba23_3d0214be",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +193,24 @@
     },
     {
       "key": {
+        "uuid": "7cc19b36_a8d42fba",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75961d9a_a14fa18a",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "931567c4_73535c9d",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 28
@@ -135,6 +225,24 @@
       "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3cbb9f7_8d71fbb6",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "931567c4_73535c9d",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -172,6 +280,24 @@
     },
     {
       "key": {
+        "uuid": "01eb451e_b33138ce",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dae7f863_f9bb7cce",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4b537a1_666f878c",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 28
@@ -186,6 +312,24 @@
       "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2358a1f_4f38cb31",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4b537a1_666f878c",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -224,6 +368,24 @@
     },
     {
       "key": {
+        "uuid": "d46338c1_160d4822",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1234,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Fixed the stateMachine.timeout() method. Now we\u0027ll have a record in the timeout case",
+      "parentUuid": "a43b7403_58ecb981",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c1139fa_35c21764",
         "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
         "patchSetId": 28
@@ -238,6 +400,24 @@
       "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e20feb8_5e45c16b",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c1139fa_35c21764",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -258,6 +438,24 @@
     },
     {
       "key": {
+        "uuid": "f93b8058_7efbaa7b",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/IdentifierManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cbacd3a_0183e3d3",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b438ec4a_0f56c753",
         "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
         "patchSetId": 28
@@ -275,6 +473,24 @@
     },
     {
       "key": {
+        "uuid": "e578cdc3_97e11f42",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b438ec4a_0f56c753",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a03c003_193b6878",
         "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
         "patchSetId": 28
@@ -289,6 +505,24 @@
       "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b27fe97_37536fde",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/SocketBasedRadiusCommunicator.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-10-23T18:10:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a03c003_193b6878",
+      "revId": "08b59c4436274d8e3d94e927ab9c0711cb1a601a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

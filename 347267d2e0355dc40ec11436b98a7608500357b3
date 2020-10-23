@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c13f115f_026cee5a",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 1000042
+      },
+      "writtenOn": "2020-10-23T18:30:58Z",
+      "side": 1,
+      "message": "do you need this here ?",
+      "revId": "347267d2e0355dc40ec11436b98a7608500357b3",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}

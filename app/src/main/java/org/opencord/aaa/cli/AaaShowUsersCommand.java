@@ -15,11 +15,15 @@
  */
 package org.opencord.aaa.cli;
 
+import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Completion;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.onlab.util.Tools;
 import org.onosproject.cli.AbstractShellCommand;
+import org.onosproject.cli.net.DeviceIdCompleter;
 import org.onosproject.net.AnnotationKeys;
+import org.onosproject.net.DeviceId;
 import org.onosproject.net.Port;
 import org.onosproject.net.device.DeviceService;
 import org.onosproject.utils.Comparators;
@@ -30,6 +34,7 @@ import org.opencord.sadis.SubscriberAndDeviceInformation;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -40,6 +45,10 @@ import static com.google.common.collect.Lists.newArrayList;
 @Command(scope = "onos", name = "aaa-users",
         description = "Shows the aaa users")
 public class AaaShowUsersCommand extends AbstractShellCommand {
+
+    @Argument(index = 0, name = "deviceId", description = "Access device ID")
+    @Completion(DeviceIdCompleter.class)
+    private String strDeviceId = null;
 
     static final String UNKNOWN = "UNKNOWN";
 
@@ -57,6 +66,13 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
         List<AuthenticationRecord> authentications = newArrayList(authService.getAuthenticationRecords());
 
         authentications.sort(authenticationRecordComparator);
+
+        if (strDeviceId != null && !strDeviceId.isEmpty()) {
+            DeviceId deviceId = DeviceId.deviceId(strDeviceId);
+            authentications = authentications.stream()
+                    .filter(a -> a.supplicantConnectPoint().deviceId().equals(deviceId))
+                    .collect(Collectors.toList());
+        }
 
         for (AuthenticationRecord auth : authentications) {
             String username = UNKNOWN;

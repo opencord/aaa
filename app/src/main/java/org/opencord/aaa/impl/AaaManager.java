@@ -188,6 +188,8 @@ public class AaaManager
     private ConcurrentMap<String, StateMachine> stateMachines;
 
     private ConsistentMap<ConnectPoint, AuthenticationRecord> authenticationsConsistentMap;
+    // NOTE consider to change this map to be Map<DeviceId,Map<ConnectPoint, AuthenticationRecord>> so that
+    // we can iterate on smalled collection when dealing with authentications
     private Map<ConnectPoint, AuthenticationRecord> authentications;
 
     // NAS IP address

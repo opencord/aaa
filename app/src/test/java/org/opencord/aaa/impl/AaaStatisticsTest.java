@@ -115,7 +115,7 @@ public class AaaStatisticsTest extends AaaTestBase {
     /**
      * Mocks the network config registry.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     private static final class TestNetworkConfigRegistry extends NetworkConfigRegistryAdapter {
         @Override
         public <S, C extends Config<S>> C getConfig(S subject, Class<C> configClass) {

@@ -46,6 +46,15 @@ public final class RequestIdentifier {
     }
 
     /**
+     * Get the identifier in a readable format.
+     *
+     * @return identifier
+     */
+    public int getReadableIdentifier() {
+        return this.identifier & 0xff;
+    }
+
+    /**
      * Creates a new request identifier.
      *
      * @param identifier id number

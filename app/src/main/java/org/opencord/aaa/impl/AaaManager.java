@@ -1071,7 +1071,7 @@ public class AaaManager
                 if (log.isTraceEnabled()) {
                     log.trace("Sending ATTR_IDENTITY packet to RADIUS for supplicant at dev/port: " +
                                       "{}/{} with MacAddress {} and Identifier {}", deviceId, portNumber,
-                              srcMac, radiusIdentifier.identifier() & 0xff);
+                              srcMac, radiusIdentifier.getReadableIdentifier());
                 }
 
                 sendRadiusPacket(radiusPayload, inPacket);
@@ -1127,7 +1127,7 @@ public class AaaManager
                     if (log.isTraceEnabled()) {
                         log.trace("Sending ATTR_MD5 packet to RADIUS for supplicant at dev/port: {}/{}" +
                                           " with MacAddress {} and Identifier {}", deviceId, portNumber, srcMac,
-                                  radiusIdentifier.identifier() & 0xff);
+                                  radiusIdentifier.getReadableIdentifier());
                     }
                     sendRadiusPacket(radiusPayload, inPacket);
                     stateMachine.setWaitingForRadiusResponse(true);
@@ -1178,7 +1178,7 @@ public class AaaManager
             if (log.isTraceEnabled()) {
                 log.trace("Sending ATTR_TLS packet to RADIUS for supplicant at dev/port: {}/{} with " +
                                   "MacAddress {} and Identifier {}", deviceId, portNumber, srcMac,
-                          radiusIdentifier.identifier() & 0xff);
+                          radiusIdentifier.getReadableIdentifier());
             }
             sendRadiusPacket(radiusPayload, inPacket);
             stateMachine.setWaitingForRadiusResponse(true);

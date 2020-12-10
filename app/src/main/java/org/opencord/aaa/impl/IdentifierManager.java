@@ -137,23 +137,23 @@ public class IdentifierManager {
      */
     public synchronized void releaseIdentifier(RequestIdentifier id) {
         if (log.isTraceEnabled()) {
-            log.trace("Releasing identifier {}", id.identifier() & 0xff);
+            log.trace("Releasing identifier {}", id.getReadableIdentifier());
         }
 
         Pair<String, Long> session = idToSession.remove(id);
         if (session == null) {
             if (log.isTraceEnabled()) {
-                log.trace("Unable to released identifier {} for session null", id.identifier() & 0xff);
+                log.trace("Unable to released identifier {} for session null", id.getReadableIdentifier());
             }
             // this id wasn't mapped to a session so is still free
             return;
         }
 
         // add id number back to set of free ids
-        freeIdNumbers.add(id.identifier() & 0xff);
+        freeIdNumbers.add(id.getReadableIdentifier());
 
         if (log.isTraceEnabled()) {
-            log.trace("Released identifier {} for session {}", id.identifier() & 0xff, session.getKey());
+            log.trace("Released identifier {} for session {}", id.getReadableIdentifier(), session.getKey());
         }
     }
 
@@ -191,7 +191,7 @@ public class IdentifierManager {
             if (diff >= timeout) {
                 if (log.isTraceEnabled()) {
                     log.trace("Identifier {} for session {} has exceeded timeout {}, releasing",
-                            id.identifier() & 0xff, info.getKey(), timeout);
+                            id.getReadableIdentifier(), info.getKey(), timeout);
                 }
                 releaseIdentifier(id);
             }

@@ -67,7 +67,7 @@ public class IdentifierManagerTest {
     public void testIdSequence() {
         for (int i = 1; i <= 300; i++) {
             RequestIdentifier id = idManager.getNewIdentifier(Integer.toString(i));
-            log.trace("Id: {}", id.identifier() & 0xff);
+            log.trace("Id: {}", id.getReadableIdentifier());
             assertNotEquals(id.identifier(), 0);
             assertNotEquals(id.identifier(), 1);
             idManager.releaseIdentifier(id);

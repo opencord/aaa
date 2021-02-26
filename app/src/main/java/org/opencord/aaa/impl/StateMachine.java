@@ -22,14 +22,9 @@ import org.onosproject.net.ConnectPoint;
 import org.opencord.aaa.AuthenticationEvent;
 import org.opencord.aaa.AuthenticationRecord;
 import org.opencord.aaa.StateMachineDelegate;
-import org.slf4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * AAA Finite State Machine.
@@ -44,10 +39,12 @@ public class StateMachine {
 
     // Defining the states where timeout can happen
     static final Set<Integer> TIMEOUT_ELIGIBLE_STATES = new HashSet<>();
+
     static {
         TIMEOUT_ELIGIBLE_STATES.add(STATE_STARTED);
         TIMEOUT_ELIGIBLE_STATES.add(STATE_PENDING);
     }
+
     // INDEX to identify the transition in the transition table
     static final int TRANSITION_START = 0; // --> started
     static final int TRANSITION_REQUEST_ACCESS = 1;
@@ -81,7 +78,7 @@ public class StateMachine {
         private EapolType(String value) {
             this.eaptype = value;
         }
-    };
+    }
 
     private String sessionTerminateReason;
 
@@ -100,7 +97,7 @@ public class StateMachine {
         public String getReason() {
             return this.reason;
         }
-    };
+    }
 
     // Supplicant packet count
     private int totalPacketsSent;
@@ -116,12 +113,9 @@ public class StateMachine {
 
     private String sessionId = null;
 
-    private final Logger log = getLogger(getClass());
-
-    private State[] states = {new Idle(), new Started(), new Pending(), new Authorized(), new Unauthorized() };
+    private State[] states = {new Idle(), new Started(), new Pending(), new Authorized(), new Unauthorized()};
 
     // Cleanup Timer instance created for this session
-    private ScheduledExecutorService timeoutExecutor;
     private java.util.concurrent.ScheduledFuture<?> cleanupTimer = null;
 
     // TimeStamp of last EAPOL or RADIUS message received.
@@ -145,18 +139,18 @@ public class StateMachine {
      * LOGOFF _ | _ | _ | IDLE | IDLE
      */
 
-    private int[] idleTransition = {STATE_STARTED, STATE_IDLE, STATE_IDLE, STATE_IDLE, STATE_IDLE };
-    private int[] startedTransition = {STATE_STARTED, STATE_PENDING, STATE_STARTED, STATE_STARTED, STATE_STARTED };
+    private int[] idleTransition = {STATE_STARTED, STATE_IDLE, STATE_IDLE, STATE_IDLE, STATE_IDLE};
+    private int[] startedTransition = {STATE_STARTED, STATE_PENDING, STATE_STARTED, STATE_STARTED, STATE_STARTED};
     private int[] pendingTransition = {STATE_PENDING, STATE_PENDING, STATE_AUTHORIZED, STATE_UNAUTHORIZED,
-            STATE_PENDING };
+            STATE_PENDING};
     private int[] authorizedTransition = {STATE_STARTED, STATE_AUTHORIZED, STATE_AUTHORIZED, STATE_AUTHORIZED,
-            STATE_IDLE };
+            STATE_IDLE};
     private int[] unauthorizedTransition = {STATE_STARTED, STATE_UNAUTHORIZED, STATE_UNAUTHORIZED, STATE_UNAUTHORIZED,
-            STATE_IDLE };
+            STATE_IDLE};
 
     // THE TRANSITION TABLE
     private int[][] transition = {idleTransition, startedTransition, pendingTransition, authorizedTransition,
-            unauthorizedTransition };
+            unauthorizedTransition};
 
     private int currentState = STATE_IDLE;
 
@@ -168,10 +162,6 @@ public class StateMachine {
 
     public static void setcleanupTimerTimeOutInMins(int cleanupTimerTimeoutInMins) {
         cleanupTimerTimeOutInMins = cleanupTimerTimeoutInMins;
-    }
-
-    private void scheduleTimeout() {
-        cleanupTimer = timeoutExecutor.schedule(this::timeout, cleanupTimerTimeOutInMins, TimeUnit.MINUTES);
     }
 
     public static void unsetDelegate(StateMachineDelegate delegate) {
@@ -205,12 +195,10 @@ public class StateMachine {
      * Creates a new StateMachine with the given session ID.
      *
      * @param sessionId session Id represented by the switch dpid + port number
-     * @param executor executor to run background tasks on
      */
-    public StateMachine(String sessionId, ScheduledExecutorService executor) {
-        log.info("Creating a new state machine for {}", sessionId);
+    public StateMachine(String sessionId) {
+        LoggerProvider.getStateMachineLogger().info("Creating a new state machine for {}", sessionId);
         this.sessionId = sessionId;
-        this.timeoutExecutor = executor;
     }
 
     /**
@@ -337,17 +325,23 @@ public class StateMachine {
      */
     public void setEapolTypeVal(byte value) {
         switch (value) {
-            case (byte) 0: this.eapolTypeVal = EapolType.EAPOL_PACKET.eaptype;
+            case (byte) 0:
+                this.eapolTypeVal = EapolType.EAPOL_PACKET.eaptype;
                 break;
-            case (byte) 1: this.eapolTypeVal = EapolType.EAPOL_START.eaptype;
+            case (byte) 1:
+                this.eapolTypeVal = EapolType.EAPOL_START.eaptype;
                 break;
-            case (byte) 2: this.eapolTypeVal = EapolType.EAPOL_LOGOFF.eaptype;
+            case (byte) 2:
+                this.eapolTypeVal = EapolType.EAPOL_LOGOFF.eaptype;
                 break;
-            case (byte) 3: this.eapolTypeVal = EapolType.EAPOL_KEY.eaptype;
+            case (byte) 3:
+                this.eapolTypeVal = EapolType.EAPOL_KEY.eaptype;
                 break;
-            case (byte) 4: this.eapolTypeVal = EapolType.EAPOL_ASF.eaptype;
+            case (byte) 4:
+                this.eapolTypeVal = EapolType.EAPOL_ASF.eaptype;
                 break;
-            default : this.eapolTypeVal = "INVALID TYPE";
+            default:
+                this.eapolTypeVal = "INVALID TYPE";
         }
     }
 
@@ -412,7 +406,7 @@ public class StateMachine {
      *                            from the RADIUS message.
      */
     protected void setChallengeIdentifier(byte challengeIdentifier) {
-        log.info("Set Challenge Identifier to {}", challengeIdentifier);
+        LoggerProvider.getStateMachineLogger().info("Set Challenge Identifier to {}", challengeIdentifier);
         this.challengeIdentifier = challengeIdentifier;
     }
 
@@ -431,7 +425,7 @@ public class StateMachine {
      * @param challengeState The challenge state from the RADIUS.
      */
     protected void setChallengeState(byte[] challengeState) {
-        log.info("Set Challenge State");
+        LoggerProvider.getStateMachineLogger().info("Set Challenge State");
         this.challengeState = challengeState;
     }
 
@@ -497,14 +491,13 @@ public class StateMachine {
      */
     private void next(int msg) {
         currentState = transition[currentState][msg];
-        log.info("Current State " + currentState);
+        LoggerProvider.getStateMachineLogger().info("Current State " + currentState);
     }
 
     /**
      * Client has requested the start action to allow network access.
      */
     public void start() {
-        this.scheduleTimeout();
 
         states[currentState].start();
 
@@ -581,7 +574,7 @@ public class StateMachine {
      * Gets the current state.
      *
      * @return The current state. Could be STATE_IDLE, STATE_STARTED, STATE_PENDING,
-     *         STATE_AUTHORIZED, STATE_UNAUTHORIZED.
+     * STATE_AUTHORIZED, STATE_UNAUTHORIZED.
      */
     public int state() {
         return currentState;
@@ -596,37 +589,35 @@ public class StateMachine {
         return ("sessionId: " + this.sessionId) + "\t" + ("state: " + this.currentState);
     }
 
-    abstract static class State {
-        private final Logger log = getLogger(getClass());
+    public abstract static class State {
 
         abstract String name();
 
         public void start() {
-            log.warn("START transition from this state is not allowed.");
+            LoggerProvider.getStateMachineLogger().warn("START transition from this state is not allowed.");
         }
 
         public void requestAccess() {
-            log.warn("REQUEST ACCESS transition from this state is not allowed.");
+            LoggerProvider.getStateMachineLogger().warn("REQUEST ACCESS transition from this state is not allowed.");
         }
 
         public void radiusAccepted() {
-            log.warn("AUTHORIZE ACCESS transition from this state is not allowed.");
+            LoggerProvider.getStateMachineLogger().warn("AUTHORIZE ACCESS transition from this state is not allowed.");
         }
 
         public void radiusDenied() {
-            log.warn("DENY ACCESS transition from this state is not allowed.");
+            LoggerProvider.getStateMachineLogger().warn("DENY ACCESS transition from this state is not allowed.");
         }
 
         public void logoff() {
-            log.warn("LOGOFF transition from this state is not allowed.");
+            LoggerProvider.getStateMachineLogger().warn("LOGOFF transition from this state is not allowed.");
         }
     }
 
     /**
      * Idle state: supplicant is logged off from the network.
      */
-    static class Idle extends State {
-        private final Logger log = getLogger(getClass());
+    public static class Idle extends State {
         private String name = "IDLE_STATE";
 
         @Override
@@ -636,7 +627,7 @@ public class StateMachine {
 
         @Override
         public void start() {
-            log.info("Moving from IDLE state to STARTED state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from IDLE state to STARTED state.");
         }
     }
 
@@ -644,8 +635,7 @@ public class StateMachine {
      * Started state: supplicant has entered the network and informed the
      * authenticator.
      */
-    static class Started extends State {
-        private final Logger log = getLogger(getClass());
+    public static class Started extends State {
         private String name = "STARTED_STATE";
 
         @Override
@@ -655,7 +645,7 @@ public class StateMachine {
 
         @Override
         public void requestAccess() {
-            log.info("Moving from STARTED state to PENDING state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from STARTED state to PENDING state.");
         }
     }
 
@@ -663,8 +653,7 @@ public class StateMachine {
      * Pending state: supplicant has been identified by the authenticator but has
      * not access yet.
      */
-    static class Pending extends State {
-        private final Logger log = getLogger(getClass());
+    public static class Pending extends State {
         private String name = "PENDING_STATE";
 
         @Override
@@ -674,20 +663,19 @@ public class StateMachine {
 
         @Override
         public void radiusAccepted() {
-            log.info("Moving from PENDING state to AUTHORIZED state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from PENDING state to AUTHORIZED state.");
         }
 
         @Override
         public void radiusDenied() {
-            log.info("Moving from PENDING state to UNAUTHORIZED state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from PENDING state to UNAUTHORIZED state.");
         }
     }
 
     /**
      * Authorized state: supplicant port has been accepted, access is granted.
      */
-    static class Authorized extends State {
-        private final Logger log = getLogger(getClass());
+    public static class Authorized extends State {
         private String name = "AUTHORIZED_STATE";
 
         @Override
@@ -697,21 +685,19 @@ public class StateMachine {
 
         @Override
         public void start() {
-            log.info("Moving from AUTHORIZED state to STARTED state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from AUTHORIZED state to STARTED state.");
         }
 
         @Override
         public void logoff() {
-
-            log.info("Moving from AUTHORIZED state to IDLE state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from AUTHORIZED state to IDLE state.");
         }
     }
 
     /**
      * Unauthorized state: supplicant port has been rejected, access is denied.
      */
-    static class Unauthorized extends State {
-        private final Logger log = getLogger(getClass());
+    public static class Unauthorized extends State {
         private String name = "UNAUTHORIZED_STATE";
 
         @Override
@@ -721,28 +707,25 @@ public class StateMachine {
 
         @Override
         public void start() {
-            log.info("Moving from UNAUTHORIZED state to STARTED state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from UNAUTHORIZED state to STARTED state.");
         }
 
         @Override
         public void logoff() {
-            log.info("Moving from UNAUTHORIZED state to IDLE state.");
+            LoggerProvider.getStateMachineLogger().info("Moving from UNAUTHORIZED state to IDLE state.");
         }
     }
 
-    private void timeout() {
+    public boolean isRestartTimeout() {
         boolean noTrafficWithinThreshold =
                 (System.currentTimeMillis() - lastPacketReceivedTime) > ((cleanupTimerTimeOutInMins * 60 * 1000) / 2);
-
-        if (TIMEOUT_ELIGIBLE_STATES.contains(currentState) && noTrafficWithinThreshold) {
-            this.setSessionTerminateReason(SessionTerminationReasons.TIME_OUT.reason);
-
-            delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.TIMEOUT,
-                    this.supplicantConnectpoint, toAuthRecord()));
-            // If StateMachine is not eligible for cleanup yet, reschedule cleanupTimer further.
-        } else {
-            this.scheduleTimeout();
-        }
+        return !(TIMEOUT_ELIGIBLE_STATES.contains(currentState) && noTrafficWithinThreshold);
     }
 
+    public void timeout() {
+        this.setSessionTerminateReason(SessionTerminationReasons.TIME_OUT.reason);
+        delegate.notify(new AuthenticationEvent(AuthenticationEvent.Type.TIMEOUT,
+                this.supplicantConnectpoint, toAuthRecord()));
+        // If StateMachine is not eligible for cleanup yet, reschedule cleanupTimer further.
+    }
 }

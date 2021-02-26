@@ -16,7 +16,6 @@
 package org.opencord.aaa.impl;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.onlab.util.Tools.groupedThreads;
@@ -24,6 +23,7 @@ import static org.onosproject.net.config.basics.SubjectFactories.APP_SUBJECT_FAC
 import static org.opencord.aaa.impl.OsgiPropertyConstants.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import java.net.InetAddress;
@@ -101,6 +101,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 
 import javax.crypto.Mac;
@@ -126,7 +127,7 @@ import java.util.concurrent.TimeUnit;
 public class AaaManager
         extends AbstractListenerManager<AuthenticationEvent, AuthenticationEventListener>
         implements AuthenticationService {
-
+    private static final String SADIS_NOT_RUNNING = "Sadis is not running.";
     private static final String APP_NAME = "org.opencord.aaa";
     private static final int STATE_MACHINE_THREADS = 3;
 
@@ -147,8 +148,11 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected DeviceService deviceService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    protected SadisService sadisService;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL,
+            bind = "bindSadisService",
+            unbind = "unbindSadisService",
+            policy = ReferencePolicy.DYNAMIC)
+    protected volatile SadisService sadisService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected MastershipService mastershipService;
@@ -322,11 +326,15 @@ public class AaaManager
         netCfgService.registerConfigFactory(factory);
         cfgService.registerProperties(getClass());
         modified(context);
-        subsService = sadisService.getSubscriberInfoService();
+        if (sadisService != null) {
+            subsService = sadisService.getSubscriberInfoService();
+        } else {
+            log.warn(SADIS_NOT_RUNNING);
+        }
         customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
         log.info("Starting with config {} {}", this, newCfg);
-        configureRadiusCommunication();
+        configureRadiusCommunication(false);
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
         StateMachine.setDelegate(delegate);
@@ -408,12 +416,31 @@ public class AaaManager
         }
     }
 
-    protected void configureRadiusCommunication() {
+    protected void bindSadisService(SadisService service) {
+        sadisService = service;
+        subsService = sadisService.getSubscriberInfoService();
+        customInfo.updateSubscriberService(subsService);
+        log.info("Sadis-service binds to onos.");
+    }
+
+    protected void unbindSadisService(SadisService service) {
+        sadisService = null;
+        subsService = null;
+        customInfo.updateSubscriberService(subsService);
+        configureRadiusCommunication(true);
+        log.info("Sadis-service unbinds from onos.");
+    }
+
+    protected void configureRadiusCommunication(boolean isUpdate) {
         if (radiusConnectionType.toLowerCase().equals("socket")) {
             impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
         } else {
-            impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
-                                                   deviceService, subsService, pktCustomizer, this);
+            if (isUpdate) {
+                ((PortBasedRadiusCommunicator) impl).updateSubsService(subsService);
+            } else {
+                impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
+                        deviceService, subsService, pktCustomizer, this);
+            }
         }
     }
 
@@ -1283,7 +1310,7 @@ public class AaaManager
                     impl.withdrawIntercepts();
                     impl.clearLocalState();
                 }
-                configureRadiusCommunication();
+                configureRadiusCommunication(false);
                 impl.initializeLocalState(newCfg);
                 impl.requestIntercepts();
             } else if (impl != null) {

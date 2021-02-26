@@ -35,6 +35,10 @@ public class CustomizationInfo {
         this.devService = devService;
     }
 
+    public void updateSubscriberService(BaseInformationService<SubscriberAndDeviceInformation> subscriberService) {
+        this.subscriberService = subscriberService;
+    }
+
     public DeviceService deviceService() {
         return devService;
     }

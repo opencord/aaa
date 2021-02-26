@@ -22,8 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.concurrent.Executors;
-
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
@@ -41,7 +39,7 @@ public class StateMachineTest {
     public void setUp() {
         System.out.println("Set Up.");
         StateMachine.setDelegate(e -> { });
-        stateMachine = new StateMachine("session0", Executors.newSingleThreadScheduledExecutor());
+        stateMachine = new StateMachine("session0");
     }
 
     @After

@@ -90,7 +90,7 @@ public class AaaStatisticsTest extends AaaTestBase {
         }
 
         // changed the configuration of parent method to protected
-        protected void configureRadiusCommunication() {
+        protected void configureRadiusCommunication(boolean isUpdate) {
             PacketService pktService = new MockPacketService();
             ApplicationId appId = new CoreServiceAdapter().registerApplication("org.opencord.aaa");
             aaaManager.impl = new TestSocketBasedRadiusCommunicator(appId, pktService, aaaManager);

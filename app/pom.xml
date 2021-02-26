@@ -35,10 +35,6 @@
         <onos.app.category>Security</onos.app.category>
         <onos.app.url>http://opencord.org</onos.app.url>
         <onos.app.readme>802.1x authentication service.</onos.app.readme>
-        <onos.app.requires>
-            org.opencord.sadis
-        </onos.app.requires>
-        <sadis.api.version>5.2.0</sadis.api.version>
     </properties>
 
     <dependencies>
@@ -59,7 +55,7 @@
         <dependency>
             <groupId>org.opencord</groupId>
             <artifactId>aaa-api</artifactId>
-            <version>${project.version}</version>
+            <version>${aaa.api.version}</version>
             <scope>compile</scope>
         </dependency>
 

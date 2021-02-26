@@ -16,7 +16,6 @@
 package org.opencord.aaa.impl;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.onlab.util.Tools.groupedThreads;
@@ -101,12 +100,12 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -126,7 +125,7 @@ import java.util.concurrent.TimeUnit;
 public class AaaManager
         extends AbstractListenerManager<AuthenticationEvent, AuthenticationEventListener>
         implements AuthenticationService {
-
+    private static final String SADIS_NOT_RUNNING = "Sadis is not running.";
     private static final String APP_NAME = "org.opencord.aaa";
     private static final int STATE_MACHINE_THREADS = 3;
 
@@ -147,8 +146,11 @@ public class AaaManager
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected DeviceService deviceService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    protected SadisService sadisService;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL,
+            bind = "bindSadisService",
+            unbind = "unbindSadisService",
+            policy = ReferencePolicy.DYNAMIC)
+    protected volatile SadisService sadisService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected MastershipService mastershipService;
@@ -185,7 +187,7 @@ public class AaaManager
 
     private IdentifierManager idManager;
 
-    private ConcurrentMap<String, StateMachine> stateMachines;
+    private Map<String, StateMachine> stateMachines;
 
     private ConsistentMap<ConnectPoint, AuthenticationRecord> authenticationsConsistentMap;
     // NOTE consider to change this map to be Map<DeviceId,Map<ConnectPoint, AuthenticationRecord>> so that
@@ -245,8 +247,8 @@ public class AaaManager
     // Configuration properties factory
     private final ConfigFactory factory =
             new ConfigFactory<ApplicationId, AaaConfig>(APP_SUBJECT_FACTORY,
-                                                        AaaConfig.class,
-                                                        "AAA") {
+                    AaaConfig.class,
+                    "AAA") {
                 @Override
                 public AaaConfig createConfig() {
                     return new AaaConfig();
@@ -301,12 +303,19 @@ public class AaaManager
     public void activate(ComponentContext context) {
 
         idManager = new IdentifierManager();
-        stateMachines = Maps.newConcurrentMap();
         appId = coreService.registerApplication(APP_NAME);
 
         KryoNamespace authSerializer = KryoNamespace.newBuilder()
                 .register(KryoNamespaces.API)
                 .register(AuthenticationRecord.class)
+                .register(StateMachine.class)
+                .register(StateMachine.State[].class)
+                .register(StateMachine.Idle.class)
+                .register(StateMachine.Pending.class)
+                .register(StateMachine.Started.class)
+                .register(StateMachine.Authorized.class)
+                .register(StateMachine.Unauthorized.class)
+                .register(int[][].class)
                 .build();
 
         authenticationsConsistentMap = storageService.<ConnectPoint, AuthenticationRecord>consistentMapBuilder()
@@ -317,16 +326,26 @@ public class AaaManager
         authenticationsConsistentMap.addListener(mapListener);
         authentications = authenticationsConsistentMap.asJavaMap();
 
+        stateMachines = storageService.<String, StateMachine>consistentMapBuilder()
+                .withApplicationId(appId)
+                .withName("aaa-statemachines")
+                .withSerializer(Serializer.using(authSerializer))
+                .build().asJavaMap();
+
         eventDispatcher.addSink(AuthenticationEvent.class, listenerRegistry);
         netCfgService.addListener(cfgListener);
         netCfgService.registerConfigFactory(factory);
         cfgService.registerProperties(getClass());
         modified(context);
-        subsService = sadisService.getSubscriberInfoService();
+        if (sadisService != null) {
+            subsService = sadisService.getSubscriberInfoService();
+        } else {
+            log.warn(SADIS_NOT_RUNNING);
+        }
         customInfo = new CustomizationInfo(subsService, deviceService);
         cfgListener.reconfigureNetwork(netCfgService.getConfig(appId, AaaConfig.class));
         log.info("Starting with config {} {}", this, newCfg);
-        configureRadiusCommunication();
+        configureRadiusCommunication(false);
         // register our event handler
         packetService.addProcessor(processor, PacketProcessor.director(2));
         StateMachine.setDelegate(delegate);
@@ -343,7 +362,6 @@ public class AaaManager
         scheduledStatusServerChecker = serverStatusAndStateMachineTimeoutExecutor.scheduleAtFixedRate(
                 new ServerStatusChecker(), 0,
                 operationalStatusEventGenerationPeriodInSeconds, TimeUnit.SECONDS);
-
         log.info("Started");
     }
 
@@ -408,12 +426,31 @@ public class AaaManager
         }
     }
 
-    protected void configureRadiusCommunication() {
+    protected void bindSadisService(SadisService service) {
+        sadisService = service;
+        subsService = sadisService.getSubscriberInfoService();
+        customInfo.updateSubscriberService(subsService);
+        log.info("Sadis-service binds to onos.");
+    }
+
+    protected void unbindSadisService(SadisService service) {
+        sadisService = null;
+        subsService = null;
+        customInfo.updateSubscriberService(subsService);
+        configureRadiusCommunication(true);
+        log.info("Sadis-service unbinds from onos.");
+    }
+
+    protected void configureRadiusCommunication(boolean isUpdate) {
         if (radiusConnectionType.toLowerCase().equals("socket")) {
             impl = new SocketBasedRadiusCommunicator(appId, packetService, this);
         } else {
-            impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
-                                                   deviceService, subsService, pktCustomizer, this);
+            if (isUpdate) {
+                ((PortBasedRadiusCommunicator) impl).updateSubsService(subsService);
+            } else {
+                impl = new PortBasedRadiusCommunicator(appId, packetService, mastershipService,
+                        deviceService, subsService, pktCustomizer, this);
+            }
         }
     }
 
@@ -848,6 +885,20 @@ public class AaaManager
             return radiusPayload;
         }
 
+        private void scheduleTimeout(StateMachine stateMachine) {
+            serverStatusAndStateMachineTimeoutExecutor
+                    .schedule(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (stateMachine.isRestartTimeout()) {
+                                scheduleTimeout(stateMachine);
+                            } else {
+                                stateMachine.timeout();
+                            }
+                        }
+                    }, cleanupTimerTimeOutInMins, TimeUnit.MINUTES);
+        }
+
         private void handleEapolStart(InboundPacket inPacket, StateMachine stateMachine) {
 
             DeviceId deviceId = inPacket.receivedFrom().deviceId();
@@ -859,6 +910,7 @@ public class AaaManager
                       deviceId, portNumber, srcMac);
             stateMachine.setSupplicantConnectpoint(inPacket.receivedFrom());
             stateMachine.setSupplicantAddress(srcMac);
+            scheduleTimeout(stateMachine);
             stateMachine.start();
 
             aaaStatisticsManager.getAaaStats().incrementEapolStartReqRx();
@@ -991,7 +1043,7 @@ public class AaaManager
                 aaaStatisticsManager.getAaaStats().incrementValidEapolFramesRx();
             }
             StateMachine stateMachine = stateMachines.computeIfAbsent(sessionId, id ->
-                    new StateMachine(id, serverStatusAndStateMachineTimeoutExecutor));
+                    new StateMachine(id));
             stateMachine.setEapolTypeVal(eapol.getEapolType());
 
             switch (eapol.getEapolType()) {
@@ -1283,7 +1335,7 @@ public class AaaManager
                     impl.withdrawIntercepts();
                     impl.clearLocalState();
                 }
-                configureRadiusCommunication();
+                configureRadiusCommunication(false);
                 impl.initializeLocalState(newCfg);
                 impl.requestIntercepts();
             } else if (impl != null) {

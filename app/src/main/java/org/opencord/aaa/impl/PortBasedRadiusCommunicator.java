@@ -62,6 +62,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * of the SDN switches.
  */
 public class PortBasedRadiusCommunicator implements RadiusCommunicator {
+    private static final String SADIS_NOT_RUNNING = "Sadis is not running.";
 
     // for verbose output
     private final Logger log = getLogger(getClass());
@@ -76,7 +77,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
 
     MastershipService mastershipService;
 
-    BaseInformationService<SubscriberAndDeviceInformation> subsService;
+    protected BaseInformationService<SubscriberAndDeviceInformation> subsService;
 
     // to store local mapping of IP Address and Serial No of Device
     private Map<Ip4Address, String> ipToSnMap;
@@ -134,7 +135,7 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
             radiusServerConnectPoint = null;
             if (radiusConnectPoints != null) {
                 // find a connect point through a device for which we are master
-                for (ConnectPoint cp: radiusConnectPoints) {
+                for (ConnectPoint cp : radiusConnectPoints) {
                     if (mastershipService.isLocalMaster(cp.deviceId())) {
                         if (deviceService.isAvailable(cp.deviceId())) {
                             radiusServerConnectPoint = cp;
@@ -150,6 +151,10 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                 log.error("Master of none, can't send radius Message to server");
             }
         }
+    }
+
+    public void updateSubsService(BaseInformationService<SubscriberAndDeviceInformation> subsService) {
+        this.subsService = subsService;
     }
 
     @Override
@@ -252,6 +257,12 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
         String serialNo = deviceService.getDevice(inPkt.
                 receivedFrom().deviceId()).serialNumber();
 
+        if (subsService == null) {
+            log.warn(SADIS_NOT_RUNNING);
+            aaaManager.radiusOperationalStatusService.setStatusServerReqSent(false);
+            return;
+        }
+
         SubscriberAndDeviceInformation deviceInfo = subsService.get(serialNo);
 
         if (deviceInfo == null) {
@@ -345,6 +356,12 @@ public class PortBasedRadiusCommunicator implements RadiusCommunicator {
                     targetAddress);
             return;
         }
+
+        if (subsService == null) {
+            log.warn(SADIS_NOT_RUNNING);
+            return;
+        }
+
         MacAddress senderMac = subsService.get(serialNo).hardwareIdentifier();
         if (senderMac == null) {
             log.warn("ARP resolution, MAC address not found for SN {}", serialNo);

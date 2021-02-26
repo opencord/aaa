@@ -93,7 +93,6 @@ public class AaaShowUsersCommand extends AbstractShellCommand {
                         annotations().value(AnnotationKeys.PORT_NAME);
             }
 
-
             String subsId = UNKNOWN;
             SubscriberAndDeviceInformation subscriber = sadisService.getSubscriberInfoService().get(nasPortId);
             if (subscriber != null) {

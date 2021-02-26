@@ -357,6 +357,11 @@ public class AaaTestBase {
         }
 
         @Override
+        public void clearLocalData() {
+
+        }
+
+        @Override
         public void invalidateAll() {
         }
 

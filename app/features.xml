@@ -18,7 +18,8 @@
     <feature name="${project.artifactId}" version="${project.version}"
              description="${project.description}">
         <feature>onos-api</feature>
-        <bundle>mvn:${project.groupId}/aaa-api/${project.version}</bundle>
+        <bundle>mvn:${project.groupId}/aaa-api/${aaa.api.version}</bundle>
         <bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
+        <bundle>mvn:${project.groupId}/sadis-api/${sadis.api.version}</bundle>
     </feature>
 </features>

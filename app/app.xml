@@ -17,8 +17,9 @@
 <app name="org.opencord.aaa" origin="ON.Lab" version="${project.version}"
      category="Traffic Steering" url="http://onosproject.org" title="AAA application for CORD"
      featuresRepo="mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/features"
-     features="${project.artifactId}" apps="org.opencord.sadis">
+     features="${project.artifactId}">
     <description>${project.description}</description>
     <artifact>mvn:${project.groupId}/${project.artifactId}/${project.version}</artifact>
-    <artifact>mvn:${project.groupId}/aaa-api/${project.version}</artifact>
+    <artifact>mvn:${project.groupId}/aaa-api/${aaa.api.version}</artifact>
+    <artifact>mvn:${project.groupId}/sadis-api/${sadis.api.version}</artifact>
 </app>

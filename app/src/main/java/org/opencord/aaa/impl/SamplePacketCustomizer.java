@@ -34,9 +34,9 @@ import org.slf4j.Logger;
 
 /**
  * Sample RADIUS Packet Customization.
- *
  */
-public class  SamplePacketCustomizer extends PacketCustomizer {
+public class SamplePacketCustomizer extends PacketCustomizer {
+    private static final String SADIS_NOT_RUNNING = "Sadis is not running.";
 
     private final Logger log = getLogger(getClass());
 
@@ -70,6 +70,11 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
 
         log.info("Customizing packet Port received for {}", id);
 
+        if (customInfo.subscriberService() == null) {
+            log.warn(SADIS_NOT_RUNNING);
+            return inPkt;
+        }
+
         SubscriberAndDeviceInformation subscriber = customInfo.
                 subscriberService().get(id);
 
@@ -88,6 +93,7 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
                 receivedFrom().deviceId()).serialNumber();
 
         log.info("SampleRadiusCustomizer serial = {}", serialNo);
+
         SubscriberAndDeviceInformation deviceInfo = customInfo.
                 subscriberService().get(serialNo);
 
@@ -150,6 +156,12 @@ public class  SamplePacketCustomizer extends PacketCustomizer {
                 receivedFrom().deviceId()).serialNumber();
 
         log.info("SampleRadiusCustomzer customizer serial = {}", serialNo);
+
+        if (customInfo.subscriberService() == null) {
+            log.warn(SADIS_NOT_RUNNING);
+            return inPkt;
+        }
+
         SubscriberAndDeviceInformation deviceInfo = customInfo.
                 subscriberService().get(serialNo);
 

@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "a73c2d92_f6a2e6d0",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/LoggerProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-03-01T08:55:44Z",
+      "side": 1,
+      "message": "missing license",
+      "revId": "3db032a2fb3e1c87e8bb656640e08f5b6736d82e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76cdcee4_c58f8a9f",
         "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
         "patchSetId": 3

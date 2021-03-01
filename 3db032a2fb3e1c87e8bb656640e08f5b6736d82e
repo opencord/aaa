@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f87dcd71_ec58f6f0",
+        "filename": "app/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000682
+      },
+      "writtenOn": "2021-03-01T08:58:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ae489c62_4d3864d4",
+      "revId": "3db032a2fb3e1c87e8bb656640e08f5b6736d82e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6019a82_9e962255",
         "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
         "patchSetId": 3
@@ -64,6 +82,24 @@
       "writtenOn": "2021-03-01T08:51:52Z",
       "side": 1,
       "message": "this boolean is not then used, what the change ?",
+      "revId": "3db032a2fb3e1c87e8bb656640e08f5b6736d82e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab4f9203_e02fe1f6",
+        "filename": "app/src/test/java/org/opencord/aaa/impl/AaaStatisticsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000682
+      },
+      "writtenOn": "2021-03-01T08:58:00Z",
+      "side": 1,
+      "message": "This is a test class. This boolean is required for real AaaManager.\nhttps://gerrit.opencord.org/c/aaa/+/23033/3/app/src/main/java/org/opencord/aaa/impl/AaaManager.java#444",
+      "parentUuid": "76cdcee4_c58f8a9f",
       "revId": "3db032a2fb3e1c87e8bb656640e08f5b6736d82e",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true

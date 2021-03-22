@@ -84,7 +84,7 @@ public class AaaTestBase {
     MacAddress serverMac = MacAddress.valueOf("2a:2a:2a:2a:2a:2a");
 
     // Our session id will be the device ID ("of:1") with the port ("1") concatenated
-    static final String SESSION_ID = "of:11";
+    static final String SESSION_ID = "of:1/1";
 
     List<BasePacket> savedPackets = new LinkedList<>();
     PacketProcessor packetProcessor;

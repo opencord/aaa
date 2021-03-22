@@ -813,10 +813,6 @@ public class AaaManager
         return stateMachines.get(sessionId);
     }
 
-    private String sessionId(ConnectPoint cp) {
-        return cp.deviceId().toString() + cp.port().toString();
-    }
-
     // our handler defined as a private inner class
 
     /**
@@ -1013,7 +1009,7 @@ public class AaaManager
 
             DeviceId deviceId = inPacket.receivedFrom().deviceId();
             PortNumber portNumber = inPacket.receivedFrom().port();
-            String sessionId = sessionId(inPacket.receivedFrom());
+            String sessionId = inPacket.receivedFrom().toString();
             EAPOL eapol = (EAPOL) ethPkt.getPayload();
 
             if (log.isTraceEnabled()) {
@@ -1267,7 +1263,7 @@ public class AaaManager
     }
 
     private void handleStateMachineTimeout(ConnectPoint supplicantConnectPoint) {
-        StateMachine stateMachine = stateMachines.remove(sessionId(supplicantConnectPoint));
+        StateMachine stateMachine = stateMachines.remove(supplicantConnectPoint.toString());
         //pushing captured machine stats to kafka
         stateMachine.setSessionTerminateReason("Time out");
         AaaSupplicantMachineStats obj = aaaSupplicantStatsManager
@@ -1363,7 +1359,7 @@ public class AaaManager
         public void event(MapEvent<ConnectPoint, AuthenticationRecord> event) {
             if (event.type() == MapEvent.Type.REMOVE) {
                 // remove local state machine if user has requested remove
-                StateMachine sm = stateMachines.remove(sessionId(event.key()));
+                StateMachine sm = stateMachines.remove(event.key().toString());
                 if (sm != null) {
                     sm.stop();
                 }
@@ -1375,10 +1371,11 @@ public class AaaManager
         @Override
         public void event(DeviceEvent event) {
             DeviceId deviceId = event.subject().id();
+            log.debug("AAA received device event {} ", event);
             switch (event.type()) {
                 case PORT_REMOVED:
                     PortNumber portNumber = event.port().number();
-                    String sessionId = deviceId.toString() + portNumber.toString();
+                    String sessionId = deviceId.toString() + "/" + portNumber.toString();
                     log.debug("Received PORT_REMOVED event. Clearing AAA Session with Id {}", sessionId);
 
                     flushStateMachineSession(sessionId,
@@ -1413,13 +1410,16 @@ public class AaaManager
 
         private void flushStateMachineSession(String sessionId, String terminationReason) {
             StateMachine stateMachine = stateMachines.get(sessionId);
+            //flushing the state machine state requires also to remove the authenticated user.
+            //the removal of the user might happen once the state machine is gone (app update)
+            authentications.remove(ConnectPoint.fromString(sessionId));
+
             if (stateMachine == null) {
                 // No active AAA sessions for this UNI port
                 log.debug("No Active AAA Session found with Id {}", sessionId);
                 return;
             }
 
-            authentications.remove(stateMachine.supplicantConnectpoint());
             stateMachine.setSessionTerminateReason(terminationReason);
 
             //pushing captured machine stats to kafka

@@ -22,6 +22,30 @@
       "revId": "92ea4da74c5a2a91338d0e010b2816fd49d1c636",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b0d26fa_b446ae25",
+        "filename": "app/src/main/java/org/opencord/aaa/impl/AaaManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2021-03-22T17:17:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1bf20ef_2ca493f4",
+      "range": {
+        "startLine": 1414,
+        "startChar": 51,
+        "endLine": 1414,
+        "endChar": 54
+      },
+      "revId": "92ea4da74c5a2a91338d0e010b2816fd49d1c636",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

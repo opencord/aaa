@@ -77,3 +77,33 @@ More customizers might be added to AAA App later which can fill Subscriber speci
       }
     }
  ```
+
+# REST API
+
+Information about the AAA App users are available through REST API.
+
+You can query all users with the following endpoint "/onos/aaa/app/users", e.g:
+```sh
+$ curl -u karaf:karaf 'http://localhost:8181/onos/aaa/app/users'
+```
+
+You can also filter by device-id "/onos/aaa/app/users/{device-id}", e.g:
+```sh
+curl -u karaf:karaf 'http://localhost:8181/onos/aaa/app/users/of%3A00000a0a0a0a0a0a'
+```
+
+These commands will output a JSON representation of the AAA users, e.g:
+```sh
+{
+  "entries": [
+    {
+      "connectPoint": "of:00000a0a0a0a0a0a/256",
+      "authState": "AUTHORIZED_STATE",
+      "lastChanged": "16h28m ago",
+      "macAddress": "2E:0A:00:01:00:00",
+      "subscriberId": "BBSM000a0001-1",
+      "username": "user"
+    }
+  ]
+}
+```

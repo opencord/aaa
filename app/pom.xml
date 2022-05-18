@@ -35,6 +35,12 @@
         <onos.app.category>Security</onos.app.category>
         <onos.app.url>http://opencord.org</onos.app.url>
         <onos.app.readme>802.1x authentication service.</onos.app.readme>
+
+        <web.context>/onos/aaa</web.context>
+        <api.version>1.0.0</api.version>
+        <api.title>AAA REST API</api.title>
+        <api.description>REST API to query AAA app information.</api.description>
+        <api.package>org.opencord.aaa.rest</api.package>
     </properties>
 
     <dependencies>
@@ -127,6 +133,15 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <_wab>src/main/webapp/</_wab>
+                        <Include-Resource>
+                            WEB-INF/classes/apidoc/swagger.json=target/swagger.json,
+                            {maven-resources}
+                        </Include-Resource>
+                        <Import-Package>
+                            *,org.glassfish.jersey.servlet
+                        </Import-Package>
+                        <Web-ContextPath>${web.context}</Web-ContextPath>
                         <Karaf-Commands>org.opencord.aaa.cli</Karaf-Commands>
                     </instructions>
                 </configuration>

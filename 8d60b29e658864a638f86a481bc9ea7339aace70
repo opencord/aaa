@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94c9ef2c_f39bdfb7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2022-05-24T17:16:56Z",
+      "side": 1,
+      "message": "Same as per the DHCP-L2-Relay patch, thanks and would it be possible to add examples to the README?\n\nThanks",
+      "revId": "8d60b29e658864a638f86a481bc9ea7339aace70",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}

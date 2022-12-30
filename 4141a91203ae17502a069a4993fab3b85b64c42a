@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c827f40_ff61e667",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2022-12-30T17:33:56Z",
+      "side": 1,
+      "message": "Simple copyright notice update.\nLogs contain a java method warning.\nOne test skipped.\n\nSeveral errors reported (low priority) wrt log4j EOLN handling.\nhttps://jenkins.opencord.org/job/verify_aaa_maven-test/187/console\nWill have to revisit for jira tickets later on.",
+      "revId": "4141a91203ae17502a069a4993fab3b85b64c42a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}

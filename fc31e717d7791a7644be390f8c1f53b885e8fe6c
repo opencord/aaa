@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "499750bf_98537a16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-06-12T17:25:45Z",
+      "side": 1,
+      "message": "Cleanup version info from the last job.\nMVN upgrade patches and release SNAPSHOT merged out-of-order.",
+      "revId": "fc31e717d7791a7644be390f8c1f53b885e8fe6c",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}

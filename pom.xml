@@ -31,7 +31,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <sadis.api.version>5.11.1</sadis.api.version>
+        <sadis.api.version>5.12.2</sadis.api.version>
         <aaa.api.version>2.11.0-SNAPSHOT</aaa.api.version>
     </properties>
 

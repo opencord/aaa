@@ -1,4 +1,7 @@
 ---
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Linux Foundation
+
 name: Call Verify Workflow(s)
 
 # yamllint disable-line rule:truthy
